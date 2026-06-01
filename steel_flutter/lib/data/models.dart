@@ -240,6 +240,9 @@ class ExerciseCatalogItem {
     required this.muscleGroup,
     required this.equipment,
     required this.instructions,
+    this.bodyPart = '',
+    this.target = '',
+    this.image = '',
   });
 
   final String id;
@@ -247,6 +250,9 @@ class ExerciseCatalogItem {
   final String muscleGroup;
   final String equipment;
   final String instructions;
+  final String bodyPart;
+  final String target;
+  final String image;
 
   factory ExerciseCatalogItem.fromRecord(RecordModel r) => ExerciseCatalogItem(
         id: r.id,
@@ -255,6 +261,23 @@ class ExerciseCatalogItem {
         equipment: r.get<String>('equipment', ''),
         instructions: r.get<String>('instructions', ''),
       );
+
+  /// Build from a record in the bundled `assets/exercises.json` catalog
+  /// (the same dataset the web app's library uses).
+  factory ExerciseCatalogItem.fromJson(Map<String, dynamic> j) {
+    final muscle =
+        (j['muscleGroup'] ?? j['target'] ?? j['bodyPart'] ?? '').toString();
+    return ExerciseCatalogItem(
+      id: (j['id'] ?? j['slug'] ?? '').toString(),
+      name: (j['name'] ?? 'Exercise').toString(),
+      muscleGroup: muscle,
+      equipment: (j['equipment'] ?? '').toString(),
+      instructions: (j['instructions'] ?? '').toString(),
+      bodyPart: (j['bodyPart'] ?? '').toString(),
+      target: (j['target'] ?? '').toString(),
+      image: (j['image'] ?? j['gif'] ?? '').toString(),
+    );
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────

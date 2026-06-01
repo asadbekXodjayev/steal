@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/pb_provider.dart';
@@ -62,10 +65,36 @@ final completedPlanDaysProvider =
 
 final exerciseSearchProvider = StateProvider<String>((ref) => '');
 
+/// The full exercise catalog, loaded once from the bundled
+/// `assets/exercises.json` (1,300+ exercises — the same static dataset the
+/// web app's library uses). The PocketBase `exercises` collection is empty,
+/// so we do NOT read it here.
+final _exerciseSourceProvider =
+    FutureProvider<List<ExerciseCatalogItem>>((ref) async {
+  final raw = await rootBundle.loadString('assets/exercises.json');
+  final decoded = jsonDecode(raw);
+  final list = decoded is List
+      ? decoded
+      : (decoded is Map ? (decoded['exercises'] ?? decoded['items'] ?? []) : []);
+  return (list as List)
+      .map((e) => ExerciseCatalogItem.fromJson(Map<String, dynamic>.from(e as Map)))
+      .toList();
+});
+
+/// Search-filtered view over the bundled catalog (filters in Dart so typing
+/// is instant and works offline).
 final exerciseCatalogProvider =
     FutureProvider<List<ExerciseCatalogItem>>((ref) async {
-  final search = ref.watch(exerciseSearchProvider);
-  return ref.watch(repositoryProvider).fetchExercises(search: search);
+  final all = await ref.watch(_exerciseSourceProvider.future);
+  final q = ref.watch(exerciseSearchProvider).trim().toLowerCase();
+  if (q.isEmpty) return all;
+  return all
+      .where((e) =>
+          e.name.toLowerCase().contains(q) ||
+          e.muscleGroup.toLowerCase().contains(q) ||
+          e.target.toLowerCase().contains(q) ||
+          e.equipment.toLowerCase().contains(q))
+      .toList();
 });
 
 // ── Program templates ──────────────────────────────────────────────────────
