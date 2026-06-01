@@ -97,7 +97,7 @@ export function ExerciseCard({
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); setMediaOpen((o) => !o); }}
-            aria-label={mediaOpen ? "Hide tutorial" : "Show tutorial"}
+            aria-label={mediaOpen ? t("workout.HIDE_TUTORIAL") : t("workout.SHOW_TUTORIAL")}
             className={cn(
               "flex items-center gap-1 px-1.5 py-0.5 font-data text-[8px] uppercase tracking-widest border transition-colors",
               mediaOpen
@@ -188,18 +188,18 @@ export function ExerciseCard({
             ))}
           </div>
 
-          {/* Action buttons */}
+          {/* Action buttons — h-10 minimum for 44px touch target on mobile */}
           <div className="flex gap-2 p-3" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
             <button
               type="button"
-              className="btn-ghost flex-1 h-8 text-[10px]"
+              className="btn-ghost flex-1 h-10 sm:h-8 text-[10px]"
               onClick={() => onCompleteSet({ weight: 0, reps: 0, rpe: 7 })}
             >
               + Add Set
             </button>
             <button
               type="button"
-              className="btn-forge h-8 text-[12px]"
+              className="btn-forge h-10 sm:h-8 text-[12px]"
               style={{ flex: 2 }}
               onClick={() => {
                 const last = completedSets[completedSets.length - 1];

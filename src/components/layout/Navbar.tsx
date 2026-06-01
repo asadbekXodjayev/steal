@@ -23,7 +23,7 @@ const navLinks = [
   { href: "/exercises", label: "navbar.LIBRARY" },
 ] as const;
 
-function LiveClock() {
+function LiveClock({ t }: { t: (path: string) => string }) {
   const [time, setTime] = useState<string>("");
 
   useEffect(() => {
@@ -44,7 +44,7 @@ function LiveClock() {
   return (
     <span
       className="font-data text-[12px] tabular-nums text-ink-mid select-none"
-      aria-label="Current time in UTC"
+      aria-label={t("common.CURRENT_TIME_UTC")}
     >
       {time}
       <span className="ml-1 text-ink-low">UTC</span>
@@ -86,7 +86,7 @@ export function Navbar() {
           <Link
             href="/dashboard"
             className="flex items-center gap-2 select-none"
-            aria-label="Steel Therapy - go to dashboard"
+            aria-label={t("navbar.GO_TO_DASHBOARD")}
           >
             <span
               className="font-heading font-black leading-none text-[#C2410C]"
@@ -109,7 +109,7 @@ export function Navbar() {
           <nav
             className="hidden items-center md:flex"
             role="navigation"
-            aria-label="Primary navigation"
+            aria-label={t("common.PRIMARY_NAVIGATION")}
           >
             {navLinks.map((link) => {
               const active =
@@ -137,7 +137,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <div className="hidden items-center gap-2 lg:flex">
-            <LiveClock />
+            <LiveClock t={t} />
           </div>
 
           <div className="hidden items-center sm:flex">
@@ -152,8 +152,8 @@ export function Navbar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                aria-label="User menu"
-                className="flex h-[30px] w-[30px] items-center justify-center rounded-full transition-all"
+                aria-label={t("navbar.USER_MENU")}
+                className="flex h-10 w-10 items-center justify-center rounded-full transition-all sm:h-[30px] sm:w-[30px]"
                 style={{
                   background: "rgba(255,255,255,0.06)",
                   border: "1px solid rgba(255,255,255,0.1)",

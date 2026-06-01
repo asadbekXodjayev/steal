@@ -37,7 +37,7 @@ export function VolumeChart({ data }: VolumeChartProps) {
   );
 
   return (
-    <div className="border border-border bg-card p-4">
+    <div className="border border-border bg-card p-4 w-full overflow-hidden">
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>

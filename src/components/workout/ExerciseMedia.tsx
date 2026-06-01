@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import type { LibraryExercise } from "@/types/exercise";
 import { useExerciseTranslation } from "@/hooks/useExerciseTranslation";
 import { applyTranslationToLibraryExercise } from "@/lib/exercise-translate";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface Props {
   exerciseName: string;
@@ -19,6 +20,7 @@ interface Props {
 type LoadState = "loading" | "found" | "not-found";
 
 export function ExerciseMedia({ exerciseName, size = "card", className }: Props) {
+  const { t } = useI18n();
   const [baseMatch, setBaseMatch] = useState<LibraryExercise | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [playing, setPlaying] = useState(false);
@@ -152,11 +154,12 @@ export function ExerciseMedia({ exerciseName, size = "card", className }: Props)
           />
         )}
 
+        {/* h-10 w-10 on mobile (≥44px touch target), h-8 w-8 at sm+ */}
         <button
           type="button"
           onClick={() => setPlaying((p) => !p)}
-          aria-label={playing ? "Pause exercise animation" : "Play exercise animation"}
-          className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center bg-[#e53e00] hover:bg-[#ff4500] text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#e53e00] focus-visible:outline-offset-2"
+          aria-label={playing ? t("workout.PAUSE_ANIMATION") : t("workout.PLAY_ANIMATION")}
+          className="absolute bottom-2 right-2 flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center bg-[#e53e00] hover:bg-[#ff4500] text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#e53e00] focus-visible:outline-offset-2"
         >
           {playing ? (
             <Pause className="h-3.5 w-3.5" />

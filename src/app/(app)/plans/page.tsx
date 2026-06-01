@@ -28,7 +28,7 @@ export default function PlansPage() {
       {/* Header */}
       <div className="flex items-center justify-between fade-up">
         <div>
-          <h1 className="font-heading text-3xl font-black uppercase text-[#f0f0f0] leading-none">
+          <h1 className="font-heading text-2xl sm:text-3xl font-black uppercase text-[#f0f0f0] leading-none">
             {t("plans.PROGRAMS")}
           </h1>
           <div

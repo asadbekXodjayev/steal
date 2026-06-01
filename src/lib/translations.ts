@@ -18,6 +18,8 @@ const en: TranslationData = {
     STEEL: "STEEL",
     ONLINE: "ONLINE",
     LANGUAGE: "LANGUAGE",
+    GO_TO_DASHBOARD: "Steel Therapy — go to dashboard",
+    USER_MENU: "User menu",
   },
   // ── Bottom Nav ──
   bottomNav: {
@@ -216,6 +218,13 @@ const en: TranslationData = {
     SESSION_SAVED: "Session saved.",
     SESSION_SAVED_LOCAL: "Session saved locally.",
     SAVE_FAILED: "Failed to save. Check your connection and try again.",
+    WEEK_UNLOCKED: "Week {w} unlocked!",
+    HIDE_TUTORIAL: "Hide tutorial",
+    SHOW_TUTORIAL: "Show tutorial",
+    PAUSE_ANIMATION: "Pause exercise animation",
+    PLAY_ANIMATION: "Play exercise animation",
+    SUBTRACT_15_SECONDS: "Subtract 15 seconds",
+    ADD_15_SECONDS: "Add 15 seconds",
   },
   // ── Workout Summary ──
   summary: {
@@ -263,6 +272,11 @@ const en: TranslationData = {
     TABLE_DAYS_WK: "Days/Wk",
     TABLE_SPLIT: "Split",
     TABLE_BEST_FOR: "Best For",
+    FEATURED: "FEATURED",
+    VIEW_BTN: "View",
+    LEGEND_PROGRAMS_COUNT: "Legend Programs",
+    NO_PROGRAMS_MATCH: "No programs match",
+    SHOW_ALL: "Show All",
   },
   // ── Onboarding ──
   onboarding: {
@@ -307,6 +321,7 @@ const en: TranslationData = {
     INJURY_NOTES: "Notes",
     INJURY_NOTES_PLACEHOLDER: "What movement triggers it? Any surgery history?",
     ADD_INJURY: "ADD INJURY",
+    REMOVE_INJURY: "Remove injury",
     INJURY_HISTORY: "Injury History (optional)",
     OTHER_NOTES: "Other notes...",
   },
@@ -400,6 +415,8 @@ const en: TranslationData = {
     SELECT_EXERCISE: "SELECT EXERCISE",
     SEARCH_EXERCISE: "SEARCH EXERCISES...",
     CHANGE_EXERCISE: "CHANGE",
+    REMOVE_EXERCISE: "Remove exercise",
+    REMOVE_DAY: "Remove day",
   },
   // ── Exercise Library ──
   library: {
@@ -417,6 +434,9 @@ const en: TranslationData = {
     NO_RESULTS_DESC: "ADJUST FILTERS OR SEARCH TERM",
     LOAD_MORE: "LOAD MORE",
     NO_IMG: "NO IMG",
+    FILTER_BODY_PART: "Filter by body part",
+    FILTER_EQUIPMENT: "Filter by equipment",
+    FILTER_MUSCLE: "Filter by target muscle",
   },
   // ── Muscles ──
   muscles: {
@@ -470,6 +490,10 @@ const en: TranslationData = {
     MOOD_ROUGH: "Rough",
     MOOD_TERRIBLE: "Terrible",
     EXERCISES_LABEL: "exercises",
+    EXERCISE_SINGULAR: "exercise",
+    COMPLETE_SET: "Complete set",
+    REMOVE_SET: "Remove set",
+    REMOVE_EXERCISE: "Remove exercise",
     SESSION_EMPTY: "NO SESSIONS YET",
     SESSION_EMPTY_DESC: "COMPLETE A QUICK WORKOUT TO SEE IT HERE",
   },
@@ -477,6 +501,13 @@ const en: TranslationData = {
   common: {
     LOADING: "Loading...",
     ERROR: "Error",
+    MAIN_NAVIGATION: "Main navigation",
+    PRIMARY_NAVIGATION: "Primary navigation",
+    CLOSE: "Close",
+    PREVIOUS_IMAGE: "Previous image",
+    NEXT_IMAGE: "Next image",
+    CURRENT_TIME_UTC: "Current time in UTC",
+    SAVE_FAILED: "Save failed",
   },
 };
 
@@ -493,6 +524,8 @@ const ru: TranslationData = {
     STEEL: "STEEL",
     ONLINE: "ОНЛАЙН",
     LANGUAGE: "ЯЗЫК",
+    GO_TO_DASHBOARD: "Steel Therapy — на главную",
+    USER_MENU: "Меню пользователя",
   },
   bottomNav: {
     HOME: "ГЛАВНАЯ",
@@ -682,6 +715,13 @@ const ru: TranslationData = {
     SESSION_SAVED: "Тренировка сохранена.",
     SESSION_SAVED_LOCAL: "Тренировка сохранена локально.",
     SAVE_FAILED: "Не удалось сохранить. Проверьте подключение.",
+    WEEK_UNLOCKED: "Неделя {w} открыта!",
+    HIDE_TUTORIAL: "Скрыть обучение",
+    SHOW_TUTORIAL: "Показать обучение",
+    PAUSE_ANIMATION: "Пауза анимации",
+    PLAY_ANIMATION: "Запустить анимацию",
+    SUBTRACT_15_SECONDS: "Минус 15 секунд",
+    ADD_15_SECONDS: "Плюс 15 секунд",
   },
   summary: {
     TITLE: "Тренировка завершена",
@@ -727,6 +767,11 @@ const ru: TranslationData = {
     TABLE_DAYS_WK: "Дней/нед",
     TABLE_SPLIT: "Сплит",
     TABLE_BEST_FOR: "Лучше всего для",
+    FEATURED: "ОТБОРНОЕ",
+    VIEW_BTN: "Смотреть",
+    LEGEND_PROGRAMS_COUNT: "Легендарных программ",
+    NO_PROGRAMS_MATCH: "Нет подходящих программ",
+    SHOW_ALL: "Показать все",
   },
   onboarding: {
     STEP: "ШАГ",
@@ -770,6 +815,7 @@ const ru: TranslationData = {
     INJURY_NOTES: "Заметки",
     INJURY_NOTES_PLACEHOLDER: "Какое движение вызывает боль? Были ли операции?",
     ADD_INJURY: "ДОБАВИТЬ ТРАВМУ",
+    REMOVE_INJURY: "Удалить травму",
     INJURY_HISTORY: "Травмы (опционально)",
     OTHER_NOTES: "Другие заметки...",
   },
@@ -861,6 +907,8 @@ const ru: TranslationData = {
     SELECT_EXERCISE: "ВЫБРАТЬ УПРАЖНЕНИЕ",
     SEARCH_EXERCISE: "ПОИСК УПРАЖНЕНИЙ...",
     CHANGE_EXERCISE: "СМЕНИТЬ",
+    REMOVE_EXERCISE: "Удалить упражнение",
+    REMOVE_DAY: "Удалить день",
   },
   library: {
     FIELD_MANUAL: "ПОЛЕВОЙ СПРАВОЧНИК",
@@ -877,6 +925,9 @@ const ru: TranslationData = {
     NO_RESULTS_DESC: "ИЗМЕНИТЕ ФИЛЬТРЫ ИЛИ ПОИСКОВЫЙ ЗАПРОС",
     LOAD_MORE: "ЗАГРУЗИТЬ ЕЩЁ",
     NO_IMG: "НЕТ ФОТО",
+    FILTER_BODY_PART: "Фильтр по части тела",
+    FILTER_EQUIPMENT: "Фильтр по оборудованию",
+    FILTER_MUSCLE: "Фильтр по целевой мышце",
   },
   muscles: {
     CHEST: "Грудь",
@@ -927,12 +978,23 @@ const ru: TranslationData = {
     MOOD_ROUGH: "Тяжело",
     MOOD_TERRIBLE: "Ужасно",
     EXERCISES_LABEL: "упражнений",
+    EXERCISE_SINGULAR: "упражнение",
+    COMPLETE_SET: "Завершить подход",
+    REMOVE_SET: "Удалить подход",
+    REMOVE_EXERCISE: "Удалить упражнение",
     SESSION_EMPTY: "ТРЕНИРОВОК ЕЩЁ НЕТ",
     SESSION_EMPTY_DESC: "ЗАВЕРШИТЕ БЫСТРУЮ ТРЕНИРОВКУ, ЧТОБЫ УВИДЕТЬ ЕЁ ЗДЕСЬ",
   },
   common: {
     LOADING: "Загрузка...",
     ERROR: "Ошибка",
+    MAIN_NAVIGATION: "Основная навигация",
+    PRIMARY_NAVIGATION: "Главная навигация",
+    CLOSE: "Закрыть",
+    PREVIOUS_IMAGE: "Предыдущее фото",
+    NEXT_IMAGE: "Следующее фото",
+    CURRENT_TIME_UTC: "Текущее время UTC",
+    SAVE_FAILED: "Ошибка сохранения",
   },
 };
 
@@ -949,6 +1011,8 @@ const uz: TranslationData = {
     STEEL: "STEEL",
     ONLINE: "ONLAYN",
     LANGUAGE: "TIL",
+    GO_TO_DASHBOARD: "Steel Therapy — bosh sahifaga",
+    USER_MENU: "Foydalanuvchi menyusi",
   },
   bottomNav: {
     HOME: "BOSH SAHIFA",
@@ -1138,6 +1202,13 @@ const uz: TranslationData = {
     SESSION_SAVED: "Mashq saqlandi.",
     SESSION_SAVED_LOCAL: "Mashq mahalliy saqlandi.",
     SAVE_FAILED: "Saqlab bo'lmadi. Ulanishni tekshiring.",
+    WEEK_UNLOCKED: "{w}-hafta ochildi!",
+    HIDE_TUTORIAL: "Qo'llanmani yashirish",
+    SHOW_TUTORIAL: "Qo'llanmani ko'rsatish",
+    PAUSE_ANIMATION: "Animatsiyani to'xtatish",
+    PLAY_ANIMATION: "Animatsiyani ishga tushirish",
+    SUBTRACT_15_SECONDS: "15 soniya ayirish",
+    ADD_15_SECONDS: "15 soniya qo'shish",
   },
   summary: {
     TITLE: "Mashq tugallandi",
@@ -1183,6 +1254,11 @@ const uz: TranslationData = {
     TABLE_DAYS_WK: "Kun/Hafta",
     TABLE_SPLIT: "Split",
     TABLE_BEST_FOR: "Eng yaxshi",
+    FEATURED: "TANLANGAN",
+    VIEW_BTN: "Ko'rish",
+    LEGEND_PROGRAMS_COUNT: "Afsonaviy dasturlar",
+    NO_PROGRAMS_MATCH: "Mos dasturlar topilmadi",
+    SHOW_ALL: "Barchasini ko'rish",
   },
   onboarding: {
     STEP: "QADAM",
@@ -1226,6 +1302,7 @@ const uz: TranslationData = {
     INJURY_NOTES: "Eslatmalar",
     INJURY_NOTES_PLACEHOLDER: "Qaysi harakat og'riq keltirad? Operatsiya bo'lganmi?",
     ADD_INJURY: "JAROHAT QO'SHISH",
+    REMOVE_INJURY: "Jarohatni o'chirish",
     INJURY_HISTORY: "Jarohatlar (ixtiyoriy)",
     OTHER_NOTES: "Boshqa eslatmalar...",
   },
@@ -1317,6 +1394,8 @@ const uz: TranslationData = {
     SELECT_EXERCISE: "MASHQ TANLASH",
     SEARCH_EXERCISE: "MASHQ QIDIRISH...",
     CHANGE_EXERCISE: "O'ZGARTIRISH",
+    REMOVE_EXERCISE: "Mashqni o'chirish",
+    REMOVE_DAY: "Kunni o'chirish",
   },
   library: {
     FIELD_MANUAL: "DALA QO'LLANMASI",
@@ -1333,6 +1412,9 @@ const uz: TranslationData = {
     NO_RESULTS_DESC: "FILTRLAR YOKI QIDIRUV SO'ZINI O'ZGARTIRING",
     LOAD_MORE: "KO'PROQ YUKLASH",
     NO_IMG: "RASM YO'Q",
+    FILTER_BODY_PART: "Tana qismi bo'yicha filtrlash",
+    FILTER_EQUIPMENT: "Jihozlar bo'yicha filtrlash",
+    FILTER_MUSCLE: "Maqsadli mushak bo'yicha filtrlash",
   },
   muscles: {
     CHEST: "Ko'krak",
@@ -1383,12 +1465,23 @@ const uz: TranslationData = {
     MOOD_ROUGH: "Og'ir",
     MOOD_TERRIBLE: "Dahshatli",
     EXERCISES_LABEL: "mashq",
+    EXERCISE_SINGULAR: "mashq",
+    COMPLETE_SET: "Yondashuvni yakunlash",
+    REMOVE_SET: "Yondashuvni o'chirish",
+    REMOVE_EXERCISE: "Mashqni o'chirish",
     SESSION_EMPTY: "HALI MASHG'ULOT YO'Q",
     SESSION_EMPTY_DESC: "BU YERDA KO'RISH UCHUN TEZKOR MASHG'ULOTNI YAKUNLANG",
   },
   common: {
     LOADING: "Yuklanmoqda...",
     ERROR: "Xatolik",
+    MAIN_NAVIGATION: "Asosiy navigatsiya",
+    PRIMARY_NAVIGATION: "Birlamchi navigatsiya",
+    CLOSE: "Yopish",
+    PREVIOUS_IMAGE: "Oldingi rasm",
+    NEXT_IMAGE: "Keyingi rasm",
+    CURRENT_TIME_UTC: "Joriy vaqt UTC",
+    SAVE_FAILED: "Saqlash xatosi",
   },
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface MuscleBalanceProps {
@@ -24,10 +24,23 @@ const BAR_H = 110;
 export function MuscleBalance({ push, pull, legs, pushVol, pullVol, legsVol, className }: MuscleBalanceProps) {
   const [mounted, setMounted] = useState(false);
   const [hovered, setHovered] = useState<"push" | "pull" | "legs" | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 120);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const total = push + pull + legs;
@@ -63,7 +76,7 @@ export function MuscleBalance({ push, pull, legs, pushVol, pullVol, legsVol, cla
   const dominantLabel = `${dominant.toUpperCase()} DOMINANT`;
 
   return (
-    <div className={cn("relative w-full", className)}>
+    <div ref={containerRef} className={cn("relative w-full", className)}>
       <style>{`
         @keyframes neonPulse {
           0%,100% { box-shadow: 0 0 4px var(--nb-c); }
@@ -170,7 +183,7 @@ export function MuscleBalance({ push, pull, legs, pushVol, pullVol, legsVol, cla
                   ...(isDom
                     ? ({
                         "--nb-c": bar.color,
-                        animation: "neonPulse 2.2s ease-in-out infinite",
+                        animation: isVisible ? "neonPulse 2.2s ease-in-out infinite" : "none",
                       } as React.CSSProperties)
                     : {}),
                 }}

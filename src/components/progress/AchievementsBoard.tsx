@@ -64,7 +64,7 @@ function Badge({ def, unlockedAt }: BadgeProps) {
         {def.name}
       </div>
 
-      <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+      <p className="mt-1 text-[10px] uppercase tracking-[0.06em] sm:tracking-wider text-muted-foreground">
         {def.description}
       </p>
 

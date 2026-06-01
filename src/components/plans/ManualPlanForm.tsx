@@ -130,7 +130,7 @@ function ExerciseRow({
           type="button"
           onClick={onRemove}
           className="text-muted-foreground transition-colors hover:text-destructive"
-          aria-label="Remove exercise"
+          aria-label={t("planForm.REMOVE_EXERCISE")}
         >
           <X className="h-3.5 w-3.5" />
         </button>
@@ -211,7 +211,7 @@ function ExerciseRow({
                   type="number"
                   min={1}
                   max={20}
-                  className="rounded-none border-border bg-input font-data text-sm"
+                  className="rounded-none border-border bg-input font-data text-sm min-h-10"
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -232,7 +232,7 @@ function ExerciseRow({
                 <Input
                   type="number"
                   min={1}
-                  className="rounded-none border-border bg-input font-data text-sm"
+                  className="rounded-none border-border bg-input font-data text-sm min-h-10"
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -253,7 +253,7 @@ function ExerciseRow({
                 <Input
                   type="number"
                   min={1}
-                  className="rounded-none border-border bg-input font-data text-sm"
+                  className="rounded-none border-border bg-input font-data text-sm min-h-10"
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -276,7 +276,7 @@ function ExerciseRow({
                   min={6}
                   max={10}
                   step={0.5}
-                  className="rounded-none border-border bg-input font-data text-sm"
+                  className="rounded-none border-border bg-input font-data text-sm min-h-10"
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -405,7 +405,7 @@ function DayEditor({
           type="button"
           onClick={onRemove}
           className="ml-2 p-1 text-muted-foreground transition-colors hover:text-destructive"
-          aria-label="Remove day"
+          aria-label={t("planForm.REMOVE_DAY")}
         >
           <X className="h-4 w-4" />
         </button>

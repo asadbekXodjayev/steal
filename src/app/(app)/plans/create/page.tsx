@@ -10,7 +10,7 @@ export default function CreatePlanPage() {
     <div className="mx-auto max-w-2xl space-y-6 py-4">
       <div>
         <h1
-          className="text-3xl font-extrabold uppercase tracking-tight"
+          className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight"
           style={{ fontFamily: "var(--font-heading, system-ui)" }}
         >
           {t("programs.BUILD_YOUR_OWN")}

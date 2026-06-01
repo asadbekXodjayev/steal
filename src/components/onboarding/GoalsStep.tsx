@@ -31,7 +31,7 @@ export function GoalsStep({ form }: GoalsStepProps) {
     <div className="space-y-6">
       <div className="space-y-1">
         <h2
-          className="text-2xl font-extrabold uppercase tracking-tight"
+          className="text-xl font-extrabold uppercase tracking-tight sm:text-2xl"
           style={{ fontFamily: "var(--font-heading, system-ui)" }}
         >
           {t("onboarding.YOUR_MISSION")}

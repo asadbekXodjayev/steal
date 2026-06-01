@@ -79,7 +79,7 @@ export function MuscleDistribution({ data }: MuscleDistributionProps) {
   const total = data.reduce((acc, d) => acc + d.value, 0);
 
   return (
-    <div className="grid gap-4 border border-border bg-card p-4 sm:grid-cols-2">
+    <div className="grid gap-4 border border-border bg-card p-4 sm:grid-cols-2 overflow-hidden">
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

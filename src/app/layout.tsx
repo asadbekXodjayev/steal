@@ -3,20 +3,6 @@ import { Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers/Providers";
 import "./globals.css";
 
-const themeScript = `
-  (function() {
-    try {
-      var stored = localStorage.getItem('st-theme');
-      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      var theme = stored ?? (prefersDark ? 'dark' : 'light');
-      
-      if (theme === 'light') {
-        document.documentElement.classList.add('light');
-      }
-    } catch (e) {}
-  })();
-`;
-
 const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
   weight: ["600", "700", "800"],
@@ -46,10 +32,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0a0a0a" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  themeColor: "#0a0a0a",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -63,16 +47,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${barlowCondensed.variable} ${jetbrainsMono.variable}`}
-      suppressHydrationWarning
+      className={`dark ${barlowCondensed.variable} ${jetbrainsMono.variable}`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
-      <body
-        className="relative min-h-dvh bg-background text-foreground antialiased"
-        suppressHydrationWarning
-      >
+      <body className="relative min-h-dvh bg-background text-foreground antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

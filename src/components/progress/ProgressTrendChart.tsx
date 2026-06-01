@@ -24,7 +24,7 @@ export function ProgressTrendChart({ data }: ProgressTrendChartProps) {
   if (data.length === 0) {
     return (
       <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-6 text-center">
-        <p className="font-data text-xs uppercase tracking-widest text-[#71717A]">
+        <p className="font-data text-xs uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">
           Insufficient Data — Log More Sessions
         </p>
       </div>
@@ -32,23 +32,24 @@ export function ProgressTrendChart({ data }: ProgressTrendChartProps) {
   }
 
   return (
-    <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-3">
+    <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-3 w-full overflow-hidden">
       <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          <LineChart data={data} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
             <XAxis
               dataKey="week"
               tick={{ fontSize: 9, fill: "#525252", fontFamily: "var(--font-mono, monospace)" }}
               axisLine={{ stroke: "#2a2a2a", strokeWidth: 1 }}
               tickLine={{ stroke: "#2a2a2a", strokeWidth: 1 }}
               tickMargin={4}
+              interval="preserveStartEnd"
             />
             <YAxis
               yAxisId="left"
               tick={{ fontSize: 9, fill: "#e53e00", fontFamily: "var(--font-mono, monospace)" }}
               axisLine={{ stroke: "#2a2a2a", strokeWidth: 1 }}
               tickLine={{ stroke: "#2a2a2a", strokeWidth: 1 }}
-              width={35}
+              width={32}
             />
             <YAxis
               yAxisId="right"
@@ -57,7 +58,7 @@ export function ProgressTrendChart({ data }: ProgressTrendChartProps) {
               axisLine={{ stroke: "#2a2a2a", strokeWidth: 1 }}
               tickLine={{ stroke: "#2a2a2a", strokeWidth: 1 }}
               domain={[0, 10]}
-              width={35}
+              width={28}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -106,11 +107,11 @@ export function ProgressTrendChart({ data }: ProgressTrendChartProps) {
       <div className="flex items-center justify-center gap-6 mt-3 pt-3 border-t border-[#2a2a2a]">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-[#e53e00]" />
-          <span className="font-data text-[9px] uppercase tracking-widest text-[#71717A]">Max e1RM (kg)</span>
+          <span className="font-data text-[9px] uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">Max e1RM (kg)</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-[#10b981]" />
-          <span className="font-data text-[9px] uppercase tracking-widest text-[#71717A]">Avg RPE</span>
+          <span className="font-data text-[9px] uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">Avg RPE</span>
         </div>
       </div>
     </div>

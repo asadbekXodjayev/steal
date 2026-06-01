@@ -31,7 +31,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1
-            className="text-4xl font-black uppercase tracking-tight text-[#E5E5E5]"
+            className="text-3xl font-black uppercase tracking-tight text-[#E5E5E5] sm:text-4xl"
             style={{ fontFamily: "var(--font-heading, system-ui)" }}
           >
             {t("login.BACK_IN_THE")}

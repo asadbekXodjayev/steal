@@ -11,7 +11,7 @@ export default function RegisterPage() {
     <>
       <div className="mb-6 space-y-1">
         <h1
-          className="text-4xl font-extrabold uppercase tracking-tight"
+          className="text-2xl font-extrabold uppercase tracking-tight sm:text-4xl"
           style={{ fontFamily: "var(--font-heading, system-ui)" }}
         >
           {t("register.TITLE")}

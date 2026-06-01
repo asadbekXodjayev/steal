@@ -65,6 +65,8 @@ function SetRow({
   prev,
   weightLabel,
   repsLabel,
+  completeLabel,
+  removeSetLabel,
   onChange,
   onRemove,
 }: {
@@ -73,6 +75,8 @@ function SetRow({
   prev: HistoryEntry | null;
   weightLabel: string;
   repsLabel: string;
+  completeLabel: string;
+  removeSetLabel: string;
   onChange: (patch: Partial<QuickSet>) => void;
   onRemove: () => void;
 }) {
@@ -142,26 +146,27 @@ function SetRow({
         </span>
       </div>
 
-      {/* Complete toggle */}
+      {/* Complete toggle — h-10 w-10 on mobile (≥44px), h-9 w-9 at sm+ */}
       <button
         type="button"
         onClick={() => onChange({ completed: !set.completed })}
         className={cn(
-          "h-9 w-9 shrink-0 flex items-center justify-center border transition-all",
+          "h-10 w-10 sm:h-9 sm:w-9 shrink-0 flex items-center justify-center border transition-all",
           set.completed
             ? "border-[#10B981] bg-[#10B981]/10 text-[#10B981]"
             : "border-[#2a2a2a] text-[#525252] hover:border-[#10B981]/60 hover:text-[#10B981]",
         )}
-        aria-label="Complete set"
+        aria-label={completeLabel}
       >
         <Check className="h-4 w-4" />
       </button>
 
+      {/* Remove set — h-10 w-10 on mobile (≥44px), h-9 w-9 at sm+ */}
       <button
         type="button"
         onClick={onRemove}
-        className="h-9 w-9 shrink-0 flex items-center justify-center text-[#525252] hover:text-destructive transition-colors"
-        aria-label="Remove set"
+        className="h-10 w-10 sm:h-9 sm:w-9 shrink-0 flex items-center justify-center text-[#525252] hover:text-destructive transition-colors"
+        aria-label={removeSetLabel}
       >
         <X className="h-3.5 w-3.5" />
       </button>
@@ -234,18 +239,19 @@ function ExerciseBlock({
           </div>
         </div>
 
+        {/* h-10 w-10 on mobile for ≥44px touch target, compact at sm+ */}
         <button
           type="button"
           onClick={() => setCollapsed((c) => !c)}
-          className="text-[#525252] hover:text-[#e5e5e5] transition-colors p-1"
+          className="h-10 w-10 sm:h-8 sm:w-8 shrink-0 flex items-center justify-center text-[#525252] hover:text-[#e5e5e5] transition-colors"
         >
           {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
         </button>
         <button
           type="button"
           onClick={onRemoveExercise}
-          className="text-[#525252] hover:text-destructive transition-colors p-1"
-          aria-label="Remove exercise"
+          className="h-10 w-10 sm:h-8 sm:w-8 shrink-0 flex items-center justify-center text-[#525252] hover:text-destructive transition-colors"
+          aria-label={t("quickWorkout.REMOVE_EXERCISE")}
         >
           <X className="h-4 w-4" />
         </button>
@@ -262,6 +268,8 @@ function ExerciseBlock({
                 prev={ex.prev}
                 weightLabel={t("quickWorkout.WEIGHT_KG")}
                 repsLabel={t("quickWorkout.REPS")}
+                completeLabel={t("quickWorkout.COMPLETE_SET")}
+                removeSetLabel={t("quickWorkout.REMOVE_SET")}
                 onChange={(patch) => onUpdateSet(si, patch)}
                 onRemove={() => onRemoveSet(si)}
               />
@@ -400,7 +408,7 @@ export default function QuickWorkoutPage() {
       toast.success(t("quickWorkout.SAVED"));
       router.push("/plans");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
+      toast.error(err instanceof Error ? err.message : t("common.SAVE_FAILED"));
     } finally {
       setSaving(false);
     }
@@ -517,7 +525,7 @@ export default function QuickWorkoutPage() {
             />
             <div className="flex items-center gap-3 border border-[#1a1a1a] bg-[#050505] px-3 py-2">
               <span className="font-data text-[9px] uppercase tracking-widest text-[#525252]">
-                {exercises.length} {exercises.length === 1 ? "exercise" : "exercises"}
+                {exercises.length} {exercises.length === 1 ? t("quickWorkout.EXERCISE_SINGULAR") : t("quickWorkout.EXERCISES_LABEL")}
               </span>
               <div className="h-3 w-px bg-[#2a2a2a]" />
               <span className="font-data text-[9px] uppercase tracking-widest text-[#10B981]">

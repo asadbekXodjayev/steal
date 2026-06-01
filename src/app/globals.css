@@ -1,25 +1,25 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 /*
- * STEAL — Brutal Industrial Powerlifting Aesthetic
- * "Steal Forges Steel" — Raw. Heavy. Dangerous.
+ * STEAL вЂ” Brutal Industrial Powerlifting Aesthetic
+ * "Steal Forges Steel" вЂ” Raw. Heavy. Dangerous.
  * 
  * Color Philosophy:
- * - Deep blood red (#8B0000) — rust, iron, intensity
- * - Forged steel orange (#C2410C) — fire, power, aggression  
- * - Cold steel gray (#E5E5E5) — precision, focus, clarity
- * - Dark steel gray (#71717A) — muted, industrial, raw
- * - Void black (#050505) — depth, seriousness, weight
+ * - Deep blood red (#8B0000) вЂ” rust, iron, intensity
+ * - Forged steel orange (#C2410C) вЂ” fire, power, aggression  
+ * - Cold steel gray (#E5E5E5) вЂ” precision, focus, clarity
+ * - Dark steel gray (#71717A) вЂ” muted, industrial, raw
+ * - Void black (#050505) вЂ” depth, seriousness, weight
  */
 
 /* Default (dark mode) - applied when no class or .dark class */
 :root {
-  /* Core Backgrounds — Void darkness */
+  /* Core Backgrounds вЂ” Void darkness */
   --background: #050505;
   --background-secondary: #0a0a0a;
   --foreground: #E5E5E5;
   
-  /* Card surfaces — cold steel plates */
+  /* Card surfaces вЂ” cold steel plates */
   --card: #0a0a0a;
   --card-foreground: #E5E5E5;
   --card-border: #1a1a1a;
@@ -29,20 +29,20 @@
   --popover: #0a0a0a;
   --popover-foreground: #E5E5E5;
   
-  /* Primary accent — DEEP BLOOD RED / RUST */
+  /* Primary accent вЂ” DEEP BLOOD RED / RUST */
   --primary: #8B0000;
   --primary-hover: #9F1239;
   --primary-active: #B91C1C;
   --primary-foreground: #ffffff;
   --primary-glow: rgba(139, 0, 0, 0.3);
   
-  /* Secondary accent — FORGED STEEL ORANGE */
+  /* Secondary accent вЂ” FORGED STEEL ORANGE */
   --secondary: #C2410C;
   --secondary-hover: #EA580C;
   --secondary-active: #F97316;
   --secondary-foreground: #ffffff;
   
-  /* Muted elements — dark steel gray */
+  /* Muted elements вЂ” dark steel gray */
   --muted: #1a1a1a;
   --muted-foreground: #a1a1aa;
   --muted-foreground-hover: #d4d4d8;
@@ -51,7 +51,7 @@
   --accent: #1a1a1a;
   --accent-foreground: #E5E5E5;
   
-  /* Status colors — raw and aggressive */
+  /* Status colors вЂ” raw and aggressive */
   --success: #C2410C;
   --success-foreground: #E5E5E5;
   --warning: #854d0e;
@@ -59,7 +59,7 @@
   --destructive: #7f1d1d;
   --destructive-foreground: #fecaca;
   
-  /* Borders — raw industrial steel */
+  /* Borders вЂ” raw industrial steel */
   --border: #1a1a1a;
   --border-subtle: #222222;
   --border-strong: #333333;
@@ -78,22 +78,22 @@
   --steal-border-strong: #333333;
   --steal-glow: rgba(139, 0, 0, 0.1);
   
-  /* Page transitions — ultra-fast, snappy, GPU-accelerated */
+  /* Page transitions вЂ” ultra-fast, snappy, GPU-accelerated */
   --transition-page: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.12s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: all 0.08s ease;
   --transition-bounce: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
   
-  /* Container — 80% max on desktop, compact app feel */
+  /* Container вЂ” 80% max on desktop, compact app feel */
   --container-app-max: min(80vw, 1000px);
   
-  /* Depth layers — industrial stack */
+  /* Depth layers вЂ” industrial stack */
   --depth-1: #050505;
   --depth-2: #0a0a0a;
   --depth-3: #111111;
   --depth-4: #1a1a1a;
   --depth-5: #222222;
 
-  /* Tactical — military olive, success / streaks / positive deltas */
+  /* Tactical вЂ” military olive, success / streaks / positive deltas */
   --tactical: #166534;
   --tactical-hover: #15803d;
   --tactical-dim: #14532d;
@@ -110,13 +110,13 @@
   --steel-molten: #F97316;
   --steel-glow: rgba(234, 88, 12, 0.3);
 
-  /* Text hierarchy — cold steel */
+  /* Text hierarchy вЂ” cold steel */
   --ink-high: #E5E5E5;
   --ink-mid: #c9c9c9;
   --ink-low: #a1a1aa;
   --ink-dim: #737373;
 
-  /* Surfaces — layered concrete */
+  /* Surfaces вЂ” layered concrete */
   --surface-0: #050505;
   --surface-1: #0A0A0A;
   --surface-2: #111111;
@@ -127,7 +127,7 @@
   --reticle: rgba(229, 229, 229, 0.04);
   --grid-line: rgba(229, 229, 229, 0.025);
 
-  /* ── Glassmorphism system ─────────────────────────────────── */
+  /* в”Ђв”Ђ Glassmorphism system в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ */
   --glass-bg:         rgba(255, 255, 255, 0.05);
   --glass-bg-hover:   rgba(255, 255, 255, 0.08);
   --glass-bg-acc:     rgba(194, 65, 12, 0.08);
@@ -137,90 +137,10 @@
   --glass-shadow:     0 8px 32px rgba(0, 0, 0, 0.5);
   --glass-shadow-acc: 0 8px 32px rgba(194, 65, 12, 0.15);
 
-  /* ── Forge background blobs ───────────────────────────────── */
+  /* в”Ђв”Ђ Forge background blobs в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ */
   --forge-blob-1: rgba(194, 65, 12, 0.18);
   --forge-blob-2: rgba(194, 65, 12, 0.12);
   --forge-blob-3: rgba(150, 40, 0, 0.08);
-}
-
-/* Light mode overrides */
-html.light {
-  --background: #f5f5f5;
-  --background-secondary: #e5e5e5;
-  --foreground: #1a1a1a;
-  
-  --card: #ffffff;
-  --card-foreground: #1a1a1a;
-  --card-border: #d4d4d4;
-  --card-border-hover: #a3a3a3;
-  
-  --popover: #ffffff;
-  --popover-foreground: #1a1a1a;
-  
-  --primary: #8B0000;
-  --primary-hover: #9F1239;
-  --primary-active: #B91C1C;
-  --primary-foreground: #ffffff;
-  --primary-glow: rgba(139, 0, 0, 0.1);
-  
-  --secondary: #C2410C;
-  --secondary-hover: #EA580C;
-  --secondary-active: #F97316;
-  --secondary-foreground: #ffffff;
-  
-  --muted: #e5e5e5;
-  --muted-foreground: #525252;
-  --muted-foreground-hover: #404040;
-  
-  --accent: #e5e5e5;
-  --accent-foreground: #1a1a1a;
-  
-  --success: #166534;
-  --success-foreground: #ffffff;
-  --warning: #854d0e;
-  --warning-foreground: #fef08a;
-  --destructive: #dc2626;
-  --destructive-foreground: #fef2f2;
-  
-  --border: #d4d4d4;
-  --border-subtle: #e5e5e5;
-  --border-strong: #a3a3a3;
-  --input: #f5f5f5;
-  --ring: #8B0000;
-  
-  --tactical: #166534;
-  --tactical-hover: #15803d;
-  --tactical-dim: #86efac;
-  --tactical-glow: rgba(22, 101, 52, 0.1);
-  
-  --rust: #B91C1C;
-  --rust-deep: #7f1d1d;
-  --rust-glow: rgba(185, 28, 28, 0.15);
-  --blood-glow-strong: rgba(159, 18, 57, 0.25);
-  
-  --steel-hot: #EA580C;
-  --steel-molten: #F97316;
-  --steel-glow: rgba(234, 88, 12, 0.15);
-  
-  --ink-high: #1a1a1a;
-  --ink-mid: #404040;
-  --ink-low: #525252;
-  --ink-dim: #737373;
-  
-  --surface-0: #f5f5f5;
-  --surface-1: #ffffff;
-  --surface-2: #f5f5f5;
-  --surface-3: #e5e5e5;
-  --surface-4: #d4d4d4;
-  
-  --reticle: rgba(0, 0, 0, 0.04);
-  --grid-line: rgba(0, 0, 0, 0.025);
-  
-  --depth-1: #f5f5f5;
-  --depth-2: #e5e5e5;
-  --depth-3: #d4d4d4;
-  --depth-4: #a3a3a3;
-  --depth-5: #737373;
 }
 
 @theme inline {
@@ -305,19 +225,19 @@ body {
   min-height: 100vh;
 }
 
-/* Industrial heading style — bold, aggressive */
+/* Industrial heading style вЂ” bold, aggressive */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading, system-ui, sans-serif);
   letter-spacing: -0.02em;
 }
 
-/* Monospace data style — raw numbers */
+/* Monospace data style вЂ” raw numbers */
 .font-data {
   font-family: var(--font-mono, "JetBrains Mono", "Fira Code", monospace);
   font-variant-numeric: tabular-nums;
 }
 
-/* App container — 80vw on desktop, full width on mobile, compact feel */
+/* App container вЂ” 80vw on desktop, full width on mobile, compact feel */
 .container-app {
   width: 100%;
   max-width: var(--container-app-max);
@@ -334,7 +254,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Page transition animations — ultra-fast, GPU-accelerated */
+/* Page transition animations вЂ” ultra-fast, GPU-accelerated */
 @keyframes slideInFromRight {
   from {
     opacity: 0;
@@ -377,7 +297,7 @@ h1, h2, h3, h4, h5, h6 {
   will-change: transform, opacity;
 }
 
-/* Card styling — brutal, sharp, raw */
+/* Card styling вЂ” brutal, sharp, raw */
 .card-brutal {
   background: var(--card);
   border: 1px solid var(--card-border);
@@ -389,7 +309,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--depth-3);
 }
 
-/* Section divider — industrial line */
+/* Section divider вЂ” industrial line */
 .section-divider {
   display: flex;
   align-items: center;
@@ -414,13 +334,13 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--ink-mid);
 }
 
-/* Focus ring — blood red */
+/* Focus ring вЂ” blood red */
 *:focus-visible {
   outline: 2px solid var(--steal-blood);
   outline-offset: 2px;
 }
 
-/* Section label — monospace, uppercase, aggressive tracking */
+/* Section label вЂ” monospace, uppercase, aggressive tracking */
 .label-section {
   font-family: var(--font-mono, monospace);
   font-size: 0.78rem;
@@ -474,7 +394,7 @@ h1, h2, h3, h4, h5, h6 {
               inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
-/* KPI card — left accent border */
+/* KPI card вЂ” left accent border */
 .kpi {
   padding: 12px 14px;
   position: relative;
@@ -609,7 +529,7 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(34, 197, 94, 0.08);
 }
 
-/* Scrollbar — forge tint */
+/* Scrollbar вЂ” forge tint */
 .scroll-forge::-webkit-scrollbar { width: 3px; }
 .scroll-forge::-webkit-scrollbar-track { background: transparent; }
 .scroll-forge::-webkit-scrollbar-thumb { background: rgba(194, 65, 12, 0.3); border-radius: 2px; }
@@ -625,10 +545,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   STEAL — Brutal Visual Layer: noise, texture, gym elements
+   STEAL вЂ” Brutal Visual Layer: noise, texture, gym elements
    ========================================================================== */
 
-/* Selection — blood red */
+/* Selection вЂ” blood red */
 ::selection {
   background: var(--steal-blood);
   color: #ffffff;
@@ -638,7 +558,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #ffffff;
 }
 
-/* Concrete noise texture — raw industrial feel */
+/* Concrete noise texture вЂ” raw industrial feel */
 body::before {
   content: '';
   position: fixed;
@@ -650,7 +570,7 @@ body::before {
   background-size: 300px 300px;
 }
 
-/* Grain overlay — subtle texture */
+/* Grain overlay вЂ” subtle texture */
 body::after {
   content: '';
   position: fixed;
@@ -662,9 +582,9 @@ body::after {
   background-size: 200px 200px;
 }
 
-/* Ambient gym elements — extremely faint, industrial */
+/* Ambient gym elements вЂ” extremely faint, industrial */
 @media (min-width: 1024px) {
-  /* Barbell plate circles — rusted iron rings */
+  /* Barbell plate circles вЂ” rusted iron rings */
   .steal-bg-elements::before {
     content: '';
     position: fixed;
@@ -774,7 +694,7 @@ body::after {
   }
 }
 
-/* Subtle depth atmosphere — dark, heavy */
+/* Subtle depth atmosphere вЂ” dark, heavy */
 .steal-atmosphere {
   position: fixed;
   inset: 0;
@@ -785,7 +705,7 @@ body::after {
     radial-gradient(ellipse 50% 30% at 85% 85%, rgba(139, 0, 0, 0.025) 0%, transparent 60%);
 }
 
-/* Interactive element transitions — fast, responsive */
+/* Interactive element transitions вЂ” fast, responsive */
 button,
 [role="button"],
 a {
@@ -826,10 +746,10 @@ button:active:not(:disabled),
 }
 
 /* ==========================================================================
-   STEAL — Military-Industrial Utility Classes
+   STEAL вЂ” Military-Industrial Utility Classes
    ========================================================================== */
 
-/* Hairline divider — fades in from center */
+/* Hairline divider вЂ” fades in from center */
 .hairline {
   display: block;
   height: 1px;
@@ -843,7 +763,7 @@ button:active:not(:disabled),
   border: none;
 }
 
-/* Stamp — monospace micro-label for classifications / IDs */
+/* Stamp вЂ” monospace micro-label for classifications / IDs */
 .stamp {
   font-family: var(--font-mono, "JetBrains Mono", monospace);
   font-size: 11px;
@@ -970,7 +890,7 @@ button:active:not(:disabled),
   }
 }
 
-/* Rule-red — 2px×48px crimson accent bar for headings */
+/* Rule-red вЂ” 2pxГ—48px crimson accent bar for headings */
 .rule-red {
   display: block;
   background: var(--rust);
@@ -979,14 +899,14 @@ button:active:not(:disabled),
   flex-shrink: 0;
 }
 
-/* Panel — dense data surface with tactical accent option */
+/* Panel вЂ” dense data surface with tactical accent option */
 .panel {
   background: var(--surface-1);
   border: 1px solid var(--card-border);
   position: relative;
 }
 
-/* Panel accent — 2px rust strip on left edge */
+/* Panel accent вЂ” 2px rust strip on left edge */
 .panel--accent::before {
   content: '';
   position: absolute;
@@ -998,7 +918,7 @@ button:active:not(:disabled),
   pointer-events: none;
 }
 
-/* Corner tag — tactical HUD diagonal notch, top-right */
+/* Corner tag вЂ” tactical HUD diagonal notch, top-right */
 .panel.has-corner::after {
   content: '';
   position: absolute;
@@ -1012,14 +932,14 @@ button:active:not(:disabled),
   z-index: 1;
 }
 
-/* Red glow ring — danger / active / emphasis */
+/* Red glow ring вЂ” danger / active / emphasis */
 .glow-red {
   box-shadow:
     0 0 0 1px var(--rust),
     0 0 24px -4px var(--blood-glow-strong);
 }
 
-/* Metric XL — giant tabular display number */
+/* Metric XL вЂ” giant tabular display number */
 .metric-xl {
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: 800;
@@ -1030,13 +950,13 @@ button:active:not(:disabled),
   font-family: var(--font-mono, "JetBrains Mono", monospace);
 }
 
-/* Scanline animation — vertical sweep */
+/* Scanline animation вЂ” vertical sweep */
 @keyframes scanline {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100vh); }
 }
 
-/* Custom scrollbar — brutal industrial style */
+/* Custom scrollbar вЂ” brutal industrial style */
 .scrollbar-custom::-webkit-scrollbar {
   height: 4px;
   width: 4px;

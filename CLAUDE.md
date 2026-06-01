@@ -1,236 +1,199 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code (claude.ai/code) when working in this repository.
 
 ## Project Intent
 
-- Pure frontend web app — Next.js 15 (App Router + Server Components), TypeScript strict mode.
-- Communicates with a **PocketBase backend** via the PocketBase SDK.
-- All data operations go through custom hooks in `src/hooks/` that use TanStack Query.
-- Deploy target: Vercel.
+- Pure frontend web app — **Next.js 15 (App Router + React Server Components)**, TypeScript strict mode. Deploy target: **Vercel**.
+- Backend is **PocketBase**, reached via the **PocketBase SDK** (`pocketbase` npm package). There is no custom REST backend in this repo.
+- Server state flows through custom hooks in `src/hooks/` built on **TanStack Query v5**. Client-only state lives in **Zustand v5** stores.
+- Product is "**Steal Therapy**" — a brutal/industrial gym training app (workout plans, session logging, progress analytics, multilingual exercise library). Companion React Native app lives in `STEEL-Mobile/` (out of scope unless asked).
 
 ## Tech Stack (Locked — Do Not Substitute Without Asking)
 
-| Concern | Choice |
-| --- | --- |
-| Framework | Next.js 15 (App Router, RSC, Turbopack dev) |
-| Language | TypeScript 5, `strict: true` |
-| Styling | Tailwind CSS **v4** (via `@tailwindcss/postcss`, no `tailwind.config.js` — tokens live in `globals.css` via `@theme`) |
-| Components | shadcn/ui (New York style, neutral base, CSS variables) |
-| Server State | `@tanstack/react-query` v5 |
-| Client State | `zustand` v5 |
-| Forms | `react-hook-form` + `zod` (via `@hookform/resolvers`) |
-| Icons | `lucide-react` |
-| State Management | PocketBase SDK for backend data |
-| Path Alias | `@/*` → `src/*` |
+| Concern | Choice | Version |
+| --- | --- | --- |
+| Framework | Next.js (App Router, RSC) | `^15.1.6` |
+| UI runtime | React | `^19.0.0` |
+| Language | TypeScript, `strict: true` | `^5.7.3` |
+| Styling | Tailwind CSS **v4** (`@tailwindcss/postcss`, **no `tailwind.config.js`** — tokens live in `globals.css` via `@theme`) | `^4.0.0` |
+| Components | shadcn/ui (New York, neutral base, CSS variables) over `radix-ui` | `radix-ui ^1.4.3` |
+| Server state | `@tanstack/react-query` | `^5.62.11` |
+| Client state | `zustand` | `^5.0.2` |
+| Forms | `react-hook-form` + `zod` (`@hookform/resolvers`) | `7.72 / 3.25` |
+| Icons | `lucide-react` | `^0.469.0` |
+| Animation | `framer-motion` | `^12.38.0` |
+| Charts | `recharts` | `^3.8.1` |
+| Toasts | `sonner` | `^2.0.7` |
+| Theming | `next-themes` (light/dark) | `^0.4.6` |
+| Backend SDK | `pocketbase` | `^0.26.8` |
+| AI (scripts only) | `ai` + `@ai-sdk/{google,groq,anthropic,openai}` | `ai ^6` |
+| Path alias | `@/*` → `src/*` | — |
 
-Rule of thumb: Zustand for client-only state (UI toggles, ephemeral form wizards); TanStack Query + PocketBase for anything sourced from the backend.
+Rule of thumb: **Zustand** for client-only state (UI toggles, active-workout wizard); **TanStack Query + PocketBase** for anything sourced from the backend. The `@ai-sdk/*` packages are used only by Node seed scripts, **not** in the app runtime.
 
 ## Folder Structure
 
 ```
 src/
 ├── app/
-│   ├── layout.tsx        # root layout — Server Component
-│   ├── page.tsx          # landing — Server Component
-│   ├── (auth)/           # auth routes (login)
-│   ├── (app)/            # protected app routes (dashboard, programs, plans, etc.)
-│   └── globals.css       # Tailwind v4 entry + CSS vars
+│   ├── layout.tsx          # root layout — RSC; wraps children in Providers
+│   ├── page.tsx            # landing
+│   ├── globals.css         # Tailwind v4 entry + @theme tokens + CSS vars
+│   ├── theme-script.js     # inline no-flash theme script
+│   ├── manifest.ts         # PWA manifest
+│   ├── (auth)/             # login, register
+│   ├── (app)/             # protected: dashboard, plans, programs, progress,
+│   │                       #   exercises, workout, onboarding, settings
+│   └── (public)/          # public: explore
 ├── components/
-│   ├── ui/               # shadcn/ui components
-│   ├── layout/           # AppShell, Navbar, BottomNav, overlays
-│   ├── plans/            # PlanCard, plan-related components
-│   ├── programs/         # PlanImageCarousel, program components
-│   ├── progress/         # charts and progress visualization
-│   ├── fx/               # animations and effects
-│   └── auth/             # LoginForm, auth components
-├── hooks/                # custom React hooks (data fetching via PocketBase)
-│   ├── useAuth.ts        # authentication state
-│   ├── usePlans.ts       # workout plan CRUD operations
-│   └── useProgress.ts    # progress data, streaks, PRs, volume
-├── lib/
-│   ├── pocketbase.ts     # PocketBase SDK initialization
-│   └── utils.ts          # `cn()` helper for Tailwind
-├── types/                # shared TS types / DTOs
-│   ├── plan.ts           # WorkoutPlan, PlanDay, PlanExercise
-│   ├── profile.ts        # UserProfile, GoalType, Environment
-│   ├── session.ts        # WorkoutSession, SessionSet
-│   └── progress.ts       # PersonalRecord, StreakData, VolumeData
-└── utils/                # pure helpers (non-React)
+│   ├── ui/                 # shadcn/ui primitives (~20 files — do not hand-edit)
+│   ├── layout/            # AppShell, Navbar, BottomNav, ambient/noise overlays
+│   ├── auth/              # LoginForm, RegisterForm, ConnectionDebug
+│   ├── onboarding/        # multi-step wizard (profile/goals/environment/limitations)
+│   ├── plans/            # PlanCard, ManualPlanForm, TemplateGrid, ExercisePickerModal
+│   ├── programs/         # ProgramDetail, ProgramPreview, PlanImageCarousel
+│   ├── workout/          # ExerciseCard, SetRow, RestTimer, MoodCheck, WorkoutSummary
+│   ├── progress/         # ~17 chart/analytics components (volume, PRs, streaks, radar…)
+│   ├── fx/               # visual effects (ImpactFlash)
+│   └── providers/        # Providers, AuthProvider, QueryProvider, I18nProvider, Theme*
+├── hooks/                 # data + behavior hooks (see table below)
+├── stores/                # ui-store.ts, workout-store.ts (Zustand)
+├── lib/                   # pocketbase.ts, api.ts, utils.ts, constants.ts, domain logic
+├── types/                 # plan, profile, session, progress, exercise, achievement
+├── locales/               # en.json, ru.json, uz.json (UI strings)
+├── data/                  # exercises.json, legend-programs.ts (static catalogs)
+└── utils/                 # offline-queue.ts (pure helpers)
 ```
 
-`components.json` at the repo root is the shadcn/ui config — aliases match this tree.
+`components.json` (repo root) is the shadcn/ui config; its aliases match this tree.
 
-## PocketBase Data Model
+## Hooks (`src/hooks/`)
+
+| Hook | Purpose |
+| --- | --- |
+| `useAuth` | PocketBase auth store, login/logout, current user |
+| `useProfile` | user profile CRUD (`profiles` collection) |
+| `usePlans` | workout plan CRUD |
+| `useProgramTemplates` | legend program templates (locale-aware `select`, see below) |
+| `useProgress` | streaks, PRs, volume, muscle distribution |
+| `useAchievements` | achievement/badge computation |
+| `useQuickSessions` | ad-hoc / quick workout sessions |
+| `useGuestWorkouts` | guest (unauthenticated) workout handling |
+| `useOfflineSync` | flush the offline queue when back online |
+| `useExerciseTranslation` | localized exercise names/instructions |
+| `useRestTimer` | between-set rest timer |
+| `useMouseParallax` | pointer parallax effect (UI only) |
+
+## i18n / Localization
+
+- **Custom React Context — NOT i18next.** Provider: `src/components/providers/I18nProvider.tsx`, consumed via `useI18n()` → `{ language, setLanguage, t }`.
+- `t("dot.path")` resolves against `src/lib/translations.ts` (typed `translations` object). UI string source lives in `src/locales/{en,ru,uz}.json`.
+- Languages: **en, ru, uz**. Persisted to `localStorage["language"]`, default `en`.
+- When adding user-facing text, add the key to all three locales and resolve it through `t()` — never hardcode strings.
+
+## PocketBase Integration
+
+### URL resolution (`src/lib/pocketbase.ts`)
+
+- **Browser** → `/pb` (Next.js rewrite proxies to PocketBase, avoiding HTTPS→HTTP mixed-content blocks). Never hardcode the PB URL on the client.
+- **Server (SSR/RSC)** → direct connection via `POCKETBASE_INTERNAL_URL` (falls back to `NEXT_PUBLIC_API_URL`, then `http://127.0.0.1:8090`).
+- Client is a singleton; auth token is persisted to a `pb_auth` cookie and restored on init. `clearPocketBase()` resets it on logout.
+- The proxy rewrite (`/pb/:path*`) and allowed image remotes are configured in `next.config.mjs`.
 
 ### Collections
 
 | Collection | Purpose | Key Fields |
 | --- | --- | --- |
-| `profiles` | User profile data | goalType, environment, currentWeight, height, age |
-| `workout_plans` | User's workout programs | title, description, source, goalType, durationWeeks, currentWeek, status, **imageUrls** (JSON array) |
-| `plan_days` | Individual training days | plan, week, dayOfWeek, label, focus (JSON array), warmup, cooldown |
-| `plan_exercises` | Exercises in a plan day | planDay, exercise, sets, repsMin, repsMax, rpeTarget, restSeconds |
-| `exercises` | Exercise catalog | name, muscleGroup, equipment, instructions |
-| `workout_sessions` | Completed workout sessions | user, planDay, plan, startedAt, completedAt, status, mood, energyLevel, sessionNotes |
-| `session_sets` | Sets logged in a session | session, exercise, setNumber, weight, reps, rpe, notes |
-| `plan_templates` | Pre-built program templates | title, description, goalType, difficulty, durationWeeks, structure (JSON) |
-| `goals` | User fitness goals | user, goalType, targetWeight, deadline, notes |
+| `profiles` | user profile | goalType, environment, currentWeight, height, age |
+| `workout_plans` | user programs | title, source, goalType, durationWeeks, currentWeek, status, **imageUrls** (JSON array) |
+| `plan_days` | training days | plan, week, dayOfWeek, label, focus (JSON), warmup, cooldown |
+| `plan_exercises` | exercises in a day | planDay, exercise, sets, repsMin, repsMax, rpeTarget, restSeconds |
+| `exercises` | exercise catalog | name, muscleGroup, equipment, instructions |
+| `workout_sessions` | completed sessions | user, planDay, plan, startedAt, completedAt, status, mood, energyLevel |
+| `session_sets` | logged sets | session, exercise, setNumber, weight, reps, rpe, notes |
+| `plan_templates` | pre-built program templates | title, goalType, difficulty, durationWeeks, popularity, **structure** (JSON, multilingual) |
+| `exercise_translations` | EN→RU/UZ exercise strings | exerciseExtId, locale, name, overview, bodyPart, equipment, target |
+| `goals` | fitness goals | user, goalType, targetWeight, deadline, notes |
 
-### Data Flow Pattern
+### `plan_templates` — embedded multilingual structure
 
-1. **Authentication**: `useAuth` hook manages PocketBase auth store
-2. **Data Fetching**: Custom hooks (`usePlans`, `useProgress`) use TanStack Query with PocketBase SDK
-3. **CRUD Operations**: Hooks provide `create`, `update`, `delete` functions that call PocketBase collection methods
-4. **Real-time**: PocketBase subscriptions can be used for live updates (optional)
+The `structure` JSON holds all locales inline (`{ slug, locales: { en, ru, uz } }`) — no separate translation table. `useProgramTemplates()` fetches the raw records **once** (`queryKey: ["program-templates"]`) and uses TanStack Query `select` to remap to the active locale on language switch — **one PB fetch, zero extra requests**. Presentation-only metadata (athlete name, hero image, tags) is merged client-side from `SLUG_META` in the hook. The `listRule`/`viewRule` for `plan_templates` **must be empty** (`""`) — `/programs` and `/explore` are public; an auth rule silently returns an empty list to visitors.
 
-### Image URL Field (workout_plans)
+### `exercise_translations`
 
-- Field name: `imageUrls`
-- Type: JSON (stores array of strings)
-- Usage: Stores multiple image URLs for program cards
-- Format: `["https://example.com/image1.jpg", "https://example.com/image2.jpg"]`
-- Frontend: `PlanImageCarousel` component auto-slides through images
+Seeded via `scripts/seed-exercise-translations.mjs`. The hook batches IDs per PB filter call. Requires auth (`listRule: @request.auth.id != ""`).
 
-### plan_templates — Embedded Multilingual Structure
+### Week progression
 
-The `structure` JSON field stores all 3 locales inline — no separate translation table:
+`workout_plans.currentWeek` advances in `src/app/(app)/workout/[sessionId]/page.tsx` after a session completes: load all `plan_days` for the current week, load their `completed` `workout_sessions`; if every day is done → `currentWeek += 1`. Dashboard shows only `planDay.week === plan.currentWeek` as active; future weeks render "locked" in the UI (not enforced in DB).
 
-```json
-{
-  "slug": "arnold",
-  "locales": {
-    "en": { "title": "...", "description": "...", "overview": {...}, "days": [...], "guidelines": {...} },
-    "ru": { ... },
-    "uz": { ... }
-  }
-}
-```
+### Known quirk: `useProgress` fetches all sessions
 
-`useProgramTemplates()` (`src/hooks/useProgramTemplates.ts`) reads `useI18n().language` and uses TanStack Query `select` to remap the cached raw records to the active locale — **one PB fetch, zero extra requests on language switch**.
+`useProgress.ts` calls `getList(1, 200)` **without a user filter** then filters in JS — a deliberate workaround for PocketBase SDK auto-cancellation issues with filters. Do **not** "fix" it to a server-side filter without testing; it breaks the auto-cancel protection.
 
-The `listRule`/`viewRule` for `plan_templates` must be empty (`""`) because `/programs` is a public route. If set to `@request.auth.id != ""`, unauthenticated visitors get an empty list silently.
+### Zustand stores
 
-### exercise_translations Collection
-
-Seeded via `scripts/seed-exercise-translations.mjs`. Each row: `{ exerciseExtId, locale, name, overview, bodyPart, equipment, target, ... }`. The hook `useExercisesBatchTranslation` batches up to 80 IDs per PB filter call. Requires auth (`listRule: @request.auth.id != ""`).
-
-### Week Progression Logic
-
-`workout_plans.currentWeek` advances in `src/app/(app)/workout/[sessionId]/page.tsx` after a session completes:
-1. Load all `plan_days` for the finished week
-2. Load all `workout_sessions` for those days with `status="completed"`
-3. If every day has a completed session → `currentWeek += 1`
-
-Only days where `planDay.week === plan.currentWeek` are shown as active in the dashboard. Future weeks are "locked" in the UI (not enforced in DB).
-
-### Known Quirk: useProgress Fetches All Sessions
-
-`useProgress.ts` calls `getList(1, 200)` **without a user filter** then filters in JS. This is a workaround for PocketBase SDK auto-cancellation issues with filters. Do not "fix" it to use a server-side filter without testing — it will break the auto-cancel protection.
-
-### PocketBase Proxy
-
-Browser requests go to `/pb/*` which Next.js (`next.config.mjs`) proxies to `POCKETBASE_INTERNAL_URL`. Server-side (SSR) calls hit PocketBase directly. Never hardcode the PocketBase URL on the client side.
-
-### Zustand Stores
-
-- `src/stores/workout-store.ts` — active session state (sets logged, timer, current exercise). Persisted to `localStorage` so in-progress workouts survive page refresh.
-- `src/stores/ui-store.ts` — ephemeral UI toggles (sidebar open, modal state).
+- `src/stores/workout-store.ts` — active session (sets logged, timer, current exercise). Persisted to `localStorage` so in-progress workouts survive refresh.
+- `src/stores/ui-store.ts` — ephemeral UI toggles (modals, sidebar).
 
 ## Product Rules
 
-- Distinctive UI — no generic "AI slop" layouts. Prefer Server Components; only reach for `"use client"` when you need interactivity, browser APIs, or a client-only library.
-- Every API call must handle **loading, error, and empty** states explicitly. An unhandled empty state counts as a bug.
-- Accessibility and Core Web Vitals are first-class requirements, not polish.
-- All data operations go through PocketBase SDK via custom hooks.
-- Follow the brutal gym aesthetic and brand guidelines ("Steel Forges Steel" tone).
-- Image carousels must auto-slide, pause on hover, and support keyboard navigation.
+- **Distinctive UI — no generic "AI slop."** Prefer Server Components; reach for `"use client"` only for interactivity, browser APIs, or client-only libs.
+- Every data call handles **loading, error, and empty** states explicitly. An unhandled empty state is a bug.
+- Accessibility and Core Web Vitals are first-class, not polish.
+- Follow the **brutal gym aesthetic** and **"Steel Forges Steel"** brand tone (squared corners — `--radius: 0`, blood red + forged-steel orange on void black; see skills below).
+- Image carousels auto-slide, pause on hover, support keyboard navigation.
 
 ## Commands
 
 | Command | What It Does |
 | --- | --- |
-| `npm run dev` | Start dev server at http://localhost:3000 |
+| `npm run dev` | Dev server at http://localhost:3000 |
 | `npm run build` | Production build |
-| `npm run start` | Serve the production build |
+| `npm run start` | Serve production build |
 | `npm run typecheck` | `tsc --noEmit` strict typecheck |
+| `npm run fetch:exercises` | Fetch ExerciseDB dataset → `src/data/exercises.json` |
+| `npm run seed:translations` | Seed EN→RU/UZ exercise translations into PocketBase (uses `.env.local`) |
+| `npm run apply:translation-schema` | Apply/validate the translation schema in PocketBase |
+| `node --env-file=.env.local scripts/seed-legends-programs.mjs` | Seed legend programs (EN/RU/UZ) into `plan_templates` |
 | `npx shadcn@latest add <component>` | Add a shadcn/ui component into `src/components/ui/` |
-| `./pocketbase/pocketbase migrate` | Run PocketBase migrations |
-| `./pocketbase/pocketbase serve` | Start PocketBase server |
-| `node --env-file=.env.local scripts/seed-exercise-translations.mjs` | Seed EN→RU/UZ exercise translations into PocketBase |
-| `node --env-file=.env.local scripts/seed-legends-programs.mjs` | Seed 7 legend programs (EN/RU/UZ) into `plan_templates` |
+| `./pocketbase/pocketbase serve` / `migrate` | Run / migrate the PocketBase server |
 
-Both seed scripts are **resumable** — they write progress to `.seed-progress.json` and `.legends-cache.json` respectively. Re-running after a failure skips completed records.
+Seed scripts are **resumable** — they cache progress to disk and skip completed records on re-run.
 
-Lint is not wired up yet — add `next lint` or an ESLint flat config in a follow-up if/when needed.
+**Lint is not wired up** — there is no ESLint config. TypeScript strict mode (`npm run typecheck`) is the only static gate; run it before declaring work done. Add a flat ESLint config in a follow-up if needed.
 
 ## Environment
 
-- `.env.local` holds `NEXT_PUBLIC_API_URL`. It is gitignored via `.env*.local`. Do **not** commit real backend URLs here.
-- Any new public env var must be prefixed `NEXT_PUBLIC_` to reach the browser; otherwise it is server-only.
+- `.env.local` (gitignored via `.env*.local`) holds the runtime config. Do **not** commit real backend URLs/keys.
+- Client-visible vars: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_EXERCISEDB_URL`. Any new browser var must be `NEXT_PUBLIC_`-prefixed.
+- Server-only: `POCKETBASE_INTERNAL_URL`, `POCKETBASE_ADMIN_EMAIL/PASSWORD`, and AI keys for seed scripts (`GEMINI_API_KEY`, `GROQ_API_KEY`, `CEREBRAS_API_KEY`, etc.).
 
 ## Environment & Tooling Gotchas
 
-- **Platform is Windows + Git Bash.** Use Unix shell syntax in Bash tool calls (forward slashes, `/dev/null`).
-- `.claude/skills/` contains domain-specific skills. Read them before implementing features:
-  - `brutal-gym-ui/` — UI conventions and styling
-  - `brand-guidelines/` — Tone of voice and brand identity
-  - `program-templates/` — Workout plan data structures
-  - `session-logging/` — Session tracking patterns
-  - `progress-tracking/` — Analytics and metrics
-- `.claude/agents/` contains the 6-agent team. Read them for role-specific instructions:
-  - `architect.md` — Planning and architecture
-  - `frontend-lead.md` — Component architecture and organization
-  - `frontend-designer.md` — Visual design and styling
-  - `frontend-dev.md` — Feature implementation
-  - `program-manager.md` — Workout program design
-  - `reviewer.md` — Code quality and standards
+- **Platform is Windows.** The session shell is PowerShell; Bash (Git Bash) is also available. Use the right syntax for the tool you're calling.
+- `.claude/skills/` — read the relevant skill before implementing a feature:
+  `brutal-gym-ui/` (UI conventions), `brand-guidelines/` (tone/identity), `program-templates/` (plan data shapes), `session-logging/`, `progress-tracking/`, `api-communication/`, `frontend-design/`.
+- `.claude/agents/` — the 6-agent team: `architect`, `frontend-lead`, `frontend-designer`, `frontend-dev`, `program-manager`, `reviewer`.
+- Design references: `docs/progress-page-design-spec.md`, `design.md`, `design_handoff_steel_therapy/`.
 
 ## Team — 6-Agent Workflow
 
-| Agent | Purpose | When to Use |
-| --- | --- | --- |
-| **Architect** | Planning, specs, architecture | Starting new features, complex changes |
-| **Frontend-Lead** | Component architecture, code organization | Breaking down features, reviewing structure |
-| **Frontend-Designer** | Visual design, styling, UX | Creating distinctive UI, design systems |
-| **Frontend-Dev** | Feature implementation, hooks | Building components, connecting data |
-| **Program-Manager** | Workout programming, fitness logic | Designing plans, progression rules |
-| **Reviewer** | Code quality, accessibility, brand | After implementation, before completion |
+| Agent | When to Use |
+| --- | --- |
+| **Architect** | New features, complex changes, specs |
+| **Frontend-Lead** | Component architecture, breaking down features |
+| **Frontend-Designer** | Distinctive UI, design systems, styling |
+| **Frontend-Dev** | Building components, wiring data/hooks |
+| **Program-Manager** | Workout programming, progression logic |
+| **Reviewer** | Code quality, accessibility, brand — before completion |
 
-## Token Efficiency & Context Management
+Keep active agents to **≤ 5** unless explicitly asked for more. Agents should reference this file and the skills rather than re-explaining rules.
 
-### Core Principles
-- Be concise but complete. Prefer clarity over brevity when it affects understanding.
-- Never repeat information that already exists in CLAUDE.md, skills, or previous outputs unless explicitly asked.
-- Keep responses focused. Only include what is necessary for the current task.
-- Use structured, compact formats (tables, bullet points, YAML) when appropriate.
+## Working Style
 
-### Agent & Pipeline Rules
-- When using multiple agents, keep the active agent count to a maximum of 5 unless the user explicitly requests more.
-- Agents must reference existing files (CLAUDE.md, skills, SPEC.md) instead of re-explaining rules.
-- After completing a major phase, summarize the outcome in maximum 8–10 lines before moving to the next phase.
-- Only load relevant skills and agents for the current task. Do not preload unnecessary ones.
-
-### Response Style Rules
-- Avoid long introductory explanations or motivational language unless the user asks for it.
-- When suggesting code changes, show only the diff or the specific file/section being modified.
-- Use "Continue" or "Next" style responses when a task has clear next steps.
-- For code generation: Prioritize clean, production-ready code with minimal comments.
-
-### Context Management Rules
-- At the end of every major milestone, offer a short "Context Summary" (max 5 lines) capturing the current state.
-- If the conversation becomes very long (>15 messages), suggest starting a fresh session with a condensed summary.
-- Prefer referencing file paths and existing documentation over re-describing architecture or rules.
-
-## Performance Safeguards
-
-- Token rules must never reduce reasoning quality, architectural thinking, or UI/design excellence.
-- If a task requires deep analysis or creative solutions, use full reasoning even if it costs more tokens.
-- Always prioritize correctness, type safety, accessibility, and distinctive UI over token optimization.
-
-## Recommended Workflow for Large Projects
-
-1. Use Plan Mode for complex features first.
-2. Execute with maximum 4–5 agents.
-3. After each major phase, create/update a short SPEC.md or STATUS.md.
-4. Regularly extract useful patterns into the skills library to reduce future context load.
+- Be concise but complete; don't repeat what's already in this file or the skills.
+- Show diffs / the specific section being changed rather than whole files.
+- Prioritize correctness, type safety, accessibility, and distinctive UI over token savings — never trade reasoning or design quality for brevity.
+- After a major phase, give a short (≤8 line) summary before moving on.

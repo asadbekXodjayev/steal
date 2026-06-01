@@ -151,7 +151,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl space-y-8 py-8">
+    <div className="mx-auto max-w-xl space-y-8 px-4 py-8 sm:px-0">
       {/* Progress */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">

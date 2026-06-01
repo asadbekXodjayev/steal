@@ -50,11 +50,6 @@ export function PRWall({ prs, className }: PRWallProps) {
         @media (prefers-reduced-motion: reduce) { .spark-anim { animation: none; } }
       `}</style>
 
-      {/* DEBUG BADGE — remove after you confirm it works */}
-      <div className="mb-3 inline-block px-3 py-1 bg-[#22C55E] text-black text-[10px] font-mono tracking-widest">
-        ✅ NEW PR WALL v3 — TOP 5 BY e1RM
-      </div>
-
       <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", className)}>
         {sortedPRs.map((pr, i) => {
           const Icon = i === 0 ? Trophy : i === 1 ? BarChart3 : Dumbbell;
@@ -66,7 +61,7 @@ export function PRWall({ prs, className }: PRWallProps) {
           return (
             <Card
               key={pr.exerciseName}
-              className="glass-card group relative overflow-hidden p-5 transition-all hover:scale-[1.02] hover:shadow-2xl"
+              className="glass-card group relative overflow-hidden p-5 transition-colors"
             >
               {mounted && i < 2 && (
                 <div className="absolute top-3 right-3 spark-anim">

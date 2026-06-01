@@ -86,22 +86,24 @@ export function LiftProgressionChart({
   }
 
   return (
-    <div className="border border-border bg-card p-4">
+    <div className="border border-border bg-card p-4 w-full overflow-hidden">
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={rows} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" vertical={false} />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 11, fill: "#888888" }}
+              tick={{ fontSize: 9, fill: "#888888" }}
               axisLine={{ stroke: "#2a2a2a" }}
               tickLine={false}
+              interval="preserveStartEnd"
             />
             <YAxis
-              tick={{ fontSize: 11, fill: "#888888" }}
+              tick={{ fontSize: 9, fill: "#888888" }}
               axisLine={{ stroke: "#2a2a2a" }}
               tickLine={false}
               tickFormatter={(v: number) => `${v}kg`}
+              width={32}
             />
             <Tooltip
               contentStyle={{

@@ -282,7 +282,7 @@ export default function WorkoutSessionPage({
                 await pb.collection("workout_plans").update(planDay.plan, { currentWeek: planRecord.currentWeek + 1 });
                 await queryClient.invalidateQueries({ queryKey: ["plans", currentUserId] });
                 await queryClient.invalidateQueries({ queryKey: ["activePlan", currentUserId] });
-                toast.success(`Week ${planRecord.currentWeek + 1} unlocked!`);
+                toast.success(t("workout.WEEK_UNLOCKED").replace("{w}", String(planRecord.currentWeek + 1)));
               }
             }
           } catch {
@@ -334,7 +334,7 @@ export default function WorkoutSessionPage({
   const progressPct = targetSets > 0 ? Math.round((totalSets / targetSets) * 100) : 0;
 
   return (
-    <div className="space-y-3 py-2">
+    <div className="space-y-3 py-2 pb-28">
       {/* Sticky header */}
       <div
         className="glass-dark sticky top-14 z-10 -mx-4 px-4 py-2 flex items-center gap-3"
@@ -351,7 +351,7 @@ export default function WorkoutSessionPage({
         {/* Rest timer display */}
         <div className="glass-acc px-3 py-1.5 text-center shrink-0">
           <span className="font-data block text-[10px] text-[#EA580C] tracking-widest uppercase">REST</span>
-          <span className="font-data font-bold text-[#C2410C] tabular-nums" style={{ fontSize: 18, lineHeight: 1 }}>
+          <span className="font-data font-bold text-[#C2410C] tabular-nums" style={{ fontSize: "clamp(15px, 4.5vw, 18px)", lineHeight: 1 }}>
             {timer.isRunning ? String(Math.floor(timer.secondsLeft / 60)).padStart(2, "0") + ":" + String(timer.secondsLeft % 60).padStart(2, "0") : "--:--"}
           </span>
         </div>

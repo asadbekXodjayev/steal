@@ -20,7 +20,7 @@ function matchFilter(p: LegendProgram, f: Filter): boolean {
   return haystack.includes(f);
 }
 
-function ProgramCard({ program, featured }: { program: LegendProgram; featured?: boolean }) {
+function ProgramCard({ program, featured, t }: { program: LegendProgram; featured?: boolean; t: (key: string) => string }) {
   return (
     <Link
       href={`/programs/${program.id}`}
@@ -64,7 +64,7 @@ function ProgramCard({ program, featured }: { program: LegendProgram; featured?:
         />
         {featured && (
           <div className="absolute top-2 left-2">
-            <span className="tag-pill tag-pill-acc">FEATURED</span>
+            <span className="tag-pill tag-pill-acc">{t("programs.FEATURED")}</span>
           </div>
         )}
       </div>
@@ -99,11 +99,11 @@ function ProgramCard({ program, featured }: { program: LegendProgram; featured?:
         <div className="mt-auto pt-2">
           {featured ? (
             <button className="btn-forge w-full h-7 text-[10px]" onClick={(e) => e.preventDefault()}>
-              View Program
+              {t("programs.VIEW_PROGRAM")}
             </button>
           ) : (
             <button className="btn-ghost w-full h-7 text-[10px]" onClick={(e) => e.preventDefault()}>
-              View
+              {t("programs.VIEW_BTN")}
             </button>
           )}
         </div>
@@ -126,7 +126,7 @@ export default function ProgramsPage() {
     <div className="space-y-4 py-4">
       {/* Header */}
       <div className="border-b border-[rgba(255,255,255,0.06)] pb-4 fade-up">
-        <h1 className="font-heading text-3xl font-black uppercase text-[#f0f0f0] leading-none">
+        <h1 className="font-heading text-2xl sm:text-3xl font-black uppercase text-[#f0f0f0] leading-none">
           {t("navbar.PROGRAMS")}
         </h1>
         <div
@@ -134,7 +134,7 @@ export default function ProgramsPage() {
           style={{ height: 2, width: 32, background: "linear-gradient(90deg,#C2410C,transparent)", boxShadow: "0 0 8px #C2410C" }}
         />
         <p className="font-data text-[9px] text-[#444] uppercase tracking-widest mt-2">
-          {programs?.length ?? 0} Legend Programs
+          {programs?.length ?? 0} {t("programs.LEGEND_PROGRAMS_COUNT")}
         </p>
       </div>
 
@@ -158,7 +158,7 @@ export default function ProgramsPage() {
 
       {/* Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="skeleton-steal h-64 w-full" />
           ))}
@@ -166,19 +166,19 @@ export default function ProgramsPage() {
       ) : filtered.length === 0 ? (
         <div className="glass flex flex-col items-center justify-center py-20 gap-3">
           <span className="font-data text-[12px] text-[#333] uppercase tracking-[0.2em]">
-            No programs match
+            {t("programs.NO_PROGRAMS_MATCH")}
           </span>
           <button
             className="btn-ghost text-[10px] px-4 h-8"
             onClick={() => setActiveFilter("ALL")}
           >
-            Show All
+            {t("programs.SHOW_ALL")}
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 fade-up fade-up-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 fade-up fade-up-2">
           {filtered.map((p, i) => (
-            <ProgramCard key={p.id} program={p} featured={i === 0} />
+            <ProgramCard key={p.id} program={p} featured={i === 0} t={t} />
           ))}
         </div>
       )}

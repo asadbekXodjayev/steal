@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   useStreakData,
   usePersonalRecords,
@@ -16,11 +17,24 @@ import { AchievementsBoard } from "@/components/progress/AchievementsBoard";
 import { CounterFX } from "@/components/fx/ImpactFlash";
 import { Skeleton } from "@/components/ui/skeleton";
 import { calculateVolume, estimate1RM } from "@/lib/utils";
-import { EnhancedVolumeChart } from "@/components/progress/EnhancedVolumeChart";
-import { ProgressTrendChart } from "@/components/progress/ProgressTrendChart";
-import { RepsDistributionChart } from "@/components/progress/RepsDistributionChart";
 import { PRBoard } from "@/components/progress/PRBoard";
 import { useI18n } from "@/components/providers/I18nProvider";
+
+// Recharts-backed charts are heavy (~100KB). Lazy-load them so the chart
+// library is split out of the initial progress-page bundle.
+const chartFallback = () => <Skeleton className="h-[260px] w-full" />;
+const EnhancedVolumeChart = dynamic(
+  () => import("@/components/progress/EnhancedVolumeChart").then((m) => m.EnhancedVolumeChart),
+  { ssr: false, loading: chartFallback },
+);
+const ProgressTrendChart = dynamic(
+  () => import("@/components/progress/ProgressTrendChart").then((m) => m.ProgressTrendChart),
+  { ssr: false, loading: chartFallback },
+);
+const RepsDistributionChart = dynamic(
+  () => import("@/components/progress/RepsDistributionChart").then((m) => m.RepsDistributionChart),
+  { ssr: false, loading: chartFallback },
+);
 
 // ============================================================================
 // LiveClock — ticking monospace HH:MM:SS
@@ -783,7 +797,7 @@ export default function ProgressPage() {
             </span>
           </div>
 
-          <div className="flex flex-col gap-1 border-l border-[#2a2a2a] pl-4">
+          <div className="flex flex-col gap-1 md:border-l md:border-[#2a2a2a] md:pl-4">
             <span className="stamp" style={{ color: "#71717A", fontSize: 9, letterSpacing: "0.1em" }}>
               {t("progress.AVG_RPE")}
             </span>
@@ -804,7 +818,7 @@ export default function ProgressPage() {
             </span>
           </div>
 
-          <div className="flex flex-col gap-1 border-l border-[#2a2a2a] pl-4">
+          <div className="flex flex-col gap-1 md:border-l md:border-[#2a2a2a] md:pl-4">
             <span className="stamp" style={{ color: "#71717A", fontSize: 9, letterSpacing: "0.1em" }}>
               {t("progress.HEAVIEST_SET")}
             </span>
@@ -827,7 +841,7 @@ export default function ProgressPage() {
             </span>
           </div>
 
-          <div className="flex flex-col gap-1 border-l border-[#2a2a2a] pl-4">
+          <div className="flex flex-col gap-1 md:border-l md:border-[#2a2a2a] md:pl-4">
             <span className="stamp" style={{ color: "#71717A", fontSize: 9, letterSpacing: "0.1em" }}>
               {t("progress.TOTAL_VOLUME")}
             </span>

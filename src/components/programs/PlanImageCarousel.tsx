@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface PlanImageCarouselProps {
   imageUrls: string[];
@@ -29,6 +30,7 @@ export function PlanImageCarousel({
   showNavigation = true,
   showIndicators = true,
 }: PlanImageCarouselProps) {
+  const { t } = useI18n();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -108,6 +110,7 @@ export function PlanImageCarousel({
               alt={`Plan image ${index + 1}`}
               className="w-full h-full object-cover"
               loading="lazy"
+              decoding="async"
             />
             {/* Gradient overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/80 via-transparent to-[#0a0a0a]/30" />
@@ -120,24 +123,24 @@ export function PlanImageCarousel({
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#0a0a0a]/70 hover:bg-[#e53e00] transition-colors border border-[#2a2a2a] hover:border-[#e53e00]"
-            aria-label="Previous image"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2.5 sm:p-2 bg-[#0a0a0a]/70 hover:bg-[#e53e00] transition-colors border border-[#2a2a2a] hover:border-[#e53e00]"
+            aria-label={t("common.PREVIOUS_IMAGE")}
           >
-            <ChevronLeft className="h-4 w-4 text-[#e5e5e5]" />
+            <ChevronLeft className="h-5 w-5 sm:h-4 sm:w-4 text-[#e5e5e5]" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#0a0a0a]/70 hover:bg-[#e53e00] transition-colors border border-[#2a2a2a] hover:border-[#e53e00]"
-            aria-label="Next image"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2.5 sm:p-2 bg-[#0a0a0a]/70 hover:bg-[#e53e00] transition-colors border border-[#2a2a2a] hover:border-[#e53e00]"
+            aria-label={t("common.NEXT_IMAGE")}
           >
-            <ChevronRight className="h-4 w-4 text-[#e5e5e5]" />
+            <ChevronRight className="h-5 w-5 sm:h-4 sm:w-4 text-[#e5e5e5]" />
           </button>
         </>
       )}
 
       {/* Slide counter */}
       {imageUrls.length > 1 && (
-        <div className="absolute top-3 right-3 z-10 bg-[#0a0a0a]/80 border border-[#2a2a2a] px-2 py-1">
+        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 bg-[#0a0a0a]/80 border border-[#2a2a2a] px-2 py-1">
           <span className="font-data text-[9px] uppercase tracking-widest text-[#71717A]">
             {String(currentIndex + 1).padStart(2, "0")} / {String(imageUrls.length).padStart(2, "0")}
           </span>

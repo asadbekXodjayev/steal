@@ -51,7 +51,7 @@ function SessionDetailModal({
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 p-0 sm:p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="relative flex h-[85svh] sm:h-[75vh] w-full sm:max-w-lg flex-col border border-[#2a2a2a] bg-[#0a0a0a] overflow-hidden">
+      <div className="relative flex h-[95svh] sm:h-[85svh] md:h-[75vh] w-full sm:max-w-lg flex-col border border-[#2a2a2a] bg-[#0a0a0a] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#2a2a2a] px-4 py-3 shrink-0">
           <div>

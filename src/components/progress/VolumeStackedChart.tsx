@@ -10,7 +10,6 @@ import {
 } from "recharts";
 import type { ValueType, NameType } from "recharts/types/component/DefaultTooltipContent";
 import type { TooltipContentProps } from "recharts/types/component/Tooltip";
-import { cn } from "@/lib/utils";
 
 interface VolumeWeek {
   week: string;
@@ -147,42 +146,11 @@ export function VolumeStackedChart({ data }: VolumeStackedChartProps) {
   };
 
   return (
-    <div className="relative w-full">
-      {/* Top-right legend */}
-      <div
-        className="absolute top-0 right-0 flex flex-col gap-1 z-10"
-        style={{ padding: "2px 0" }}
-      >
-        {MUSCLE_CONFIG.map((m) => (
-          <div key={m.key} className="flex items-center gap-1.5">
-            <span
-              style={{
-                display: "inline-block",
-                width: 8,
-                height: 8,
-                background: m.color,
-                flexShrink: 0,
-              }}
-            />
-            <span
-              style={{
-                fontFamily: "var(--font-mono, monospace)",
-                fontSize: 9,
-                textTransform: "uppercase",
-                color: "var(--ink-low)",
-                letterSpacing: "0.1em",
-              }}
-            >
-              {m.label.slice(0, 4)}
-            </span>
-          </div>
-        ))}
-      </div>
-
+    <div className="w-full overflow-hidden">
       <ResponsiveContainer width="100%" height={220}>
         <BarChart
           data={data}
-          margin={{ top: 4, right: 80, bottom: 0, left: 0 }}
+          margin={{ top: 4, right: 4, bottom: 0, left: 0 }}
           barCategoryGap="20%"
         >
           <XAxis
@@ -217,6 +185,34 @@ export function VolumeStackedChart({ data }: VolumeStackedChartProps) {
           ))}
         </BarChart>
       </ResponsiveContainer>
+
+      {/* Legend row — inline below chart, wraps on small screens */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+        {MUSCLE_CONFIG.map((m) => (
+          <div key={m.key} className="flex items-center gap-1.5">
+            <span
+              style={{
+                display: "inline-block",
+                width: 8,
+                height: 8,
+                background: m.color,
+                flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: 9,
+                textTransform: "uppercase",
+                color: "var(--ink-low)",
+                letterSpacing: "0.08em",
+              }}
+            >
+              {m.label.slice(0, 4)}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

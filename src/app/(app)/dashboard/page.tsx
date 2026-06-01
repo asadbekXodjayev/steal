@@ -146,9 +146,9 @@ function SessionHistoryItem({ dayLabel, muscleTags, isCompleted, isUpcoming, isL
             <div className="flex gap-1 mt-0.5">
               {muscleTags.slice(0, 3).map((tag) => (
                 <span key={tag} className={cn(
-                  "px-1 py-0.5 border font-data text-[10px] uppercase tracking-widest",
-                  isLocked 
-                    ? "border-[#2a2a2a] text-[#3a3a3a]" 
+                  "px-1 py-0.5 border font-data text-[10px] uppercase tracking-[0.08em] sm:tracking-widest",
+                  isLocked
+                    ? "border-[#2a2a2a] text-[#3a3a3a]"
                     : "border-[#2a2a2a] text-[#525252]"
                 )}>
                   {tag}
@@ -186,7 +186,7 @@ function SkeletonGrid() {
         ))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-8 border border-[#2a2a2a] bg-[#0a0a0a] p-6 min-h-[280px]">
+        <div className="lg:col-span-8 border border-[#2a2a2a] bg-[#0a0a0a] p-4 sm:p-6 min-h-[200px] lg:min-h-[280px]">
           <div className="skeleton-steal h-4 w-32 mb-4" />
           <div className="skeleton-steal h-8 w-56 mb-3" />
           <div className="space-y-2">
@@ -195,7 +195,7 @@ function SkeletonGrid() {
             ))}
           </div>
         </div>
-        <div className="lg:col-span-4 border border-[#2a2a2a] bg-[#0a0a0a] p-5 min-h-[280px]">
+        <div className="lg:col-span-4 border border-[#2a2a2a] bg-[#0a0a0a] p-4 sm:p-5 min-h-[200px] lg:min-h-[280px]">
           <div className="skeleton-steal h-3 w-24 mb-4" />
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -624,7 +624,7 @@ function RecentFeed({ t }: { t: (path: string) => string }) {
               i < recentSessions.length - 1 && "border-b border-[#1a1a1a]"
             )}
           >
-            <span className="font-data text-[10px] text-[#525252] tabular-nums shrink-0 w-28">
+            <span className="font-data text-[9px] sm:text-[10px] text-[#525252] tabular-nums shrink-0 w-20 sm:w-28">
               {dateStr}
             </span>
             <span className="text-[#2a2a2a] select-none">—</span>
@@ -747,11 +747,11 @@ export default function DashboardPage() {
       >
         <div>
           <span className="font-data mb-1.5 block text-[10px] tracking-[0.24em] text-ink-low uppercase">
-            {t("dashboard.STEAL_THERAPY")}
+            {t("dashboard.STEEL_THERAPY")}
           </span>
           <h1
             className="font-heading uppercase leading-none text-[#f0f0f0]"
-            style={{ fontSize: 32, fontWeight: 700, letterSpacing: "-0.01em" }}
+            style={{ fontSize: "clamp(22px, 6vw, 32px)", fontWeight: 700, letterSpacing: "-0.01em" }}
           >
             {t("dashboard.OPERATIONS_DASHBOARD")}
           </h1>
@@ -772,7 +772,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── KPI row ────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
         <div className="glass kpi kpi-grn glass-hover fade-up fade-up-1">
           <span className="font-data mb-1.5 block text-[10px] tracking-[0.18em] text-ink-low uppercase">{t("dashboard.CURRENT_STREAK")}</span>
           <div className="font-heading leading-none" style={{ fontSize: 26, fontWeight: 700, color: "#22c55e" }}>
@@ -804,9 +804,9 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Main 3-col grid ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-[10px]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 lg:gap-[10px]">
         {/* Active Mission */}
-        <div className="glass-acc forge-pulse fade-up fade-up-2 p-4 space-y-3 min-h-[320px]">
+        <div className="glass-acc forge-pulse fade-up fade-up-2 p-4 space-y-3 min-h-[240px] sm:min-h-[320px]">
           <div className="flex items-center gap-2 mb-1">
             <span className="font-data text-[10px] tracking-[0.18em] text-ink-low uppercase">{t("dashboard.MISSION_BRIEFING")}</span>
             <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.06)" }} />
@@ -853,7 +853,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Week Schedule + Upcoming */}
-        <div className="glass fade-up fade-up-3 p-4 min-h-[320px]">
+        <div className="glass fade-up fade-up-3 p-4 min-h-[240px] sm:min-h-[320px]">
           <div className="flex items-center gap-2 mb-3">
             <span className="font-data text-[10px] tracking-[0.18em] text-ink-low uppercase">Week {displayWeek}</span>
             <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.06)" }} />
@@ -866,7 +866,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Activity Log + Recent PRs */}
-        <div className="flex flex-col gap-[8px] min-h-[320px]">
+        <div className="flex flex-col gap-[8px] min-h-[240px] sm:min-h-[320px]">
           <div className="glass fade-up fade-up-4 p-4 flex-1">
             <div className="flex items-center gap-2 mb-3">
               <span className="font-data text-[10px] tracking-[0.18em] text-ink-low uppercase">{t("dashboard.ACTIVITY_LOG")}</span>

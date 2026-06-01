@@ -94,8 +94,8 @@ export function MusclePieChart({ data }: MusclePieChartProps) {
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
       {/* Pie Chart */}
-      <div className="relative">
-        <svg width="200" height="200" viewBox="0 0 200 200">
+      <div className="relative w-full max-w-[200px] mx-auto lg:mx-0">
+        <svg width="100%" viewBox="0 0 200 200" style={{ display: "block" }}>
           {slices.map((slice) => (
             <path
               key={slice.muscle}
@@ -152,7 +152,7 @@ export function MusclePieChart({ data }: MusclePieChartProps) {
               style={{ backgroundColor: slice.color }}
             />
             <div className="flex-1 min-w-0">
-              <div className="stamp text-[9px] text-[#e5e5e5] tracking-widest truncate">
+              <div className="stamp text-[9px] text-[#e5e5e5] tracking-[0.08em] truncate">
                 {slice.muscle}
               </div>
               <div className="stamp text-[8px] text-[#71717A]">

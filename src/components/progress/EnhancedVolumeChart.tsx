@@ -25,7 +25,7 @@ export function EnhancedVolumeChart({ data }: EnhancedVolumeChartProps) {
   if (data.length === 0) {
     return (
       <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-6 text-center">
-        <p className="font-data text-xs uppercase tracking-widest text-[#71717A]">
+        <p className="font-data text-xs uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">
           Insufficient Data — Log More Sessions
         </p>
       </div>
@@ -36,7 +36,7 @@ export function EnhancedVolumeChart({ data }: EnhancedVolumeChartProps) {
   const avgVolume = data.reduce((sum, d) => sum + d.volume, 0) / data.length;
 
   return (
-    <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-3">
+    <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-3 w-full overflow-hidden">
       <div className="h-48 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -119,19 +119,19 @@ export function EnhancedVolumeChart({ data }: EnhancedVolumeChartProps) {
       {/* Mini stats row */}
       <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-[#2a2a2a]">
         <div>
-          <div className="font-data text-[9px] uppercase tracking-widest text-[#71717A]">Peak</div>
+          <div className="font-data text-[9px] uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">Peak</div>
           <div className="font-data text-xs font-bold tabular-nums text-[#e53e00]">
             {Math.round(maxVolume).toLocaleString()} kg
           </div>
         </div>
         <div>
-          <div className="font-data text-[9px] uppercase tracking-widest text-[#71717A]">Avg</div>
+          <div className="font-data text-[9px] uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">Avg</div>
           <div className="font-data text-xs font-bold tabular-nums text-[#a3a3a3]">
             {Math.round(avgVolume).toLocaleString()} kg
           </div>
         </div>
         <div>
-          <div className="font-data text-[9px] uppercase tracking-widest text-[#71717A]">Sessions</div>
+          <div className="font-data text-[9px] uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">Sessions</div>
           <div className="font-data text-xs font-bold tabular-nums text-[#525252]">
             {data.reduce((sum, d) => sum + d.sessions, 0)}
           </div>

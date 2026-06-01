@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, LazyMotion, domAnimation, AnimatePresence, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -26,22 +26,24 @@ export function ImpactFlash({ trigger }: ImpactFlashProps) {
   if (prefersReduced || !visible) return null;
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          key="impact-flash"
-          className="fixed inset-0 pointer-events-none z-50"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, rgba(185,28,28,0.55) 0%, transparent 70%)",
-          }}
-          animate={{ opacity: [0, 0.85, 0] }}
-          transition={{ duration: 0.22, ease: "easeOut" }}
-          onAnimationComplete={() => setVisible(false)}
-          aria-hidden="true"
-        />
-      )}
-    </AnimatePresence>
+    <LazyMotion features={domAnimation}>
+      <AnimatePresence>
+        {visible && (
+          <m.div
+            key="impact-flash"
+            className="fixed inset-0 pointer-events-none z-50"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, rgba(185,28,28,0.55) 0%, transparent 70%)",
+            }}
+            animate={{ opacity: [0, 0.85, 0] }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            onAnimationComplete={() => setVisible(false)}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+    </LazyMotion>
   );
 }
 
@@ -63,19 +65,21 @@ export function CounterFX({ value, className }: CounterFXProps) {
       aria-live="polite"
       aria-atomic="true"
     >
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={value}
-          className="inline-block"
-          initial={prefersReduced ? false : { y: "100%", opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={prefersReduced ? undefined : { y: "-100%", opacity: 0 }}
-          transition={{ duration: 0.08, ease: "easeOut" }}
-          style={{ display: "inline-block" }}
-        >
-          {value}
-        </motion.span>
-      </AnimatePresence>
+      <LazyMotion features={domAnimation}>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <m.span
+            key={value}
+            className="inline-block"
+            initial={prefersReduced ? false : { y: "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={prefersReduced ? undefined : { y: "-100%", opacity: 0 }}
+            transition={{ duration: 0.08, ease: "easeOut" }}
+            style={{ display: "inline-block" }}
+          >
+            {value}
+          </m.span>
+        </AnimatePresence>
+      </LazyMotion>
     </span>
   );
 }
@@ -171,38 +175,40 @@ export function CompletionBurst({ trigger, className }: CompletionBurstProps) {
       className={cn("relative pointer-events-none", className)}
       aria-hidden="true"
     >
-      <AnimatePresence>
-        {particles.map((p) => {
-          const rad = (p.angle * Math.PI) / 180;
-          const tx = Math.cos(rad) * p.distance;
-          const ty = Math.sin(rad) * p.distance;
-          return (
-            <motion.span
-              key={p.id}
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                width: 6,
-                height: 6,
-                background: "var(--rust)",
-                marginTop: -3,
-                marginLeft: -3,
-                display: "block",
-              }}
-              initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-              animate={{
-                x: tx,
-                y: ty,
-                opacity: 0,
-                scale: 0.3,
-              }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.45, ease: "easeOut" }}
-            />
-          );
-        })}
-      </AnimatePresence>
+      <LazyMotion features={domAnimation}>
+        <AnimatePresence>
+          {particles.map((p) => {
+            const rad = (p.angle * Math.PI) / 180;
+            const tx = Math.cos(rad) * p.distance;
+            const ty = Math.sin(rad) * p.distance;
+            return (
+              <m.span
+                key={p.id}
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  width: 6,
+                  height: 6,
+                  background: "var(--rust)",
+                  marginTop: -3,
+                  marginLeft: -3,
+                  display: "block",
+                }}
+                initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                animate={{
+                  x: tx,
+                  y: ty,
+                  opacity: 0,
+                  scale: 0.3,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+              />
+            );
+          })}
+        </AnimatePresence>
+      </LazyMotion>
     </div>
   );
 }

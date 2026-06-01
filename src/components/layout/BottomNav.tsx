@@ -30,7 +30,7 @@ export function BottomNav() {
     <nav
       className="fixed inset-x-0 bottom-0 z-50 glass-dark md:hidden"
       role="navigation"
-      aria-label="Main navigation"
+      aria-label={t("common.MAIN_NAVIGATION")}
     >
       <div className="flex h-16 items-center justify-around">
         {tabs.map((tab) => {
@@ -41,7 +41,7 @@ export function BottomNav() {
               key={tab.href}
               href={tab.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-1 font-data text-[11px] font-semibold uppercase tracking-widest transition-all",
+                "flex h-16 flex-col items-center justify-center gap-0.5 px-3 font-data text-[11px] font-semibold uppercase tracking-widest transition-all",
                 active ? "text-[#C2410C]" : "text-ink-mid hover:text-ink-high",
               )}
               aria-current={active ? "page" : undefined}

@@ -99,7 +99,7 @@ export function ExercisePickerModal({ open, onClose, onSelect }: Props) {
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 p-0 sm:p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="relative flex h-[90svh] sm:h-[80vh] w-full sm:max-w-2xl flex-col border border-[#2a2a2a] bg-[#0a0a0a] overflow-hidden">
+      <div className="relative flex h-[95svh] sm:h-[90svh] md:h-[80vh] w-full sm:max-w-2xl flex-col border border-[#2a2a2a] bg-[#0a0a0a] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#2a2a2a] px-4 py-3 shrink-0">
           <span className="font-data text-[10px] font-bold uppercase tracking-widest text-[#e53e00]">
@@ -108,7 +108,7 @@ export function ExercisePickerModal({ open, onClose, onSelect }: Props) {
           <button
             onClick={onClose}
             className="text-[#71717A] hover:text-[#E5E5E5] transition-colors"
-            aria-label="Close"
+            aria-label={t("common.CLOSE")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -167,7 +167,7 @@ export function ExercisePickerModal({ open, onClose, onSelect }: Props) {
                     className="group flex flex-col bg-[#0a0a0a] text-left hover:bg-[#111] transition-colors relative"
                   >
                     {/* Image */}
-                    <div className="relative aspect-video w-full overflow-hidden bg-[#111]">
+                    <div className="relative aspect-square sm:aspect-video w-full overflow-hidden bg-[#111]">
                       {original.image ? (
                         <Image
                           src={original.gif || original.image}

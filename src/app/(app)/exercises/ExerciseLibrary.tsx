@@ -266,7 +266,7 @@ export function ExerciseLibrary({ filters }: Props) {
         <div
           className="flex gap-2 overflow-x-auto pb-1 scroll-forge"
           role="group"
-          aria-label="Filter by body part"
+          aria-label={t("library.FILTER_BODY_PART")}
         >
           <FilterChip label={t("library.ALL")} active={bodyPart === ""} onClick={() => setBodyPart("")} />
           {filters.bodyParts.map((bp) => (
@@ -282,7 +282,7 @@ export function ExerciseLibrary({ filters }: Props) {
         <div
           className="flex gap-2 overflow-x-auto pb-1 scroll-forge"
           role="group"
-          aria-label="Filter by equipment"
+          aria-label={t("library.FILTER_EQUIPMENT")}
         >
           <FilterChip label={t("library.ANY_EQUIP")} active={equipment === ""} onClick={() => setEquipment("")} />
           {filters.equipment.map((eq) => (
@@ -298,7 +298,7 @@ export function ExerciseLibrary({ filters }: Props) {
         <div
           className="flex gap-2 overflow-x-auto pb-1 scroll-forge"
           role="group"
-          aria-label="Filter by target muscle"
+          aria-label={t("library.FILTER_MUSCLE")}
         >
           <FilterChip label={t("library.ALL_MUSCLES")} active={target === ""} onClick={() => setTarget("")} />
           {filters.targets.map((tgt) => (
@@ -325,7 +325,7 @@ export function ExerciseLibrary({ filters }: Props) {
 
       {/* Exercise grid */}
       {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pb-24 md:pb-0">
           {Array.from({ length: 12 }).map((_, i) => (
             <GridSkeleton key={i} />
           ))}
@@ -341,7 +341,7 @@ export function ExerciseLibrary({ filters }: Props) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pb-24 md:pb-0">
             {displayedExercises.map((ex) => (
               <ExerciseCard key={ex.id} exercise={ex} noImgLabel={t("library.NO_IMG")} />
             ))}

@@ -71,10 +71,10 @@ export default function WorkoutIndexPage() {
   );
 
   return (
-    <div className="space-y-6 py-4">
+    <div className="space-y-6 py-4 pb-24">
       <div>
         <h1
-          className="text-3xl font-extrabold uppercase tracking-tight"
+          className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight"
           style={{ fontFamily: "var(--font-heading, system-ui)" }}
         >
           {t("workout.TRAIN")}

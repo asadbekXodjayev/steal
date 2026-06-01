@@ -32,7 +32,7 @@ export function RepsDistributionChart({ data }: RepsDistributionChartProps) {
   if (data.length === 0) {
     return (
       <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-6 text-center">
-        <p className="font-data text-xs uppercase tracking-widest text-[#71717A]">
+        <p className="font-data text-xs uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">
           No Rep Data — Log More Sets
         </p>
       </div>
@@ -42,7 +42,7 @@ export function RepsDistributionChart({ data }: RepsDistributionChartProps) {
   const maxCount = Math.max(...data.map((d) => d.count));
 
   return (
-    <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-3">
+    <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-3 w-full overflow-hidden">
       <div className="h-48 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -95,27 +95,27 @@ export function RepsDistributionChart({ data }: RepsDistributionChartProps) {
       <div className="grid grid-cols-6 gap-1 mt-3 pt-3 border-t border-[#2a2a2a]">
         <div className="text-center">
           <div className="w-2 h-2 bg-[#166534] mx-auto mb-1" />
-          <span className="font-data text-[8px] uppercase tracking-widest text-[#525252]">1-3</span>
+          <span className="font-data text-[8px] uppercase tracking-[0.04em] text-[#525252]">1-3</span>
         </div>
         <div className="text-center">
           <div className="w-2 h-2 bg-[#15803d] mx-auto mb-1" />
-          <span className="font-data text-[8px] uppercase tracking-widest text-[#525252]">4-5</span>
+          <span className="font-data text-[8px] uppercase tracking-[0.04em] text-[#525252]">4-5</span>
         </div>
         <div className="text-center">
           <div className="w-2 h-2 bg-[#16a34a] mx-auto mb-1" />
-          <span className="font-data text-[8px] uppercase tracking-widest text-[#525252]">6-8</span>
+          <span className="font-data text-[8px] uppercase tracking-[0.04em] text-[#525252]">6-8</span>
         </div>
         <div className="text-center">
           <div className="w-2 h-2 bg-[#22c55e] mx-auto mb-1" />
-          <span className="font-data text-[8px] uppercase tracking-widest text-[#525252]">9-10</span>
+          <span className="font-data text-[8px] uppercase tracking-[0.04em] text-[#525252]">9-10</span>
         </div>
         <div className="text-center">
           <div className="w-2 h-2 bg-[#4ade80] mx-auto mb-1" />
-          <span className="font-data text-[8px] uppercase tracking-widest text-[#525252]">11-12</span>
+          <span className="font-data text-[8px] uppercase tracking-[0.04em] text-[#525252]">11-12</span>
         </div>
         <div className="text-center">
           <div className="w-2 h-2 bg-[#86efac] mx-auto mb-1" />
-          <span className="font-data text-[8px] uppercase tracking-widest text-[#525252]">13+</span>
+          <span className="font-data text-[8px] uppercase tracking-[0.04em] text-[#525252]">13+</span>
         </div>
       </div>
     </div>

@@ -36,7 +36,8 @@ export function SetRow({
   if (isCompleted) {
     return (
       <div
-        className="grid grid-cols-[2rem_1fr_1fr_2.5rem] items-center gap-2 px-3 py-2 mb-1"
+        // Use min-w-0 on the row so it doesn't overflow the card at 360px
+        className="grid grid-cols-[2rem_1fr_1fr_2.5rem] items-center gap-2 px-3 py-2 mb-1 min-w-0"
         style={{
           border: "1px solid rgba(34,197,94,0.2)",
           background: "rgba(34,197,94,0.04)",
@@ -49,8 +50,9 @@ export function SetRow({
         <span className="font-data text-sm font-bold tabular-nums text-[#e0e0e0] text-center">
           {completed.reps}
         </span>
+        {/* ≥44px touch target on mobile, shrinks at sm+ */}
         <div
-          className="flex h-7 w-7 items-center justify-center"
+          className="flex h-10 w-10 sm:h-7 sm:w-7 items-center justify-center"
           style={{ border: "1.5px solid rgba(34,197,94,0.4)", background: "rgba(34,197,94,0.1)" }}
         >
           <span style={{ color: "#22c55e", fontSize: 14 }}>✓</span>
@@ -61,7 +63,7 @@ export function SetRow({
 
   return (
     <div
-      className="grid grid-cols-[2rem_1fr_1fr_2.5rem] items-center gap-2 px-3 py-2 mb-1 transition-all"
+      className="grid grid-cols-[2rem_1fr_1fr_2.5rem] items-center gap-2 px-3 py-2 mb-1 transition-all min-w-0"
       style={
         isActive
           ? { border: "1px solid rgba(194,65,12,0.4)", background: "rgba(194,65,12,0.06)" }
@@ -70,7 +72,7 @@ export function SetRow({
     >
       <span className="font-data text-[9px] text-[#222] tabular-nums">{setNumber}</span>
 
-      {/* Weight input */}
+      {/* Weight input — h-10 on mobile for comfortable tapping, h-7 at sm+ */}
       <input
         type="number"
         inputMode="decimal"
@@ -79,7 +81,7 @@ export function SetRow({
         value={weight || ""}
         onChange={(e) => setWeight(Number(e.target.value))}
         placeholder={previousWeight ? String(previousWeight) : "kg"}
-        className="h-7 w-full text-center font-data text-sm font-bold tabular-nums focus:outline-none"
+        className="h-10 sm:h-7 w-full text-center font-data text-sm font-bold tabular-nums focus:outline-none"
         style={
           isActive
             ? {
@@ -96,7 +98,7 @@ export function SetRow({
         aria-label={`Set ${setNumber} weight`}
       />
 
-      {/* Reps input */}
+      {/* Reps input — h-10 on mobile for comfortable tapping, h-7 at sm+ */}
       <input
         type="number"
         inputMode="numeric"
@@ -105,7 +107,7 @@ export function SetRow({
         value={reps || ""}
         onChange={(e) => setReps(Number(e.target.value))}
         placeholder={previousReps ? String(previousReps) : targetReps}
-        className="h-7 w-full text-center font-data text-sm font-bold tabular-nums focus:outline-none"
+        className="h-10 sm:h-7 w-full text-center font-data text-sm font-bold tabular-nums focus:outline-none"
         style={
           isActive
             ? {
@@ -122,12 +124,12 @@ export function SetRow({
         aria-label={`Set ${setNumber} reps`}
       />
 
-      {/* Done button */}
+      {/* Done button — h-10 w-10 on mobile, h-7 w-7 at sm+ */}
       <button
         type="button"
         onClick={handleComplete}
         disabled={reps === 0 && weight === 0}
-        className="flex h-7 w-7 items-center justify-center transition-colors disabled:opacity-30"
+        className="flex h-10 w-10 sm:h-7 sm:w-7 items-center justify-center transition-colors disabled:opacity-30"
         style={{
           border: `1.5px solid ${(reps > 0 || weight > 0) ? "#C2410C" : "rgba(255,255,255,0.08)"}`,
           background: (reps > 0 || weight > 0) ? "rgba(194,65,12,0.1)" : "transparent",

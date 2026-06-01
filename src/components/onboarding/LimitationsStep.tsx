@@ -37,7 +37,7 @@ export function LimitationsStep({ form }: LimitationsStepProps) {
     <div className="space-y-6">
       <div className="space-y-1">
         <h2
-          className="text-2xl font-extrabold uppercase tracking-tight"
+          className="text-xl font-extrabold uppercase tracking-tight sm:text-2xl"
           style={{ fontFamily: "var(--font-heading, system-ui)" }}
         >
           {t("onboarding.INJURIES_TITLE")}
@@ -57,7 +57,7 @@ export function LimitationsStep({ form }: LimitationsStepProps) {
               type="button"
               onClick={() => remove(index)}
               className="absolute right-3 top-3 p-1 text-muted-foreground hover:text-foreground"
-              aria-label="Remove injury"
+              aria-label={t("onboarding.REMOVE_INJURY")}
             >
               <X className="h-4 w-4" />
             </button>

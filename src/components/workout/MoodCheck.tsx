@@ -20,8 +20,9 @@ export function MoodCheck({ value, onChange, label }: MoodCheckProps) {
             key={option.value}
             type="button"
             onClick={() => onChange(option.value as MoodLevel)}
+            // Squared corners — no rounded-*; min h-10 for 44px touch target on mobile
             className={cn(
-              "flex flex-1 flex-col items-center gap-1 rounded-lg border p-3 transition-colors",
+              "flex flex-1 flex-col items-center gap-1 border p-3 transition-colors min-h-[44px]",
               value === option.value
                 ? "border-foreground bg-accent"
                 : "border-border hover:border-foreground/30",
