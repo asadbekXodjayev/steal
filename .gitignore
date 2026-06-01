@@ -7,3 +7,10 @@ dist
 # PocketBase — binary and data (download with pocketbase/download.ps1)
 pocketbase/pocketbase.exe
 pocketbase/pb_data/
+
+# Flutter SDK — installed locally, never committed (clone separately)
+/flutter/
+
+# Flutter app build artifacts (the app's own .gitignore also covers these)
+steel_flutter/build/
+steel_flutter/.dart_tool/
