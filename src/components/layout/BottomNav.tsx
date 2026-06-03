@@ -32,7 +32,7 @@ export function BottomNav() {
       role="navigation"
       aria-label={t("common.MAIN_NAVIGATION")}
     >
-      <div className="flex h-16 items-center justify-around">
+      <div className="flex h-16 items-stretch overflow-hidden">
         {tabs.map((tab) => {
           const active =
             pathname === tab.href || pathname.startsWith(tab.href + "/");
@@ -41,18 +41,18 @@ export function BottomNav() {
               key={tab.href}
               href={tab.href}
               className={cn(
-                "flex h-16 flex-col items-center justify-center gap-0.5 px-3 font-data text-[11px] font-semibold uppercase tracking-widest transition-all",
+                "flex h-16 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 font-data text-[9px] font-semibold uppercase tracking-wide transition-all",
                 active ? "text-[#C2410C]" : "text-ink-mid hover:text-ink-high",
               )}
               aria-current={active ? "page" : undefined}
             >
               <tab.icon
                 className={cn(
-                  "h-5 w-5 transition-transform",
+                  "h-5 w-5 shrink-0 transition-transform",
                   active && "scale-110",
                 )}
               />
-              <span>{t(tab.labelKey)}</span>
+              <span className="w-full truncate text-center leading-tight">{t(tab.labelKey)}</span>
               {active && (
                 <span className="absolute bottom-0 left-1/2 h-0.5 w-8 -translate-x-1/2 bg-[#C2410C]" />
               )}

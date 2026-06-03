@@ -89,7 +89,7 @@ export function ExerciseCard({
         <div className="flex items-center gap-1 shrink-0">
           {allComplete && <span className="text-[#22c55e] text-sm">✓</span>}
           {isActive && (
-            <span className="tag-pill tag-pill-acc text-[8px]">ACTIVE</span>
+            <span className="tag-pill tag-pill-acc text-[8px]">{t("workout.ACTIVE_TAG")}</span>
           )}
           {!allComplete && !isActive && (
             <span className="font-data text-[14px] text-[#222]">›</span>
@@ -148,7 +148,7 @@ export function ExerciseCard({
               <div className="relative text-center">
                 <div style={{ fontSize: 28, opacity: 0.15 }}>▶</div>
                 <span className="font-data block text-[8px] text-[#2a2a2a] mt-1 tracking-widest uppercase">
-                  EXERCISE GIF
+                  {t("workout.EXERCISE_GIF_PLACEHOLDER")}
                 </span>
               </div>
             </div>
@@ -166,9 +166,9 @@ export function ExerciseCard({
 
           {/* Column headers */}
           <div className="grid grid-cols-[2rem_1fr_1fr_2.5rem] gap-2 px-3 py-2">
-            <span className="font-data text-[7px] uppercase tracking-widest text-[#222]">SET</span>
-            <span className="font-data text-[7px] uppercase tracking-widest text-[#222] text-center">WEIGHT</span>
-            <span className="font-data text-[7px] uppercase tracking-widest text-[#222] text-center">REPS</span>
+            <span className="font-data text-[7px] uppercase tracking-widest text-[#222]">{t("workout.SET_HEADER")}</span>
+            <span className="font-data text-[7px] uppercase tracking-widest text-[#222] text-center">{t("workout.WEIGHT_HEADER")}</span>
+            <span className="font-data text-[7px] uppercase tracking-widest text-[#222] text-center">{t("workout.REPS_HEADER")}</span>
             <span />
           </div>
 
@@ -195,7 +195,7 @@ export function ExerciseCard({
               className="btn-ghost flex-1 h-10 sm:h-8 text-[10px]"
               onClick={() => onCompleteSet({ weight: 0, reps: 0, rpe: 7 })}
             >
-              + Add Set
+              {t("workout.ADD_SET")}
             </button>
             <button
               type="button"
@@ -206,7 +206,7 @@ export function ExerciseCard({
                 onCompleteSet({ weight: last?.weight ?? 0, reps: last?.reps ?? 0, rpe: 7 });
               }}
             >
-              Log Set ✓
+              {t("workout.LOG_SET")}
             </button>
           </div>
         </div>

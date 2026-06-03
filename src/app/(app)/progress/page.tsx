@@ -74,13 +74,13 @@ interface PanelHeaderProps {
 }
 function PanelHeader({ label, sub, panelNum }: PanelHeaderProps) {
   return (
-    <div className="flex items-start justify-between mb-2">
-      <div>
+    <div className="flex items-start justify-between gap-2 mb-2">
+      <div className="min-w-0 flex-1">
         <div
           className="stamp"
-          style={{ 
-            color: "#e5e5e5", 
-            letterSpacing: "0.15em", 
+          style={{
+            color: "#e5e5e5",
+            letterSpacing: "0.1em",
             fontSize: 11,
             fontWeight: 700,
           }}
@@ -90,10 +90,10 @@ function PanelHeader({ label, sub, panelNum }: PanelHeaderProps) {
         {sub && (
           <div
             className="stamp mt-0.5"
-            style={{ 
-              color: "var(--ink-low)", 
-              fontSize: 10, 
-              letterSpacing: "0.12em" 
+            style={{
+              color: "var(--ink-low)",
+              fontSize: 10,
+              letterSpacing: "0.08em"
             }}
           >
             {sub}
@@ -102,11 +102,11 @@ function PanelHeader({ label, sub, panelNum }: PanelHeaderProps) {
       </div>
       {panelNum && (
         <span
-          className="stamp"
-          style={{ 
-            color: "var(--ink-low)", 
-            fontSize: 10, 
-            letterSpacing: "0.08em" 
+          className="stamp shrink-0"
+          style={{
+            color: "var(--ink-low)",
+            fontSize: 10,
+            letterSpacing: "0.08em"
           }}
         >
           {panelNum}
@@ -138,7 +138,7 @@ function KPIPanel({ label, value, subValue, trend, panelNum, accent = "orange" }
   const kpiType = accent === "green" ? "kpi-grn" : accent === "blue" ? "kpi-blu" : "kpi-acc";
   return (
     <div className={`glass kpi ${kpiType} glass-hover fade-up`}>
-      <span className="font-data mb-1.5 block text-[10px] tracking-[0.18em] text-ink-low uppercase">{label}</span>
+      <span className="font-data mb-1.5 block text-[10px] tracking-[0.1em] text-ink-low uppercase leading-tight">{label}</span>
       <div
         className="font-heading leading-none"
         style={{ fontSize: 26, fontWeight: 700, color: colors.text }}
@@ -605,7 +605,7 @@ export default function ProgressPage() {
     <div className="space-y-6 py-6">
       {/* ── HERO HEADER ────────────────────────────────────────────── */}
       <div className="border-b border-[#2a2a2a] pb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h1
               className="text-3xl font-extrabold uppercase tracking-tight text-[#e5e5e5]"
@@ -615,13 +615,11 @@ export default function ProgressPage() {
             </h1>
             <div className="mt-2" style={{ height: 2, width: 32, background: "linear-gradient(90deg,#C2410C,transparent)", boxShadow: "0 0 8px #C2410C" }} />
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="stamp" style={{ color: "var(--ink-low)", fontSize: 11, letterSpacing: "0.15em" }}>
-                {t("progress.LAST_SYNC")}
-              </span>
-              <LiveClock />
-            </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="stamp" style={{ color: "var(--ink-low)", fontSize: 11, letterSpacing: "0.08em" }}>
+              {t("progress.LAST_SYNC")}
+            </span>
+            <LiveClock />
           </div>
         </div>
       </div>
@@ -684,7 +682,7 @@ export default function ProgressPage() {
             <div>
               <PanelHeader
                 label={t("progress.PROGRESS_TREND")}
-                sub="e1RM vs RPE"
+                sub={t("progress.E1RM_VS_RPE")}
                 panelNum="06"
               />
               <ProgressTrendChart data={progressTrendData} />
@@ -700,7 +698,7 @@ export default function ProgressPage() {
           <div>
             <PanelHeader
               label={t("progress.CONTACT_MATRIX")}
-              sub={`YEAR ${new Date().getFullYear()}`}
+              sub={`${t("progress.YEAR_LABEL")} ${new Date().getFullYear()}`}
               panelNum="07"
             />
             <div className="overflow-x-auto">
@@ -746,7 +744,7 @@ export default function ProgressPage() {
       <div className="glass p-3 fade-up fade-up-4">
         <PanelHeader
           label={t("progress.PR_WALL")}
-          sub="ALL-TIME BESTS"
+          sub={t("progress.ALL_TIME_BESTS")}
           panelNum="10"
         />
         <PRBoard records={personalRecords.slice(0, 8)} />
@@ -755,7 +753,7 @@ export default function ProgressPage() {
       {/* ── PR WALL CARDS ────────────────────────────────────────────── */}
       <div className="fade-up fade-up-5">
         <div className="flex items-center gap-2 mb-3">
-          <span className="font-data text-[10px] text-ink-low tracking-[0.18em] uppercase">Recent Records</span>
+          <span className="font-data shrink-0 text-[10px] text-ink-low tracking-[0.1em] uppercase">{t("progress.RECENT_RECORDS")}</span>
           <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
         </div>
         <PRWall prs={prWallData} />

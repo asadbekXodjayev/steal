@@ -1,10 +1,12 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/ops_theme.dart';
 
-class OpsBottomNav extends StatelessWidget {
+class OpsBottomNav extends ConsumerWidget {
   const OpsBottomNav({
     super.key,
     required this.currentIndex,
@@ -14,17 +16,19 @@ class OpsBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onChanged;
 
+  // Tab order matches HomeScreen's IndexedStack children.
   static const _items = <_NavSpec>[
-    _NavSpec('HOME', Icons.grid_view_rounded),
-    _NavSpec('PROGRAMS', Icons.view_list_rounded),
-    _NavSpec('PLANS', Icons.description_outlined),
-    _NavSpec('STATS', Icons.show_chart_rounded),
-    _NavSpec('LIBRARY', Icons.menu_book_outlined),
-    _NavSpec('GEAR', Icons.settings_outlined),
+    _NavSpec('nav.HOME', Icons.grid_view_rounded),
+    _NavSpec('nav.PROGRAMS', Icons.view_list_rounded),
+    _NavSpec('nav.PLANS', Icons.description_outlined),
+    _NavSpec('nav.STATS', Icons.show_chart_rounded),
+    _NavSpec('nav.LIBRARY', Icons.menu_book_outlined),
+    _NavSpec('nav.GEAR', Icons.settings_outlined),
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(tProvider);
     return ClipRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
@@ -56,7 +60,10 @@ class OpsBottomNav extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              spec.label,
+                              t(spec.labelKey),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
                               style: steelMonoStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.w700,
@@ -86,7 +93,7 @@ class OpsBottomNav extends StatelessWidget {
 }
 
 class _NavSpec {
-  const _NavSpec(this.label, this.icon);
-  final String label;
+  const _NavSpec(this.labelKey, this.icon);
+  final String labelKey;
   final IconData icon;
 }

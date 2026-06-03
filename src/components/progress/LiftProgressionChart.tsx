@@ -12,6 +12,7 @@ import {
   Legend,
 } from "recharts";
 import type { SessionSet } from "@/types/session";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface LiftProgressionChartProps {
   sets: SessionSet[];
@@ -32,6 +33,8 @@ export function LiftProgressionChart({
   topExerciseIds,
   exerciseNames,
 }: LiftProgressionChartProps) {
+  const { t } = useI18n();
+
   const { rows, keys } = useMemo(() => {
     if (sets.length === 0 || topExerciseIds.length === 0) {
       return { rows: [], keys: [] as string[] };
@@ -79,7 +82,7 @@ export function LiftProgressionChart({
     return (
       <div className="border border-border bg-card p-6 text-center">
         <p className="font-data text-sm uppercase tracking-wider text-muted-foreground">
-          Log sessions to track lift progression.
+          {t("progress.LOG_FOR_PROGRESSION")}
         </p>
       </div>
     );

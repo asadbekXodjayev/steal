@@ -20,12 +20,14 @@ import { getPocketBase } from "@/lib/pocketbase";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { useI18n } from "@/components/providers/I18nProvider";
 
-const STEPS = [
-  { label: "STATS", component: ProfileStep },
-  { label: "INJURIES", component: LimitationsStep },
-  { label: "MISSION", component: GoalsStep },
-  { label: "ARENA", component: EnvironmentStep },
+const STEP_LABEL_KEYS = [
+  "onboarding.STATS_STEP",
+  "onboarding.INJURIES_STEP",
+  "onboarding.MISSION_STEP",
+  "onboarding.ARENA_STEP",
 ] as const;
+
+const STEP_COMPONENTS = [ProfileStep, LimitationsStep, GoalsStep, EnvironmentStep] as const;
 
 const STEP_FIELDS: (keyof OnboardingFormData)[][] = [
   ["age", "height", "weight", "gender", "fitnessLevel"],
@@ -59,9 +61,9 @@ export default function OnboardingPage() {
     mode: "onTouched",
   });
 
-  const StepComponent = STEPS[step].component;
-  const isLast = step === STEPS.length - 1;
-  const progress = ((step + 1) / STEPS.length) * 100;
+  const StepComponent = STEP_COMPONENTS[step];
+  const isLast = step === STEP_COMPONENTS.length - 1;
+  const progress = ((step + 1) / STEP_COMPONENTS.length) * 100;
 
   async function handleNext() {
     const fields = STEP_FIELDS[step];
@@ -156,10 +158,10 @@ export default function OnboardingPage() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="font-data text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            {t("onboarding.STEP")} {step + 1} / {STEPS.length}
+            {t("onboarding.STEP")} {step + 1} / {STEP_COMPONENTS.length}
           </span>
           <span className="font-data text-xs font-semibold uppercase tracking-widest text-[#e53e00]">
-            {STEPS[step].label}
+            {t(STEP_LABEL_KEYS[step])}
           </span>
         </div>
         <Progress value={progress} className="h-1" />
@@ -176,32 +178,32 @@ export default function OnboardingPage() {
           <StepComponent form={form} />
 
           {/* Navigation */}
-          <div className="mt-8 flex items-center justify-between">
+          <div className="mt-8 flex items-center justify-between gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => setStep((s) => s - 1)}
               disabled={step === 0}
-              className="rounded-none border-border font-data text-xs font-bold uppercase tracking-widest hover:border-foreground/40"
+              className="shrink-0 rounded-none border-border font-data text-xs font-bold uppercase tracking-wide hover:border-foreground/40"
             >
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <ArrowLeft className="mr-2 h-4 w-4 shrink-0" />
               {t("onboarding.BACK")}
             </Button>
 
             <Button
               type="submit"
               disabled={submitting}
-              className="rounded-none bg-[#e53e00] font-data text-xs font-bold uppercase tracking-widest text-white hover:bg-[#ff4500]"
+              className="min-w-0 max-w-[60%] rounded-none bg-[#e53e00] font-data text-xs font-bold uppercase tracking-wide text-white hover:bg-[#ff4500]"
             >
               {isLast ? (
                 <>
-                  <Check className="mr-2 h-4 w-4" />
-                  {submitting ? t("onboarding.SAVING") : t("onboarding.FINISH_SETUP")}
+                  <Check className="h-4 w-4 shrink-0" />
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap">{submitting ? t("onboarding.SAVING") : t("onboarding.FINISH_SETUP")}</span>
                 </>
               ) : (
                 <>
-                  {t("onboarding.NEXT")}
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap">{t("onboarding.NEXT")}</span>
+                  <ArrowRight className="h-4 w-4 shrink-0" />
                 </>
               )}
             </Button>

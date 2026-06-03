@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/pb_provider.dart';
+import 'exercise_db_api.dart';
 import 'models.dart';
 import 'repository.dart';
 
@@ -12,9 +13,10 @@ final repositoryProvider = Provider<SteelRepository>(
   (ref) => SteelRepository(ref.watch(pocketbaseProvider)),
 );
 
-/// Active UI language for template projection. Defaults to English; the
-/// settings screen can flip it. Kept here so providers can react to it.
-final languageProvider = StateProvider<String>((ref) => 'en');
+/// Active UI language for template projection and exercise translation.
+/// Defaults to Russian on a fresh install; main.dart overrides this with the
+/// persisted choice, and the settings screen can flip it.
+final languageProvider = StateProvider<String>((ref) => 'ru');
 
 // ── Profile / goals ─────────────────────────────────────────────────────────
 
@@ -65,12 +67,12 @@ final completedPlanDaysProvider =
 
 final exerciseSearchProvider = StateProvider<String>((ref) => '');
 
-/// The full exercise catalog, loaded once from the bundled
-/// `assets/exercises.json` (1,300+ exercises — the same static dataset the
-/// web app's library uses). The PocketBase `exercises` collection is empty,
-/// so we do NOT read it here.
-final _exerciseSourceProvider =
-    FutureProvider<List<ExerciseCatalogItem>>((ref) async {
+/// Single ExerciseDB API client.
+final exerciseDbApiProvider = Provider<ExerciseDbApi>((ref) => ExerciseDbApi());
+
+/// Load the bundled `assets/exercises.json` catalog (offline fallback — no
+/// gifs). Same static dataset the web app shipped before the live API.
+Future<List<ExerciseCatalogItem>> _loadBundledExercises() async {
   final raw = await rootBundle.loadString('assets/exercises.json');
   final decoded = jsonDecode(raw);
   final list = decoded is List
@@ -79,13 +81,54 @@ final _exerciseSourceProvider =
   return (list as List)
       .map((e) => ExerciseCatalogItem.fromJson(Map<String, dynamic>.from(e as Map)))
       .toList();
+}
+
+/// The full exercise catalog. Loads ALL ~1500 exercises from the ExerciseDB
+/// API (paginated, in-memory cached by the provider). On ANY network error it
+/// falls back to the bundled `assets/exercises.json` so the library still works
+/// offline — just without animated gifs. Mirrors the web's `getAllExercises`.
+final _exerciseSourceProvider =
+    FutureProvider<List<ExerciseCatalogItem>>((ref) async {
+  try {
+    final api = ref.watch(exerciseDbApiProvider);
+    final raw = await api.fetchAllExercises();
+    if (raw.isEmpty) return _loadBundledExercises();
+    return raw.map(ExerciseCatalogItem.fromApi).toList();
+  } catch (_) {
+    // Network/API failure → offline catalog.
+    return _loadBundledExercises();
+  }
 });
 
-/// Search-filtered view over the bundled catalog (filters in Dart so typing
-/// is instant and works offline).
-final exerciseCatalogProvider =
+/// Translation rows for the active language, keyed by exerciseExtId. Empty for
+/// English or when signed out (the PB collection requires auth). Re-fetches on
+/// language switch and on login. Mirrors the web `useExercisesBatchTranslation`.
+final exerciseTranslationsProvider =
+    FutureProvider<Map<String, ExerciseTranslation>>((ref) async {
+  ref.watch(currentUserIdProvider);
+  final lang = ref.watch(languageProvider);
+  if (lang == 'en') return const {};
+  return ref.watch(repositoryProvider).fetchExerciseTranslations(lang);
+});
+
+/// The full catalog with PocketBase translations overlaid when the active
+/// language is ru/uz. Falls back per-field to English. For English (or when no
+/// translations exist) it returns the catalog unchanged.
+final _translatedSourceProvider =
     FutureProvider<List<ExerciseCatalogItem>>((ref) async {
   final all = await ref.watch(_exerciseSourceProvider.future);
+  final lang = ref.watch(languageProvider);
+  if (lang == 'en') return all;
+  final translations = await ref.watch(exerciseTranslationsProvider.future);
+  if (translations.isEmpty) return all;
+  return all.map((e) => e.withTranslation(translations[e.id])).toList();
+});
+
+/// Search-filtered view over the (translated) catalog. Filtering runs in Dart
+/// so typing is instant; it now matches translated names/fields too.
+final exerciseCatalogProvider =
+    FutureProvider<List<ExerciseCatalogItem>>((ref) async {
+  final all = await ref.watch(_translatedSourceProvider.future);
   final q = ref.watch(exerciseSearchProvider).trim().toLowerCase();
   if (q.isEmpty) return all;
   return all
@@ -93,8 +136,39 @@ final exerciseCatalogProvider =
           e.name.toLowerCase().contains(q) ||
           e.muscleGroup.toLowerCase().contains(q) ||
           e.target.toLowerCase().contains(q) ||
+          e.bodyPart.toLowerCase().contains(q) ||
           e.equipment.toLowerCase().contains(q))
       .toList();
+});
+
+/// Fetch a single exercise by id for deep-links into the detail page. Tries
+/// the live API first, then the cached/bundled catalog as a fallback.
+final exerciseByIdProvider =
+    FutureProvider.family<ExerciseCatalogItem?, String>((ref, id) async {
+  final lang = ref.watch(languageProvider);
+
+  ExerciseCatalogItem? item;
+  try {
+    final api = ref.watch(exerciseDbApiProvider);
+    final raw = await api.getExerciseById(id);
+    if (raw != null) item = ExerciseCatalogItem.fromApi(raw);
+  } catch (_) {/* fall through to the cached catalog */}
+
+  if (item == null) {
+    // Cached/bundled list is already translated by _translatedSourceProvider.
+    final all = await ref.watch(_translatedSourceProvider.future);
+    for (final e in all) {
+      if (e.id == id || e.slug == id) return e;
+    }
+    return null;
+  }
+
+  // Overlay the PB translation on the freshly fetched English item.
+  if (lang != 'en') {
+    final translations = await ref.watch(exerciseTranslationsProvider.future);
+    item = item.withTranslation(translations[item.id]);
+  }
+  return item;
 });
 
 // ── Program templates ──────────────────────────────────────────────────────

@@ -13,6 +13,14 @@ import type { UseFormReturn } from "react-hook-form";
 import type { OnboardingFormData } from "./types";
 import { useI18n } from "@/components/providers/I18nProvider";
 
+const GOAL_KEY_MAP: Record<string, { label: string; desc: string }> = {
+  muscle_building: { label: "onboarding.GOAL_MUSCLE_BUILDING", desc: "onboarding.GOAL_MUSCLE_BUILDING_DESC" },
+  strength: { label: "onboarding.GOAL_STRENGTH", desc: "onboarding.GOAL_STRENGTH_DESC" },
+  fat_loss: { label: "onboarding.GOAL_FAT_LOSS", desc: "onboarding.GOAL_FAT_LOSS_DESC" },
+  endurance: { label: "onboarding.GOAL_ENDURANCE", desc: "onboarding.GOAL_ENDURANCE_DESC" },
+  rehabilitation: { label: "onboarding.GOAL_REHABILITATION", desc: "onboarding.GOAL_REHABILITATION_DESC" },
+};
+
 const goalIcons = {
   muscle_building: Zap,
   strength: Activity,
@@ -50,6 +58,7 @@ export function GoalsStep({ form }: GoalsStepProps) {
               {GOAL_OPTIONS.map((goal) => {
                 const Icon = goalIcons[goal.value];
                 const active = field.value === goal.value;
+                const keys = GOAL_KEY_MAP[goal.value];
                 return (
                   <button
                     key={goal.value}
@@ -66,10 +75,10 @@ export function GoalsStep({ form }: GoalsStepProps) {
                     />
                     <div>
                       <div className="font-data text-xs font-bold uppercase tracking-widest">
-                        {goal.label}
+                        {keys ? t(keys.label) : goal.label}
                       </div>
                       <div className="mt-0.5 font-data text-[10px] text-muted-foreground">
-                        {goal.description}
+                        {keys ? t(keys.desc) : goal.description}
                       </div>
                     </div>
                   </button>

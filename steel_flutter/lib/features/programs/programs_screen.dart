@@ -5,11 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/models.dart';
 import '../../data/providers.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/ops_theme.dart';
 import '../../shared/widgets/widgets.dart';
 import 'program_detail_screen.dart';
 
-/// Maps a PocketBase `goalType` onto a display category used by the filter.
+/// Maps a PocketBase `goalType` onto a canonical category id used by the filter.
 String _categoryForGoal(String goalType) {
   switch (goalType) {
     case 'strength':
@@ -26,13 +27,14 @@ String _categoryForGoal(String goalType) {
   }
 }
 
-const _categories = [
-  'ALL',
-  'STRENGTH',
-  'HYPERTROPHY',
-  'FAT LOSS',
-  'ENDURANCE',
-];
+/// Canonical category ids (stable, language-independent) → localization keys.
+const _categories = <String, String>{
+  'ALL': 'programs.CAT_ALL',
+  'STRENGTH': 'programs.CAT_STRENGTH',
+  'HYPERTROPHY': 'programs.CAT_HYPERTROPHY',
+  'FAT LOSS': 'programs.CAT_FAT_LOSS',
+  'ENDURANCE': 'programs.CAT_ENDURANCE',
+};
 
 class ProgramsScreen extends ConsumerStatefulWidget {
   const ProgramsScreen({super.key});
@@ -46,7 +48,9 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(tProvider);
     final templatesAsync = ref.watch(programTemplatesProvider);
+    final categoryIds = _categories.keys.toList();
 
     return Scaffold(
       backgroundColor: SteelOpsColors.background,
@@ -55,10 +59,10 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (err, _) => Center(
             child: SteelEmptyState(
-              title: 'Could not load programs',
+              title: t('programs.COULD_NOT_LOAD'),
               subtitle: '$err',
               icon: Icons.cloud_off,
-              actionLabel: 'RETRY',
+              actionLabel: t('common.RETRY'),
               onAction: () => ref.invalidate(programTemplatesProvider),
             ),
           ),
@@ -66,7 +70,8 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
             final filtered = _selectedCategory == 'ALL'
                 ? templates
                 : templates
-                    .where((t) => _categoryForGoal(t.goalType) == _selectedCategory)
+                    .where((tpl) =>
+                        _categoryForGoal(tpl.goalType) == _selectedCategory)
                     .toList();
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +81,7 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('PROGRAMS',
+                      Text(t('programs.TITLE'),
                           style: steelHeadingStyle(
                               fontSize: 42, fontWeight: FontWeight.w900)),
                       Container(
@@ -85,7 +90,7 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
                         margin: const EdgeInsets.only(top: 4, bottom: 6),
                         color: SteelOpsColors.orange,
                       ),
-                      Text('${templates.length} LEGEND PROGRAMS',
+                      Text('${templates.length} ${t('programs.LEGEND_PROGRAMS')}',
                           style: steelMonoStyle(
                               fontSize: 11, color: SteelOpsColors.muted)),
                       const SizedBox(height: 20),
@@ -97,10 +102,10 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: _categories.length,
+                    itemCount: categoryIds.length,
                     separatorBuilder: (_, _) => const SizedBox(width: 8),
                     itemBuilder: (context, i) {
-                      final cat = _categories[i];
+                      final cat = categoryIds[i];
                       final selected = _selectedCategory == cat;
                       return GestureDetector(
                         onTap: () => setState(() => _selectedCategory = cat),
@@ -121,7 +126,7 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
                             ),
                           ),
                           child: Text(
-                            cat,
+                            t(_categories[cat]!),
                             style: steelMonoStyle(
                               fontSize: 11,
                               color:
@@ -138,10 +143,10 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: filtered.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: SteelEmptyState(
-                            title: 'No programs here',
-                            subtitle: 'Try a different category.',
+                            title: t('programs.NO_PROGRAMS_TITLE'),
+                            subtitle: t('programs.NO_PROGRAMS_DESC'),
                           ),
                         )
                       : RefreshIndicator(
@@ -179,7 +184,7 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
   }
 }
 
-class _ProgramCard extends StatelessWidget {
+class _ProgramCard extends ConsumerWidget {
   const _ProgramCard({
     required this.template,
     required this.featured,
@@ -190,7 +195,8 @@ class _ProgramCard extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(tProvider);
     return Container(
       decoration: BoxDecoration(
         color: SteelOpsColors.surface,
@@ -228,7 +234,7 @@ class _ProgramCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     color: SteelOpsColors.orange,
-                    child: Text('FEATURED',
+                    child: Text(t('programs.FEATURED'),
                         style: steelMonoStyle(
                             fontSize: 9,
                             color: Colors.white,
@@ -266,7 +272,7 @@ class _ProgramCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '${template.daysPerWeek} DAYS/WEEK  ·  ${template.sessionLength}',
+                    '${template.daysPerWeek} ${t('programs.DAYS_WEEK')}  ·  ${template.sessionLength}',
                     style: steelMonoStyle(
                         fontSize: 8, color: SteelOpsColors.muted),
                   ),
@@ -283,7 +289,7 @@ class _ProgramCard extends StatelessWidget {
                                 border: Border.all(
                                     color: SteelOpsColors.borderStrong),
                               ),
-                              child: Text(tag,
+                              child: Text(t('programs.tag.$tag'),
                                   style: steelMonoStyle(
                                       fontSize: 8,
                                       color: SteelOpsColors.inkMid,
@@ -307,7 +313,7 @@ class _ProgramCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        featured ? 'VIEW PROGRAM' : 'VIEW',
+                        featured ? t('programs.VIEW_PROGRAM') : t('programs.VIEW'),
                         textAlign: TextAlign.center,
                         style: steelMonoStyle(
                           fontSize: 10,

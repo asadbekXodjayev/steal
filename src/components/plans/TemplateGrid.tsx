@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTemplates } from "@/hooks/usePlans";
 import { Clock, Dumbbell } from "lucide-react";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 export function TemplateGrid() {
   const { data: templates, isLoading } = useTemplates();
+  const { t } = useI18n();
 
   if (isLoading) {
     return (
@@ -25,7 +27,7 @@ export function TemplateGrid() {
       <div className="rounded-lg border border-dashed border-border p-8 text-center">
         <Dumbbell className="mx-auto h-8 w-8 text-muted-foreground" />
         <p className="mt-2 text-sm text-muted-foreground">
-          No templates available yet. Generate a custom plan instead.
+          {t("plans.NO_TEMPLATES")}
         </p>
       </div>
     );
@@ -49,13 +51,13 @@ export function TemplateGrid() {
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {template.durationWeeks} weeks
+                  {template.durationWeeks} {t("plans.WEEKS_SUFFIX")}
                 </span>
-                <span>{template.goalType.replace("_", " ")}</span>
-                <span>{template.environment}</span>
+                <span>{t(`enums.goalType.${template.goalType}`)}</span>
+                <span>{t(`enums.environment.${template.environment}`)}</span>
               </div>
               <Button variant="outline" size="sm" className="w-full">
-                Use This Template
+                {t("plans.USE_TEMPLATE")}
               </Button>
             </div>
           </CardContent>

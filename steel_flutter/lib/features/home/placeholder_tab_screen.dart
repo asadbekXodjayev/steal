@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../shared/ops_theme.dart';
 
-class PlaceholderTabScreen extends StatelessWidget {
+class PlaceholderTabScreen extends ConsumerWidget {
   const PlaceholderTabScreen({super.key, required this.title});
 
   final String title;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(tProvider);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -22,7 +25,7 @@ class PlaceholderTabScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'COMING ONLINE',
+              t('home.PLACEHOLDER_ONLINE'),
               style: steelMonoStyle(
                 fontSize: 11,
                 letterSpacing: 2,

@@ -19,13 +19,13 @@ function formatDuration(seconds: number): string {
   return `${seconds}s`;
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, t: (key: string) => string): string {
   const d = new Date(iso);
   const now = new Date();
   const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000);
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffDays === 0) return t("common.TODAY");
+  if (diffDays === 1) return t("common.YESTERDAY");
+  if (diffDays < 7) return t("common.DAYS_AGO").replace("{n}", String(diffDays));
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
@@ -56,7 +56,7 @@ function SessionDetailModal({
         <div className="flex items-center justify-between border-b border-[#2a2a2a] px-4 py-3 shrink-0">
           <div>
             <span className="font-data text-[10px] font-bold uppercase tracking-widest text-[#e53e00]">
-              {formatDate(session.date)}
+              {formatDate(session.date, t)}
             </span>
             <div className="flex items-center gap-3 mt-0.5">
               <span className="font-data text-[9px] uppercase tracking-widest text-[#525252]">
@@ -192,7 +192,7 @@ export function SessionHistory() {
                   )}
                   <div>
                     <p className="font-data text-[11px] font-bold uppercase tracking-widest text-[#e5e5e5]">
-                      {formatDate(session.date)}
+                      {formatDate(session.date, t)}
                     </p>
                     <p className="font-data text-[9px] uppercase tracking-widest text-[#525252] mt-0.5">
                       {formatDuration(session.duration)}

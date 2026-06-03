@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../shared/ops_theme.dart';
 import '../auth/auth_provider.dart';
 import 'operations_dashboard_view.dart';
@@ -30,7 +31,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (id != null && id.length >= 6) {
       return id.substring(0, 6).toUpperCase();
     }
-    return 'OPERATOR';
+    return ref.read(tProvider)('profile.OPERATOR');
   }
 
   String _operatorInitial(AuthState auth) {
@@ -43,6 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _showProfileMenu() {
     final auth = ref.read(authProvider);
+    final t = ref.read(tProvider);
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: SteelOpsColors.surface,
@@ -56,11 +58,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 ListTile(
                   title: Text(
-                    auth.email ?? auth.userId ?? 'Account',
+                    auth.email ?? auth.userId ?? t('profile.ACCOUNT'),
                     style: const TextStyle(color: Colors.white),
                   ),
                   subtitle: Text(
-                    'OPERATOR',
+                    t('profile.OPERATOR'),
                     style: TextStyle(color: SteelOpsColors.muted, fontSize: 12),
                   ),
                 ),
@@ -70,9 +72,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Icons.logout,
                     color: SteelOpsColors.orange,
                   ),
-                  title: const Text(
-                    'Sign out',
-                    style: TextStyle(color: Colors.white),
+                  title: Text(
+                    t('profile.SIGN_OUT'),
+                    style: const TextStyle(color: Colors.white),
                   ),
                   onTap: auth.isBusy
                       ? null

@@ -20,6 +20,12 @@ import type { UseFormReturn } from "react-hook-form";
 import type { OnboardingFormData } from "./types";
 import { useI18n } from "@/components/providers/I18nProvider";
 
+const FITNESS_LEVEL_KEY_MAP: Record<string, { label: string; desc: string }> = {
+  beginner: { label: "onboarding.FITNESS_BEGINNER", desc: "onboarding.FITNESS_BEGINNER_DESC" },
+  intermediate: { label: "onboarding.FITNESS_INTERMEDIATE", desc: "onboarding.FITNESS_INTERMEDIATE_DESC" },
+  advanced: { label: "onboarding.FITNESS_ADVANCED", desc: "onboarding.FITNESS_ADVANCED_DESC" },
+};
+
 interface ProfileStepProps {
   form: UseFormReturn<OnboardingFormData>;
 }
@@ -76,7 +82,7 @@ export function ProfileStep({ form }: ProfileStepProps) {
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="rounded-none border-border bg-input font-data text-sm">
-                    <SelectValue placeholder="Select" />
+                    <SelectValue placeholder={t("onboarding.GENDER_SELECT")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent className="rounded-none border-border bg-card">
@@ -151,25 +157,28 @@ export function ProfileStep({ form }: ProfileStepProps) {
               {t("onboarding.EXPERIENCE_DESC")}
             </p>
             <div className="grid gap-2 sm:grid-cols-3">
-              {FITNESS_LEVELS.map((level) => (
-                <button
-                  key={level.value}
-                  type="button"
-                  onClick={() => field.onChange(level.value)}
-                  className={`border p-4 text-left transition-colors ${
-                    field.value === level.value
-                      ? "border-[#e53e00] bg-[#e53e00]/10"
-                      : "border-border hover:border-[#e53e00]/40"
-                  }`}
-                >
-                  <div className="font-data text-xs font-bold uppercase tracking-widest">
-                    {level.label}
-                  </div>
-                  <div className="mt-1 font-data text-[10px] text-muted-foreground">
-                    {level.description}
-                  </div>
-                </button>
-              ))}
+              {FITNESS_LEVELS.map((level) => {
+                const keys = FITNESS_LEVEL_KEY_MAP[level.value];
+                return (
+                  <button
+                    key={level.value}
+                    type="button"
+                    onClick={() => field.onChange(level.value)}
+                    className={`border p-4 text-left transition-colors ${
+                      field.value === level.value
+                        ? "border-[#e53e00] bg-[#e53e00]/10"
+                        : "border-border hover:border-[#e53e00]/40"
+                    }`}
+                  >
+                    <div className="font-data text-xs font-bold uppercase tracking-widest">
+                      {keys ? t(keys.label) : level.label}
+                    </div>
+                    <div className="mt-1 font-data text-[10px] text-muted-foreground">
+                      {keys ? t(keys.desc) : level.description}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
             <FormMessage />
           </FormItem>

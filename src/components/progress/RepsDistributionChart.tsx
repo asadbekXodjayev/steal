@@ -9,6 +9,7 @@ import {
   Tooltip,
   Cell
 } from "recharts";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface RepsDistributionData {
   reps: string;
@@ -21,7 +22,7 @@ interface RepsDistributionChartProps {
 
 const repColors = [
   "#166534", // 1-3: very heavy
-  "#15803d", // 4-5: heavy  
+  "#15803d", // 4-5: heavy
   "#16a34a", // 6-8: moderate
   "#22c55e", // 9-10: light
   "#4ade80", // 11-12: very light
@@ -29,17 +30,21 @@ const repColors = [
 ];
 
 export function RepsDistributionChart({ data }: RepsDistributionChartProps) {
+  const { t } = useI18n();
+
   if (data.length === 0) {
     return (
       <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-6 text-center">
         <p className="font-data text-xs uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">
-          No Rep Data — Log More Sets
+          {t("progress.NO_REP_DATA")}
         </p>
       </div>
     );
   }
 
   const maxCount = Math.max(...data.map((d) => d.count));
+  const repsSuffix = t("progress.TOOLTIP_REPS_SUFFIX");
+  const occurrencesLabel = t("progress.TOOLTIP_OCCURRENCES");
 
   return (
     <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-3 w-full overflow-hidden">
@@ -72,9 +77,9 @@ export function RepsDistributionChart({ data }: RepsDistributionChartProps) {
                     color: "#e5e5e5",
                   }}>
                     <div style={{ color: "#e53e00", textTransform: "uppercase", fontWeight: 700, marginBottom: "4px" }}>
-                      {d.reps} reps
+                      {d.reps} {repsSuffix}
                     </div>
-                    <div>Occurrences: {d.count}</div>
+                    <div>{occurrencesLabel}: {d.count}</div>
                   </div>
                 );
               }}

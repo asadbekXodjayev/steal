@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { ACHIEVEMENT_DEFS } from "@/hooks/useAchievements";
 import { formatDate } from "@/lib/utils";
+import { useI18n } from "@/components/providers/I18nProvider";
 import type {
   AchievementDef,
   AchievementTier,
@@ -30,9 +31,10 @@ const TIER_ORDER: Record<AchievementTier, number> = {
 interface BadgeProps {
   def: AchievementDef;
   unlockedAt: string | null;
+  lockedLabel: string;
 }
 
-function Badge({ def, unlockedAt }: BadgeProps) {
+function Badge({ def, unlockedAt, lockedLabel }: BadgeProps) {
   const tierColor = TIER_COLORS[def.tier];
   const isLocked = unlockedAt === null;
 
@@ -70,7 +72,7 @@ function Badge({ def, unlockedAt }: BadgeProps) {
 
       <div className="font-data mt-3 text-[10px] uppercase tracking-wider">
         {isLocked ? (
-          <span className="text-muted-foreground">— LOCKED —</span>
+          <span className="text-muted-foreground">{lockedLabel}</span>
         ) : (
           <span style={{ color: tierColor }}>{formatDate(unlockedAt)}</span>
         )}
@@ -80,6 +82,8 @@ function Badge({ def, unlockedAt }: BadgeProps) {
 }
 
 export function AchievementsBoard({ unlocked }: AchievementsBoardProps) {
+  const { t } = useI18n();
+
   const merged = useMemo(() => {
     const unlockedMap = new Map(unlocked.map((u) => [u.id, u.unlockedAt]));
     return Object.values(ACHIEVEMENT_DEFS)
@@ -95,6 +99,8 @@ export function AchievementsBoard({ unlocked }: AchievementsBoardProps) {
       });
   }, [unlocked]);
 
+  const lockedLabel = t("progress.LOCKED");
+
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {merged.map((entry) => (
@@ -102,6 +108,7 @@ export function AchievementsBoard({ unlocked }: AchievementsBoardProps) {
           key={entry.def.id}
           def={entry.def}
           unlockedAt={entry.unlockedAt}
+          lockedLabel={lockedLabel}
         />
       ))}
     </div>

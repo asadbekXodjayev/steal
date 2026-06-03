@@ -13,6 +13,28 @@ import type { OnboardingFormData } from "./types";
 import type { EquipmentItem } from "@/types/profile";
 import { useI18n } from "@/components/providers/I18nProvider";
 
+const ENV_KEY_MAP: Record<string, { label: string; desc: string }> = {
+  gym: { label: "onboarding.ENV_GYM", desc: "onboarding.ENV_GYM_DESC" },
+  home: { label: "onboarding.ENV_HOME", desc: "onboarding.ENV_HOME_DESC" },
+  outdoor: { label: "onboarding.ENV_OUTDOOR", desc: "onboarding.ENV_OUTDOOR_DESC" },
+  mixed: { label: "onboarding.ENV_MIXED", desc: "onboarding.ENV_MIXED_DESC" },
+};
+
+const EQUIP_KEY_MAP: Record<string, string> = {
+  bodyweight: "onboarding.EQUIP_BODYWEIGHT",
+  dumbbells: "onboarding.EQUIP_DUMBBELLS",
+  barbell: "onboarding.EQUIP_BARBELL",
+  kettlebell: "onboarding.EQUIP_KETTLEBELL",
+  resistance_bands: "onboarding.EQUIP_RESISTANCE_BANDS",
+  pullup_bar: "onboarding.EQUIP_PULLUP_BAR",
+  bench: "onboarding.EQUIP_BENCH",
+  squat_rack: "onboarding.EQUIP_SQUAT_RACK",
+  cables: "onboarding.EQUIP_CABLES",
+  machines: "onboarding.EQUIP_MACHINES",
+  dip_bars: "onboarding.EQUIP_DIP_BARS",
+  foam_roller: "onboarding.EQUIP_FOAM_ROLLER",
+};
+
 const envIcons = {
   gym: Building2,
   home: Home,
@@ -51,6 +73,7 @@ export function EnvironmentStep({ form }: EnvironmentStepProps) {
               {ENVIRONMENT_OPTIONS.map((env) => {
                 const Icon = envIcons[env.value];
                 const active = field.value === env.value;
+                const keys = ENV_KEY_MAP[env.value];
                 return (
                   <button
                     key={env.value}
@@ -67,10 +90,10 @@ export function EnvironmentStep({ form }: EnvironmentStepProps) {
                     />
                     <div>
                       <div className="font-data text-xs font-bold uppercase tracking-widest">
-                        {env.label}
+                        {keys ? t(keys.label) : env.label}
                       </div>
                       <div className="mt-0.5 font-data text-[10px] text-muted-foreground">
-                        {env.description}
+                        {keys ? t(keys.desc) : env.description}
                       </div>
                     </div>
                   </button>
@@ -97,6 +120,7 @@ export function EnvironmentStep({ form }: EnvironmentStepProps) {
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
                 {EQUIPMENT_OPTIONS.map((eq) => {
                   const selected = (field.value as EquipmentItem[]).includes(eq.value);
+                  const equipKey = EQUIP_KEY_MAP[eq.value];
                   return (
                     <button
                       key={eq.value}
@@ -115,7 +139,7 @@ export function EnvironmentStep({ form }: EnvironmentStepProps) {
                           : "border-border text-muted-foreground hover:border-[#e53e00]/40"
                       }`}
                     >
-                      <span className="font-data text-xs">{eq.label}</span>
+                      <span className="font-data text-xs">{equipKey ? t(equipKey) : eq.label}</span>
                     </button>
                   );
                 })}

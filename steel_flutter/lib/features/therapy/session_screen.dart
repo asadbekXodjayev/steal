@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../shared/ops_theme.dart';
 import '../../shared/widgets/widgets.dart';
 import 'session_provider.dart';
@@ -56,6 +57,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
+    final t = ref.watch(tProvider);
 
     // Navigate away once the session is marked completed.
     ref.listen<SessionState>(sessionProvider, (prev, next) {
@@ -64,7 +66,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'SESSION COMPLETE — STEEL FORGED.',
+              t('session.SESSION_COMPLETE_MSG'),
               style: steelMonoStyle(
                   fontSize: 12, color: Colors.white, letterSpacing: 1.2),
             ),
@@ -80,10 +82,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     return Scaffold(
       backgroundColor: SteelOpsColors.background,
       appBar: SteelAppBar(
-        title: 'WORKOUT SESSION',
+        title: t('session.TITLE'),
         leading: IconButton(
           icon: const Icon(Icons.close, color: SteelOpsColors.inkMid),
-          tooltip: 'Cancel session',
+          tooltip: t('session.CANCEL'),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: session.isActive
@@ -91,7 +93,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                 TextButton(
                   onPressed: session.isSaving ? null : _onFinishTapped,
                   child: Text(
-                    'FINISH',
+                    t('session.FINISH'),
                     style: steelMonoStyle(
                         fontSize: 12, color: SteelOpsColors.orange),
                   ),
@@ -128,6 +130,7 @@ class _SessionBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(tProvider);
     if (session.isSaving && session.isIdle) {
       return const Center(
         child: CircularProgressIndicator(color: SteelOpsColors.forge),
@@ -138,9 +141,9 @@ class _SessionBody extends ConsumerWidget {
       return Center(
         child: SteelEmptyState(
           icon: Icons.fitness_center_outlined,
-          title: 'Session not started',
-          subtitle: 'Something went wrong starting your session.',
-          actionLabel: 'Retry',
+          title: t('session.NOT_STARTED'),
+          subtitle: t('session.NOT_STARTED_DESC'),
+          actionLabel: t('session.RETRY'),
           onAction: () =>
               ref.read(sessionProvider.notifier).start(),
         ),
@@ -150,13 +153,12 @@ class _SessionBody extends ConsumerWidget {
     if (session.exercises.isEmpty) {
       return Column(
         children: [
-          const Expanded(
+          Expanded(
             child: Center(
               child: SteelEmptyState(
                 icon: Icons.add_circle_outline,
-                title: 'No exercises yet',
-                subtitle:
-                    'Add an exercise below to start logging sets.',
+                title: t('session.NO_EXERCISES'),
+                subtitle: t('session.NO_EXERCISES_DESC'),
               ),
             ),
           ),
@@ -222,6 +224,7 @@ class _ExerciseCardState extends ConsumerState<_ExerciseCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(tProvider);
     final ex = widget.exercise;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -252,7 +255,9 @@ class _ExerciseCardState extends ConsumerState<_ExerciseCard> {
                 ),
                 if (ex.targetSets > 0)
                   Text(
-                    '${ex.loggedSets.length}/${ex.targetSets} sets',
+                    t('session.SETS')
+                        .replaceAll('{logged}', '${ex.loggedSets.length}')
+                        .replaceAll('{target}', '${ex.targetSets}'),
                     style: steelMonoStyle(
                         fontSize: 10, color: SteelOpsColors.forge),
                   ),
@@ -266,9 +271,11 @@ class _ExerciseCardState extends ConsumerState<_ExerciseCard> {
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
               child: Text(
                 [
-                  if (ex.repsLabel.isNotEmpty) 'TARGET ${ex.repsLabel} REPS',
+                  if (ex.repsLabel.isNotEmpty)
+                    t('session.TARGET_REPS')
+                        .replaceAll('{reps}', ex.repsLabel),
                   if (ex.rpeTarget > 0)
-                    'RPE ${ex.rpeTarget.toStringAsFixed(0)}',
+                    '${t('session.RPE')} ${ex.rpeTarget.toStringAsFixed(0)}',
                 ].join('  ·  '),
                 style: steelMonoStyle(
                     fontSize: 9,
@@ -294,25 +301,25 @@ class _ExerciseCardState extends ConsumerState<_ExerciseCard> {
             child: Row(
               children: [
                 _NumField(
-                  label: 'REPS',
+                  label: t('session.FIELD_REPS'),
                   controller: _repsCtrl,
                   digits: false,
                 ),
                 const SizedBox(width: 8),
                 _NumField(
-                  label: 'KG',
+                  label: t('session.FIELD_KG'),
                   controller: _weightCtrl,
                   digits: true,
                 ),
                 const SizedBox(width: 8),
                 _NumField(
-                  label: 'RPE',
+                  label: t('session.FIELD_RPE'),
                   controller: _rpeCtrl,
                   digits: true,
                 ),
                 const SizedBox(width: 10),
                 SteelForgeButton(
-                  label: '+ SET',
+                  label: t('session.ADD_SET'),
                   expanded: false,
                   onPressed: _addSet,
                 ),
@@ -329,12 +336,13 @@ class _ExerciseCardState extends ConsumerState<_ExerciseCard> {
 // A single logged set row
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _SetRow extends StatelessWidget {
+class _SetRow extends ConsumerWidget {
   const _SetRow({required this.set});
   final LoggedSet set;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(tProvider);
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
@@ -350,19 +358,19 @@ class _SetRow extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            '${set.reps} reps',
+            '${set.reps} ${t('session.REPS')}',
             style: steelMonoStyle(
                 fontSize: 11, color: SteelOpsColors.inkMid),
           ),
           const SizedBox(width: 12),
           Text(
-            '${set.weight.toStringAsFixed(set.weight % 1 == 0 ? 0 : 1)} kg',
+            '${set.weight.toStringAsFixed(set.weight % 1 == 0 ? 0 : 1)} ${t('session.KG')}',
             style: steelMonoStyle(
                 fontSize: 11, color: SteelOpsColors.inkMid),
           ),
           const SizedBox(width: 12),
           Text(
-            'RPE ${set.rpe.toStringAsFixed(0)}',
+            '${t('session.RPE')} ${set.rpe.toStringAsFixed(0)}',
             style: steelMonoStyle(
                 fontSize: 10, color: SteelOpsColors.inkDim),
           ),
@@ -423,6 +431,7 @@ class _AddExerciseBarState extends ConsumerState<_AddExerciseBar> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(tProvider);
     return Container(
       color: SteelOpsColors.surfaceElevated,
       padding: const EdgeInsets.all(12),
@@ -431,7 +440,7 @@ class _AddExerciseBarState extends ConsumerState<_AddExerciseBar> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'ADD EXERCISE',
+            t('session.ADD_EXERCISE'),
             style: steelMonoStyle(
                 fontSize: 9,
                 color: SteelOpsColors.muted,
@@ -448,7 +457,7 @@ class _AddExerciseBarState extends ConsumerState<_AddExerciseBar> {
                       fontSize: 12, color: SteelOpsColors.inkHigh),
                   textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
-                    hintText: 'Custom exercise name...',
+                    hintText: t('session.CUSTOM_HINT'),
                     hintStyle: steelMonoStyle(
                         fontSize: 12, color: SteelOpsColors.inkDim),
                     isDense: true,
@@ -470,7 +479,7 @@ class _AddExerciseBarState extends ConsumerState<_AddExerciseBar> {
               ),
               const SizedBox(width: 8),
               SteelForgeButton(
-                label: 'ADD',
+                label: t('session.ADD'),
                 expanded: false,
                 onPressed: () => _addExercise(_customCtrl.text),
               ),
@@ -528,7 +537,13 @@ class _FinishSheetState extends ConsumerState<_FinishSheet> {
   final _notesCtrl = TextEditingController();
 
   static const _moods = ['great', 'good', 'okay', 'tired', 'bad'];
-  static const _moodLabels = ['GREAT', 'GOOD', 'OKAY', 'TIRED', 'BAD'];
+  static const _moodLabelKeys = [
+    'session.MOOD_GREAT',
+    'session.MOOD_GOOD',
+    'session.MOOD_OKAY',
+    'session.MOOD_TIRED',
+    'session.MOOD_BAD',
+  ];
 
   @override
   void dispose() {
@@ -552,6 +567,7 @@ class _FinishSheetState extends ConsumerState<_FinishSheet> {
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
+    final t = ref.watch(tProvider);
     final bottom = MediaQuery.viewInsetsOf(context).bottom;
 
     return Padding(
@@ -562,10 +578,11 @@ class _FinishSheetState extends ConsumerState<_FinishSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('FINISH SESSION', style: steelHeadingStyle(fontSize: 22)),
+            Text(t('session.FINISH_SESSION'),
+                style: steelHeadingStyle(fontSize: 22)),
             const SizedBox(height: 4),
             Text(
-              'How did it go?',
+              t('session.HOW_IT_GO'),
               style: steelMonoStyle(
                   fontSize: 12, color: SteelOpsColors.muted),
             ),
@@ -573,7 +590,7 @@ class _FinishSheetState extends ConsumerState<_FinishSheet> {
 
             // Mood
             Text(
-              'MOOD',
+              t('session.MOOD'),
               style: steelMonoStyle(
                   fontSize: 9,
                   color: SteelOpsColors.muted,
@@ -601,7 +618,7 @@ class _FinishSheetState extends ConsumerState<_FinishSheet> {
                       borderRadius: BorderRadius.circular(2),
                     ),
                     child: Text(
-                      _moodLabels[i],
+                      t(_moodLabelKeys[i]),
                       style: steelMonoStyle(
                         fontSize: 11,
                         color: selected
@@ -617,7 +634,7 @@ class _FinishSheetState extends ConsumerState<_FinishSheet> {
 
             // Energy level 1-5
             Text(
-              'ENERGY LEVEL  $_energy / 5',
+              t('session.ENERGY').replaceAll('{n}', '$_energy'),
               style: steelMonoStyle(
                   fontSize: 9,
                   color: SteelOpsColors.muted,
@@ -636,7 +653,7 @@ class _FinishSheetState extends ConsumerState<_FinishSheet> {
 
             // Notes
             Text(
-              'NOTES (optional)',
+              t('session.NOTES'),
               style: steelMonoStyle(
                   fontSize: 9,
                   color: SteelOpsColors.muted,
@@ -649,7 +666,7 @@ class _FinishSheetState extends ConsumerState<_FinishSheet> {
               style: steelMonoStyle(
                   fontSize: 12, color: SteelOpsColors.inkHigh),
               decoration: InputDecoration(
-                hintText: 'Any notes about today\'s session...',
+                hintText: t('session.NOTES_HINT'),
                 hintStyle: steelMonoStyle(
                     fontSize: 12, color: SteelOpsColors.inkDim),
                 enabledBorder: OutlineInputBorder(
@@ -675,13 +692,13 @@ class _FinishSheetState extends ConsumerState<_FinishSheet> {
             ],
 
             SteelForgeButton(
-              label: 'COMPLETE SESSION',
+              label: t('session.COMPLETE_SESSION'),
               isLoading: session.isSaving,
               onPressed: session.isSaving ? null : _submit,
             ),
             const SizedBox(height: 8),
             SteelGhostButton(
-              label: 'Cancel',
+              label: t('session.CANCEL_BTN'),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],

@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface DonutBreakdownProps {
   push: number;
@@ -8,14 +9,6 @@ interface DonutBreakdownProps {
   legs: number;
   className?: string;
 }
-
-const SEGMENTS = [
-  { key: "push", label: "PUSH", color: "#B91C1C" },
-  { key: "pull", label: "PULL", color: "#EA580C" },
-  { key: "legs", label: "LEGS", color: "#C2410C" },
-] as const;
-
-type SegmentKey = (typeof SEGMENTS)[number]["key"];
 
 // Half-donut: arcs drawn on the top half of a circle (180 degrees)
 // Each arc occupies a proportional slice of the 180°
@@ -46,6 +39,16 @@ function describeArc({ cx, cy, r, startAngle, endAngle, color, strokeWidth }: Ar
 }
 
 export function DonutBreakdown({ push, pull, legs, className }: DonutBreakdownProps) {
+  const { t } = useI18n();
+
+  const SEGMENTS = [
+    { key: "push" as const, label: t("progress.PUSH_LABEL"), color: "#B91C1C" },
+    { key: "pull" as const, label: t("progress.PULL_LABEL"), color: "#EA580C" },
+    { key: "legs" as const, label: t("progress.LEGS_LABEL"), color: "#C2410C" },
+  ];
+
+  type SegmentKey = (typeof SEGMENTS)[number]["key"];
+
   const total = push + pull + legs;
   const values: Record<SegmentKey, number> = { push, pull, legs };
 
@@ -133,7 +136,7 @@ export function DonutBreakdown({ push, pull, legs, className }: DonutBreakdownPr
               color: "var(--ink-dim)",
             }}
           >
-            SPLIT
+            {t("progress.SPLIT_LABEL")}
           </div>
           <div
             style={{

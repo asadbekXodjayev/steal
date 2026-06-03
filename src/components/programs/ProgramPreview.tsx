@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlanImageCarousel } from "@/components/programs/PlanImageCarousel";
-import { DAYS_OF_WEEK } from "@/lib/constants";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface ProgramPreviewProps {
   program: ProgramTemplateDefinition;
@@ -27,12 +27,13 @@ interface ProgramPreviewProps {
   activating?: boolean;
 }
 
-export function ProgramPreview({ 
-  program, 
-  onActivate, 
+export function ProgramPreview({
+  program,
+  onActivate,
   onBack,
-  activating 
+  activating
 }: ProgramPreviewProps) {
+  const { t } = useI18n();
   const [selectedWeek, setSelectedWeek] = useState(1);
 
   const difficultyConfig = {
@@ -55,7 +56,7 @@ export function ProgramPreview({
         onClick={onBack}
         className="rounded-none font-data text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted"
       >
-        ← BACK TO PROGRAMS
+        {t("programs.BACK_BTN")}
       </Button>
 
       {/* Hero Header */}
@@ -91,7 +92,7 @@ export function ProgramPreview({
               className="rounded-none border border-card-border font-data text-[10px] uppercase tracking-widest text-muted-foreground"
             >
               <Clock className="mr-1 h-2.5 w-2.5" />
-              1-WEEK CHALLENGE
+              {t("programs.ONE_WEEK_CHALLENGE_BADGE")}
             </Badge>
             <Badge
               variant="outline"
@@ -147,11 +148,10 @@ export function ProgramPreview({
           </div>
           <div className="flex-1">
             <h3 className="font-data text-xs font-bold uppercase tracking-widest text-secondary">
-              One-Week Challenge Format
+              {t("programs.ONE_WEEK_CHALLENGE_TITLE")}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              This is a {program.weeklyStructure.rotationLength}-week rotating program. Complete one week at a time. 
-              After finishing Week 1, you can renew to unlock Week 2 with different exercises.
+              {t("programs.ONE_WEEK_CHALLENGE_DESC").replace("{n}", String(program.weeklyStructure.rotationLength))}
             </p>
           </div>
         </div>
@@ -162,7 +162,7 @@ export function ProgramPreview({
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-[#2a2a2a]" />
           <span className="font-data text-[10px] uppercase tracking-widest text-[#71717A]">
-            SELECT WEEK TO VIEW
+            {t("programs.SELECT_WEEK_HEADING")}
           </span>
           <div className="h-px flex-1 bg-[#2a2a2a]" />
         </div>
@@ -179,7 +179,7 @@ export function ProgramPreview({
                   : "bg-card border-card-border text-muted-foreground hover:border-primary/50 hover:text-primary"
               )}
             >
-              WEEK {week}
+              {t("programs.WEEK_BTN").replace("{n}", String(week))}
             </button>
           ))}
         </div>
@@ -190,7 +190,7 @@ export function ProgramPreview({
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-[#2a2a2a]" />
           <span className="font-data text-[10px] uppercase tracking-widest text-[#71717A]">
-            WEEK {selectedWeek} SCHEDULE
+            {t("programs.WEEK_SCHEDULE_HEADING").replace("{n}", String(selectedWeek))}
           </span>
           <div className="h-px flex-1 bg-[#2a2a2a]" />
         </div>
@@ -204,7 +204,7 @@ export function ProgramPreview({
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="font-data text-[10px] font-bold uppercase tracking-widest text-[#e53e00]">
-                      {DAYS_OF_WEEK[day.dayOfWeek - 1]}
+                      {t(`daysOfWeek.${(["MON","TUE","WED","THU","FRI","SAT","SUN"] as const)[day.dayOfWeek - 1]}`)}
                     </span>
                     <h3 className="mt-1 font-data text-sm font-bold uppercase tracking-wide text-[#e5e5e5]">
                       {day.label}
@@ -225,7 +225,7 @@ export function ProgramPreview({
                   <div className="flex items-center gap-1 text-[#71717A]">
                     <Dumbbell className="h-4 w-4" />
                     <span className="font-data text-xs font-bold text-[#a3a3a3]">
-                      {day.exercises.length} EXERCISES
+                      {t("programs.EXERCISES_COUNT").replace("{n}", String(day.exercises.length))}
                     </span>
                   </div>
                 </div>
@@ -251,15 +251,15 @@ export function ProgramPreview({
                           <div className="mt-1 flex flex-wrap items-center gap-3">
                             <span className="font-data text-[10px] text-[#71717A]">
                               <Target className="inline h-3 w-3 mr-0.5" />
-                              {exerciseData.sets} SETS
+                              {exerciseData.sets} {t("programs.SETS_INLINE")}
                             </span>
                             <span className="font-data text-[10px] text-[#71717A]">
                               <Dumbbell className="inline h-3 w-3 mr-0.5" />
-                              {exerciseData.repsMin}-{exerciseData.repsMax} REPS
+                              {exerciseData.repsMin}-{exerciseData.repsMax} {t("programs.REPS_INLINE")}
                             </span>
                             <span className="font-data text-[10px] text-[#71717A]">
                               <Clock className="inline h-3 w-3 mr-0.5" />
-                              {Math.floor(exerciseData.restSeconds / 60)}:{String(exerciseData.restSeconds % 60).padStart(2, "0")} REST
+                              {Math.floor(exerciseData.restSeconds / 60)}:{String(exerciseData.restSeconds % 60).padStart(2, "0")} {t("programs.REST_INLINE")}
                             </span>
                           </div>
                           {exerciseData.notes && (
@@ -279,7 +279,7 @@ export function ProgramPreview({
                     {day.warmup && (
                       <div className="mb-3">
                         <span className="font-data text-[9px] uppercase tracking-widest text-[#10b981]">
-                          WARM-UP
+                          {t("programs.WARMUP_LABEL")}
                         </span>
                         <div className="mt-1 space-y-1">
                           {day.warmup.exercises.map((ex, i) => (
@@ -293,7 +293,7 @@ export function ProgramPreview({
                     {day.cooldown && (
                       <div>
                         <span className="font-data text-[9px] uppercase tracking-widest text-[#3b82f6]">
-                          COOLDOWN
+                          {t("programs.COOLDOWN_LABEL")}
                         </span>
                         <div className="mt-1 space-y-1">
                           {day.cooldown.exercises.map((ex, i) => (
@@ -319,11 +319,10 @@ export function ProgramPreview({
           </div>
           <div className="flex-1">
             <h3 className="font-data text-xs font-bold uppercase tracking-widest text-[#a3a3a3]">
-              Exercise Rotation
+              {t("programs.EXERCISE_ROTATION_TITLE")}
             </h3>
             <p className="mt-1 text-sm text-[#71717A]">
-              Each week features different exercise variations to prevent boredom and ensure balanced development. 
-              For example, Week 1 might have Pull-Ups, Week 2 switches to Lat Pulldowns, Week 3 to Weighted Pull-Ups, etc.
+              {t("programs.EXERCISE_ROTATION_DESC")}
             </p>
           </div>
         </div>
@@ -345,19 +344,19 @@ export function ProgramPreview({
           {activating ? (
             <>
               <AlertCircle className="mr-2 h-4 w-4 animate-spin" />
-              ACTIVATING...
+              {t("programs.ACTIVATING")}
             </>
           ) : (
             <>
               <Flame className="mr-2 h-4 w-4" />
-              START WEEK 1 CHALLENGE
+              {t("programs.START_WEEK_CHALLENGE")}
               <ChevronRight className="ml-2 h-4 w-4" />
             </>
           )}
         </Button>
         
         <p className="mt-3 text-center font-data text-[9px] text-[#525252]">
-          By starting, you commit to completing all {currentWeekDays.length} workout days this week.
+          {t("programs.START_COMMIT_DESC").replace("{n}", String(currentWeekDays.length))}
         </p>
       </div>
     </div>

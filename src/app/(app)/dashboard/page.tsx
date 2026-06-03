@@ -65,7 +65,7 @@ function KpiPanel({ label, value, unit, subValue, icon, accent = "orange", tag =
 
   return (
     <div className={`glass kpi ${kpiType} glass-hover fade-up`}>
-      <span className="font-data mb-1.5 block text-[10px] tracking-[0.18em] text-ink-low uppercase">{label}</span>
+      <span className="font-data mb-1.5 block text-[10px] tracking-[0.1em] text-ink-low uppercase leading-tight">{label}</span>
       <div
         className="font-heading tabular-nums leading-none"
         style={{ fontSize: 26, fontWeight: 700, color: textColor }}
@@ -212,29 +212,31 @@ function SkeletonGrid() {
 function ActiveMissionPanel({ planId, t }: { planId: string; t: (path: string) => string }) {
   const { data: days, isLoading } = usePlanDays(planId);
   const { data: sessions } = useSessions();
-  const today = new Date().getDay() || 7;
 
   // Find the next session in line (first uncompleted one)
   const nextSessionDay = useMemo(() => {
     if (!days || days.length === 0) return null;
-    
+
     // Sort days by week first, then by dayOfWeek
     const sortedDays = [...days].sort((a, b) => {
       if (a.week !== b.week) return a.week - b.week;
       return a.dayOfWeek - b.dayOfWeek;
     });
 
-    // Create a map of completed planDay IDs
+    // BUG FIX: filter sessions to the current plan only — global session list
+    // (useSessions) includes sessions from all plans; cross-plan pollution would
+    // cause plan_days from this plan to be wrongly treated as already-completed.
+    // useSessions() already returns only status="completed" records (see useProgressData).
     const completedPlanDayIds = new Set(
       sessions
-        ?.filter(s => s.status === 'completed')
+        ?.filter(s => s.plan === planId)
         .map(s => s.planDay)
-        .filter((id): id is string => !!id) || []
+        .filter((id): id is string => !!id) ?? []
     );
 
     // Find the first uncompleted session; null means program is fully complete
     return sortedDays.find(d => !completedPlanDayIds.has(d.id)) ?? null;
-  }, [days, sessions]);
+  }, [days, sessions, planId]);
 
   const { data: exercises, isLoading: exLoading } = usePlanExercises(
     nextSessionDay?.id
@@ -358,39 +360,20 @@ function SessionHistoryPanel({ planId, t }: { planId: string; t: (path: string) 
   const { data: days, isLoading } = usePlanDays(planId);
   const { data: sessions } = useSessions();
 
-  const today = new Date().getDay() || 7; // 1=Monday, 7=Sunday
-
-  // Calculate upcoming session dates
-  function getNextSessionDate(dayOfWeek: number, weekOffset: number = 0): string {
-    const now = new Date();
-    const currentDay = now.getDay() || 7;
-    let daysUntil = dayOfWeek - currentDay;
-    if (daysUntil <= 0) daysUntil += 7;
-    daysUntil += weekOffset * 7;
-    
-    const nextDate = new Date(now);
-    nextDate.setDate(now.getDate() + daysUntil);
-    
-    const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
-    const dd = String(nextDate.getDate()).padStart(2, "0");
-    const mon = months[nextDate.getMonth()];
-    return `${dd}${mon}`;
-  }
-
-  // Get the sequential index of a plan day (for ordering)
-  function getDaySequenceIndex(day: any): number {
-    return (day.week - 1) * 7 + (day.dayOfWeek - 1);
-  }
-
   // Build session history data
   const sessionHistory = useMemo(() => {
     if (!days) return { upcoming: [], completed: [] };
 
-    // Create a map of completed planDay IDs with their completion status
-    const completedSessionMap = new Map(
+    // BUG FIX 1: filter sessions to this plan only so completed flags are not
+    // contaminated by sessions belonging to other workout plans.
+    // BUG FIX 2: store completedAt (or created) timestamp in the map so we can
+    // display the actual completion date next to each finished session.
+    // useSessions() already filters to status="completed" via useProgressData.
+    const completedSessionMap = new Map<string, string>(
       sessions
-        ?.filter(s => s.status === 'completed')
-        .map(s => [s.planDay, true]) || []
+        ?.filter(s => s.plan === planId)
+        .map(s => [s.planDay, s.completedAt ?? s.startedAt ?? s.created] as [string, string])
+        .filter((entry): entry is [string, string] => !!entry[0]) ?? []
     );
 
     // Sort days by week first, then by dayOfWeek for proper sequential order
@@ -399,74 +382,84 @@ function SessionHistoryPanel({ planId, t }: { planId: string; t: (path: string) 
       return a.dayOfWeek - b.dayOfWeek;
     });
 
-    // Find the FIRST uncompleted session - this is the current active session
+    // Find the FIRST uncompleted session — this is the current active session
     const firstUncompletedIndex = sortedDays.findIndex(d => !completedSessionMap.has(d.id));
     const startIndex = firstUncompletedIndex >= 0 ? firstUncompletedIndex : 0;
 
     const upcoming: Array<Omit<SessionHistoryItemProps, "t"> & { dateStr: string; isLocked: boolean }> = [];
     const completed: Omit<SessionHistoryItemProps, "t">[] = [];
 
-    // Function to calculate the next date for a given day of week
-    function calculateSessionDate(dayOfWeek: number, sessionIndex: number): string {
+    // BUG FIX 3: calculate the actual calendar date for an upcoming plan day.
+    // The previous logic divided a running index by week-1-day-count to derive
+    // a week offset, producing wrong dates for multi-week programs.  The correct
+    // approach is to compute the wall-clock distance from today to the target
+    // dayOfWeek, then add the ACTUAL programme week offset (day.week - nextWeek).
+    const nextWeek = startIndex < sortedDays.length ? sortedDays[startIndex].week : 1;
+
+    function calculateSessionDate(dayOfWeek: number, programWeek: number): string {
       const now = new Date();
-      const currentDay = now.getDay() || 7; // 1=Monday, 7=Sunday
-      
-      // Calculate days until the target day of week
+      const currentDay = now.getDay() || 7; // 1=Mon … 7=Sun
+      // Days until this dayOfWeek within the current ISO week
       let daysUntil = dayOfWeek - currentDay;
-      if (daysUntil <= 0) daysUntil += 7;
-      
-      // Add week offset based on session position
-      // For sessions in the same week pattern, calculate based on actual day differences
-      const weekOffset = Math.floor(sessionIndex / sortedDays.filter(d => d.week === 1).length);
-      daysUntil += weekOffset * 7;
-      
+      if (daysUntil < 0) daysUntil += 7;
+      // Add extra programme weeks beyond the "next" week
+      const extraWeeks = programWeek - nextWeek;
+      daysUntil += extraWeeks * 7;
+
       const targetDate = new Date(now);
       targetDate.setDate(now.getDate() + daysUntil);
-      
+
       const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
       const dd = String(targetDate.getDate()).padStart(2, "0");
       const mon = months[targetDate.getMonth()];
       return `${dd}${mon}`;
     }
 
+    // Format a stored completedAt timestamp for display
+    function formatCompletedDate(isoStr: string): string {
+      const d = new Date(isoStr);
+      const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+      return `${String(d.getDate()).padStart(2, "0")}${months[d.getMonth()]}`;
+    }
+
     // Collect upcoming sessions (starting from the first uncompleted one)
     let collectedCount = 0;
-    
+
     for (let i = startIndex; i < sortedDays.length && collectedCount < 3; i++) {
       const day = sortedDays[i];
-      const isCompleted = completedSessionMap.has(day.id);
-      
-      if (!isCompleted) {
-        const dateStr = calculateSessionDate(day.dayOfWeek, collectedCount);
-        
+      if (!completedSessionMap.has(day.id)) {
+        const dateStr = calculateSessionDate(day.dayOfWeek, day.week);
         upcoming.push({
           dayLabel: day.label,
           muscleTags: Array.isArray(day.focus) ? day.focus : [],
           isCompleted: false,
-          isUpcoming: collectedCount === 0, // Only the first one is "NEXT"
+          isUpcoming: collectedCount === 0, // Only the first is "NEXT"
           dateStr,
-          isLocked: collectedCount > 0, // All after the first are locked
+          isLocked: collectedCount > 0, // Everything after the first is locked
         });
         collectedCount++;
       }
     }
 
-    // Collect completed sessions (last 2 completed, in reverse order)
+    // BUG FIX 4: pass the actual completion date string to completed session rows
+    // so the UI can display when each session was done.
     const allCompleted = sortedDays
       .filter(d => completedSessionMap.has(d.id))
       .slice(-2)
       .reverse();
-    
+
     for (const day of allCompleted) {
+      const rawDate = completedSessionMap.get(day.id) ?? "";
       completed.push({
         dayLabel: day.label,
         muscleTags: Array.isArray(day.focus) ? day.focus : [],
         isCompleted: true,
+        dateStr: rawDate ? formatCompletedDate(rawDate) : undefined,
       });
     }
 
     return { upcoming, completed };
-  }, [days, sessions, today]);
+  }, [days, sessions, planId]);
 
   if (isLoading) {
     return (
@@ -489,7 +482,7 @@ function SessionHistoryPanel({ planId, t }: { planId: string; t: (path: string) 
       {/* Upcoming section */}
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <span className="stamp text-[10px] tracking-[0.18em] text-[#e53e00]">{t("dashboard.UPCOMING")}</span>
+          <span className="stamp shrink-0 text-[10px] tracking-[0.1em] text-[#e53e00]">{t("dashboard.UPCOMING")}</span>
           <div className="h-px flex-1 bg-[#2a2a2a]" />
         </div>
         <div className="space-y-1.5">
@@ -506,7 +499,7 @@ function SessionHistoryPanel({ planId, t }: { planId: string; t: (path: string) 
       {/* Completed section */}
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <span className="stamp text-[10px] tracking-[0.18em] text-[#10b981]">{t("dashboard.COMPLETED")}</span>
+          <span className="stamp shrink-0 text-[10px] tracking-[0.1em] text-[#10b981]">{t("dashboard.COMPLETED")}</span>
           <div className="h-px flex-1 bg-[#2a2a2a]" />
         </div>
         <div className="space-y-1.5">
@@ -587,7 +580,7 @@ function RecentFeed({ t }: { t: (path: string) => string }) {
     if (session.sessionNotes) {
       return session.sessionNotes.toUpperCase().slice(0, 20);
     }
-    return "WORKOUT";
+    return t("workout.WORKOUT_FALLBACK");
   }
 
   if (isLoading) {
@@ -774,28 +767,28 @@ export default function DashboardPage() {
       {/* ── KPI row ────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
         <div className="glass kpi kpi-grn glass-hover fade-up fade-up-1">
-          <span className="font-data mb-1.5 block text-[10px] tracking-[0.18em] text-ink-low uppercase">{t("dashboard.CURRENT_STREAK")}</span>
+          <span className="font-data mb-1.5 block text-[10px] tracking-[0.1em] text-ink-low uppercase leading-tight">{t("dashboard.CURRENT_STREAK")}</span>
           <div className="font-heading leading-none" style={{ fontSize: 26, fontWeight: 700, color: "#22c55e" }}>
             <CounterFX value={streakData.currentStreak} />
           </div>
           <span className="font-data mt-1 block text-[10px] text-ink-mid uppercase">{t("dashboard.DAYS")}</span>
         </div>
         <div className="glass kpi kpi-acc glass-hover fade-up fade-up-2">
-          <span className="font-data mb-1.5 block text-[10px] tracking-[0.18em] text-ink-low uppercase">{t("dashboard.THIS_WEEK")}</span>
+          <span className="font-data mb-1.5 block text-[10px] tracking-[0.1em] text-ink-low uppercase leading-tight">{t("dashboard.THIS_WEEK")}</span>
           <div className="font-heading leading-none" style={{ fontSize: 26, fontWeight: 700, color: "#C2410C" }}>
             <CounterFX value={streakData.thisWeekSessions} />
           </div>
           <span className="font-data mt-1 block text-[10px] text-ink-mid uppercase">{t("dashboard.SESSIONS")}</span>
         </div>
         <div className="glass kpi kpi-acc glass-hover fade-up fade-up-3">
-          <span className="font-data mb-1.5 block text-[10px] tracking-[0.18em] text-ink-low uppercase">{t("dashboard.TOTAL_VOLUME")}</span>
+          <span className="font-data mb-1.5 block text-[10px] tracking-[0.1em] text-ink-low uppercase leading-tight">{t("dashboard.TOTAL_VOLUME")}</span>
           <div className="font-heading leading-none" style={{ fontSize: 26, fontWeight: 700, color: "#C2410C" }}>
             <CounterFX value={totalVolumeTons} />
           </div>
           <span className="font-data mt-1 block text-[10px] text-ink-mid uppercase">{t("dashboard.TONNES_LIFTED")}</span>
         </div>
         <div className="glass kpi kpi-blu glass-hover fade-up fade-up-4">
-          <span className="font-data mb-1.5 block text-[10px] tracking-[0.18em] text-ink-low uppercase">{t("dashboard.PRS_THIS_MONTH")}</span>
+          <span className="font-data mb-1.5 block text-[10px] tracking-[0.1em] text-ink-low uppercase leading-tight">{t("dashboard.PRS_THIS_MONTH")}</span>
           <div className="font-heading leading-none" style={{ fontSize: 26, fontWeight: 700, color: "#3b82f6" }}>
             <CounterFX value={prsThisMonth} />
           </div>
@@ -808,10 +801,10 @@ export default function DashboardPage() {
         {/* Active Mission */}
         <div className="glass-acc forge-pulse fade-up fade-up-2 p-4 space-y-3 min-h-[240px] sm:min-h-[320px]">
           <div className="flex items-center gap-2 mb-1">
-            <span className="font-data text-[10px] tracking-[0.18em] text-ink-low uppercase">{t("dashboard.MISSION_BRIEFING")}</span>
+            <span className="font-data shrink-0 text-[10px] tracking-[0.1em] text-ink-low uppercase">{t("dashboard.MISSION_BRIEFING")}</span>
             <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.06)" }} />
             {activePlan && (
-              <span className="font-data text-[10px] text-[#22c55e] tracking-widest">{t("dashboard.ACTIVE")}</span>
+              <span className="font-data shrink-0 text-[10px] text-[#22c55e] tracking-[0.1em]">{t("dashboard.ACTIVE")}</span>
             )}
           </div>
 
@@ -855,7 +848,7 @@ export default function DashboardPage() {
         {/* Week Schedule + Upcoming */}
         <div className="glass fade-up fade-up-3 p-4 min-h-[240px] sm:min-h-[320px]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="font-data text-[10px] tracking-[0.18em] text-ink-low uppercase">Week {displayWeek}</span>
+            <span className="font-data shrink-0 text-[10px] tracking-[0.1em] text-ink-low uppercase">{t("dashboard.WEEK_LABEL").replace("{n}", String(displayWeek))}</span>
             <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.06)" }} />
           </div>
           {activePlan ? (
@@ -869,7 +862,7 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-[8px] min-h-[240px] sm:min-h-[320px]">
           <div className="glass fade-up fade-up-4 p-4 flex-1">
             <div className="flex items-center gap-2 mb-3">
-              <span className="font-data text-[10px] tracking-[0.18em] text-ink-low uppercase">{t("dashboard.ACTIVITY_LOG")}</span>
+              <span className="font-data shrink-0 text-[10px] tracking-[0.1em] text-ink-low uppercase">{t("dashboard.ACTIVITY_LOG")}</span>
               <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.06)" }} />
               <Link href="/progress" className="font-data text-[10px] text-ink-low hover:text-[#C2410C] transition-colors">
                 {t("dashboard.VIEW_ALL")}
@@ -879,7 +872,7 @@ export default function DashboardPage() {
           </div>
           <div className="glass fade-up fade-up-5 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <span className="font-data text-[10px] tracking-[0.18em] text-ink-low uppercase">{t("dashboard.RECENT_PRS")}</span>
+              <span className="font-data shrink-0 text-[10px] tracking-[0.1em] text-ink-low uppercase">{t("dashboard.RECENT_PRS")}</span>
               <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.06)" }} />
               <Trophy className="h-3 w-3 text-[#444]" />
             </div>
@@ -904,11 +897,11 @@ export default function DashboardPage() {
         ].map(([label, val], i) => (
           <div
             key={i}
-            className="flex-1 px-2 py-1.5 text-center"
+            className="min-w-0 flex-1 overflow-hidden px-2 py-1.5 text-center"
             style={{ borderRight: i < 2 ? "1px solid rgba(255,255,255,0.04)" : undefined }}
           >
-            <span className="font-data block text-[10px] tracking-[0.12em] text-ink-low uppercase">{label}</span>
-            <span className="font-data mt-0.5 block text-[11px] text-ink-mid uppercase">{val}</span>
+            <span className="font-data block truncate text-[10px] tracking-[0.06em] text-ink-low uppercase">{label}</span>
+            <span className="font-data mt-0.5 block truncate text-[11px] text-ink-mid uppercase">{val}</span>
           </div>
         ))}
       </div>

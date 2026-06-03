@@ -7,7 +7,7 @@ Guidance for Claude Code (claude.ai/code) when working in this repository.
 - Pure frontend web app — **Next.js 15 (App Router + React Server Components)**, TypeScript strict mode. Deploy target: **Vercel**.
 - Backend is **PocketBase**, reached via the **PocketBase SDK** (`pocketbase` npm package). There is no custom REST backend in this repo.
 - Server state flows through custom hooks in `src/hooks/` built on **TanStack Query v5**. Client-only state lives in **Zustand v5** stores.
-- Product is "**Steal Therapy**" — a brutal/industrial gym training app (workout plans, session logging, progress analytics, multilingual exercise library). Companion React Native app lives in `STEEL-Mobile/` (out of scope unless asked).
+- Product is "**Steal Therapy**" — a brutal/industrial gym training app (workout plans, session logging, progress analytics, multilingual exercise library). Companion **Flutter** app lives in `steel_flutter/` (out of scope unless asked). A vendored Flutter SDK tree at `flutter/` (~1.4 GB) is **gitignored** (`/flutter/` in `.gitignore`) — it is a local-only checkout, never committed; ignore it when searching/editing.
 
 ## Tech Stack (Locked — Do Not Substitute Without Asking)
 
@@ -25,7 +25,7 @@ Guidance for Claude Code (claude.ai/code) when working in this repository.
 | Animation | `framer-motion` | `^12.38.0` |
 | Charts | `recharts` | `^3.8.1` |
 | Toasts | `sonner` | `^2.0.7` |
-| Theming | `next-themes` (light/dark) | `^0.4.6` |
+| Theming | **None installed** — `next-themes` is **not** a dependency. App is **dark-only**; all color tokens live in `globals.css` (`@theme` + CSS vars). | — |
 | Backend SDK | `pocketbase` | `^0.26.8` |
 | AI (scripts only) | `ai` + `@ai-sdk/{google,groq,anthropic,openai}` | `ai ^6` |
 | Path alias | `@/*` → `src/*` | — |
@@ -40,7 +40,6 @@ src/
 │   ├── layout.tsx          # root layout — RSC; wraps children in Providers
 │   ├── page.tsx            # landing
 │   ├── globals.css         # Tailwind v4 entry + @theme tokens + CSS vars
-│   ├── theme-script.js     # inline no-flash theme script
 │   ├── manifest.ts         # PWA manifest
 │   ├── (auth)/             # login, register
 │   ├── (app)/             # protected: dashboard, plans, programs, progress,
@@ -56,7 +55,7 @@ src/
 │   ├── workout/          # ExerciseCard, SetRow, RestTimer, MoodCheck, WorkoutSummary
 │   ├── progress/         # ~17 chart/analytics components (volume, PRs, streaks, radar…)
 │   ├── fx/               # visual effects (ImpactFlash)
-│   └── providers/        # Providers, AuthProvider, QueryProvider, I18nProvider, Theme*
+│   └── providers/        # Providers (composes Query→Auth→I18n + Toaster), QueryProvider, AuthProvider, I18nProvider, PageTransition
 ├── hooks/                 # data + behavior hooks (see table below)
 ├── stores/                # ui-store.ts, workout-store.ts (Zustand)
 ├── lib/                   # pocketbase.ts, api.ts, utils.ts, constants.ts, domain logic
@@ -152,7 +151,7 @@ Seeded via `scripts/seed-exercise-translations.mjs`. The hook batches IDs per PB
 | `npm run dev` | Dev server at http://localhost:3000 |
 | `npm run build` | Production build |
 | `npm run start` | Serve production build |
-| `npm run typecheck` | `tsc --noEmit` strict typecheck |
+| `npm run typecheck` | `tsc --noEmit --incremental false` strict typecheck |
 | `npm run fetch:exercises` | Fetch ExerciseDB dataset → `src/data/exercises.json` |
 | `npm run seed:translations` | Seed EN→RU/UZ exercise translations into PocketBase (uses `.env.local`) |
 | `npm run apply:translation-schema` | Apply/validate the translation schema in PocketBase |

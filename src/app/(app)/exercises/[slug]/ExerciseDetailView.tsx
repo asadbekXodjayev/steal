@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function ExerciseDetailView({ baseExercise }: Props) {
-  const { language } = useI18n();
+  const { language, t } = useI18n();
   const { data: translation } = useExerciseTranslation(baseExercise.exerciseId);
 
   const exercise = useMemo(
@@ -47,7 +47,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
         className="inline-flex items-center gap-1.5 font-data text-[10px] uppercase tracking-widest text-[#71717A] hover:text-[#e5e5e5] transition-colors group"
       >
         <ChevronLeft className="h-3 w-3 group-hover:text-[#e53e00] transition-colors" />
-        LIBRARY
+        {t("exercises.BACK_TO_LIBRARY")}
       </Link>
 
       <div className="border border-[#2a2a2a] bg-[#0a0a0a] relative overflow-hidden">
@@ -75,7 +75,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
                 className="stamp text-[#525252] text-[10px] tracking-widest"
                 style={{ fontFamily: "var(--font-mono, monospace)" }}
               >
-                NO MEDIA
+                {t("exercises.NO_MEDIA")}
               </span>
             </div>
           )}
@@ -94,10 +94,10 @@ export function ExerciseDetailView({ baseExercise }: Props) {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "BODY PART", value: bodyPartLabel },
-          { label: "EQUIPMENT", value: equipmentLabel },
-          { label: "TARGET", value: targetLabel },
-          { label: "CATEGORY", value: exercise.category },
+          { label: t("exercises.BODY_PART"), value: bodyPartLabel },
+          { label: t("exercises.EQUIPMENT"), value: equipmentLabel },
+          { label: t("exercises.TARGET"), value: targetLabel },
+          { label: t("exercises.CATEGORY"), value: exercise.category },
         ].map(({ label, value }) => (
           <div
             key={label}
@@ -116,7 +116,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
                 className="font-data text-[11px] font-bold uppercase tracking-widest text-[#e5e5e5]"
                 style={{ fontFamily: "var(--font-mono, monospace)" }}
               >
-                {value || "N/A"}
+                {value || t("exercises.NA")}
               </p>
             </div>
           </div>
@@ -133,7 +133,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
                 className="stamp text-[9px] uppercase tracking-widest text-[#525252]"
                 style={{ fontFamily: "var(--font-mono, monospace)" }}
               >
-                OVERVIEW
+                {t("exercises.OVERVIEW")}
               </span>
               <div className="h-px flex-1 bg-[#1a1a1a]" />
             </div>
@@ -154,7 +154,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
                 className="stamp text-[9px] uppercase tracking-widest text-[#525252]"
                 style={{ fontFamily: "var(--font-mono, monospace)" }}
               >
-                STEPS
+                {t("exercises.STEPS")}
               </span>
               <div className="h-px flex-1 bg-[#1a1a1a]" />
             </div>
@@ -187,7 +187,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
                 className="stamp text-[9px] uppercase tracking-widest text-[#525252]"
                 style={{ fontFamily: "var(--font-mono, monospace)" }}
               >
-                TIPS
+                {t("exercises.TIPS")}
               </span>
               <div className="h-px flex-1 bg-[#1a1a1a]" />
             </div>
@@ -213,7 +213,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
               className="stamp text-[9px] uppercase tracking-widest text-[#525252] mb-3"
               style={{ fontFamily: "var(--font-mono, monospace)" }}
             >
-              VARIATIONS
+              {t("exercises.VARIATIONS")}
             </p>
             <div className="flex flex-wrap gap-2">
               {exercise.variations.map((v) => (
@@ -237,7 +237,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
               className="stamp text-[9px] uppercase tracking-widest text-[#525252] mb-3"
               style={{ fontFamily: "var(--font-mono, monospace)" }}
             >
-              SECONDARY MUSCLES
+              {t("exercises.SECONDARY_MUSCLES")}
             </p>
             <div className="flex flex-wrap gap-2">
               {exercise.secondaryMuscles.map((muscle) => (
@@ -260,7 +260,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
               className="stamp text-[8px] text-[#525252] mb-1"
               style={{ fontFamily: "var(--font-mono, monospace)" }}
             >
-              MUSCLE GROUP
+              {t("exercises.MUSCLE_GROUP")}
             </p>
             <p
               className="font-data text-[10px] text-[#71717A] uppercase tracking-widest"
@@ -274,7 +274,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
               className="stamp text-[8px] text-[#525252] mb-1"
               style={{ fontFamily: "var(--font-mono, monospace)" }}
             >
-              TARGET
+              {t("exercises.TARGET")}
             </p>
             <p
               className="font-data text-[10px] text-[#71717A] uppercase tracking-widest"
@@ -288,7 +288,7 @@ export function ExerciseDetailView({ baseExercise }: Props) {
               className="stamp text-[8px] text-[#525252] mb-1"
               style={{ fontFamily: "var(--font-mono, monospace)" }}
             >
-              EXERCISE ID
+              {t("exercises.EXERCISE_ID")}
             </p>
             <p
               className="font-data text-[10px] text-[#71717A] truncate"

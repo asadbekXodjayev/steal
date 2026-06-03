@@ -1,35 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:steel/l10n/app_localizations.dart';
 
 import '../../core/router.dart';
 import '../../shared/ops_theme.dart';
 import '../../shared/widgets/steel_forge_button.dart';
 import '../../shared/widgets/steel_glass_card.dart';
 
-class LandingScreen extends StatelessWidget {
+class LandingScreen extends ConsumerWidget {
   const LandingScreen({super.key});
 
-  static const _features = <_FeatureSpec>[
-    _FeatureSpec(
-      icon: Icons.trending_up_rounded,
-      title: 'Progressive Overload',
-      description: "Every session harder than the last. That's the only rule.",
-    ),
-    _FeatureSpec(
-      icon: Icons.bolt_rounded,
-      title: 'Tactical Programming',
-      description:
-          'Plans built around your lifts, your schedule, your weak points.',
-    ),
-    _FeatureSpec(
-      icon: Icons.bar_chart_rounded,
-      title: 'No Bullshit Tracking',
-      description: "Log what matters. See what's working. Cut the rest.",
-    ),
-  ];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(tProvider);
+
+    final features = <_FeatureSpec>[
+      _FeatureSpec(
+        icon: Icons.trending_up_rounded,
+        title: t('landing.FEATURE_1_TITLE'),
+        description: t('landing.FEATURE_1_DESC'),
+      ),
+      _FeatureSpec(
+        icon: Icons.bolt_rounded,
+        title: t('landing.FEATURE_2_TITLE'),
+        description: t('landing.FEATURE_2_DESC'),
+      ),
+      _FeatureSpec(
+        icon: Icons.bar_chart_rounded,
+        title: t('landing.FEATURE_3_TITLE'),
+        description: t('landing.FEATURE_3_DESC'),
+      ),
+    ];
+
     return Scaffold(
       backgroundColor: SteelOpsColors.background,
       body: SafeArea(
@@ -41,12 +44,16 @@ class LandingScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const _TaglinePill(),
+                  _TaglinePill(label: t('landing.TAGLINE')),
                   const SizedBox(height: 24),
-                  const _HeroTitle(),
+                  _HeroTitle(
+                    line1: t('landing.HERO_LINE_1'),
+                    line2: t('landing.HERO_LINE_2'),
+                    line3: t('landing.HERO_LINE_3'),
+                  ),
                   const SizedBox(height: 16),
                   Text(
-                    'NO EXCUSES. NO HAND-HOLDING. BUILD SOMETHING REAL.',
+                    t('landing.HERO_DESC'),
                     textAlign: TextAlign.center,
                     style: steelMonoStyle(
                       fontSize: 13,
@@ -55,7 +62,7 @@ class LandingScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  ..._features.map(
+                  ...features.map(
                     (f) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: SteelGlassCard(
@@ -89,18 +96,18 @@ class LandingScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                   SteelForgeButton(
-                    label: 'Start Training',
+                    label: t('landing.START_TRAINING'),
                     icon: Icons.arrow_forward_rounded,
                     onPressed: () => context.goNamed(SteelRoutes.login),
                   ),
                   const SizedBox(height: 12),
                   SteelGhostButton(
-                    label: 'Sign In',
+                    label: t('landing.SIGN_IN'),
                     onPressed: () => context.goNamed(SteelRoutes.login),
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    'BUILT FOR THOSE WHO SHOW UP',
+                    t('landing.FOOTER'),
                     textAlign: TextAlign.center,
                     style: steelMonoStyle(
                       fontSize: 10,
@@ -119,7 +126,9 @@ class LandingScreen extends StatelessWidget {
 }
 
 class _TaglinePill extends StatelessWidget {
-  const _TaglinePill();
+  const _TaglinePill({required this.label});
+
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +141,7 @@ class _TaglinePill extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Text(
-            'STEEL FORGES STEEL',
+            label,
             style: steelMonoStyle(
               fontSize: 11,
               color: SteelOpsColors.forgeHover,
@@ -146,7 +155,15 @@ class _TaglinePill extends StatelessWidget {
 }
 
 class _HeroTitle extends StatelessWidget {
-  const _HeroTitle();
+  const _HeroTitle({
+    required this.line1,
+    required this.line2,
+    required this.line3,
+  });
+
+  final String line1;
+  final String line2;
+  final String line3;
 
   @override
   Widget build(BuildContext context) {
@@ -169,9 +186,9 @@ class _HeroTitle extends StatelessWidget {
       TextSpan(
         style: base,
         children: [
-          const TextSpan(text: 'STEAL\n'),
-          TextSpan(text: 'FORGES\n', style: forge),
-          const TextSpan(text: 'STEEL'),
+          TextSpan(text: '$line1\n'),
+          TextSpan(text: '$line2\n', style: forge),
+          TextSpan(text: line3),
         ],
       ),
       textAlign: TextAlign.center,

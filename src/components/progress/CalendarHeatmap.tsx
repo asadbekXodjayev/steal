@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface HeatmapSession {
   completedAt: string;
@@ -43,6 +44,7 @@ function formatMonthLabel(date: Date): string {
 }
 
 export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
+  const { t } = useI18n();
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false,
     x: 0,
@@ -131,7 +133,8 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
     const dateLabel = date
       .toLocaleString("en-US", { month: "short", day: "numeric" })
       .toUpperCase();
-    const volumeLabel = volume > 0 ? `${volume.toLocaleString()} KG` : `${count} SESSION${count > 1 ? "S" : ""}`;
+    const sessionWord = count > 1 ? t("progress.HEATMAP_SESSIONS") : t("progress.HEATMAP_SESSION");
+    const volumeLabel = volume > 0 ? `${volume.toLocaleString()} KG` : `${count} ${sessionWord.toUpperCase()}`;
     setTooltip({
       visible: true,
       x: rect.left + rect.width / 2,
@@ -141,7 +144,7 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
   }
 
   function handleMouseLeave() {
-    setTooltip((t) => ({ ...t, visible: false }));
+    setTooltip((prev) => ({ ...prev, visible: false }));
   }
 
   const svgWidth = leftOffset + weeks * colWidth;
@@ -174,7 +177,7 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
         width={svgWidth}
         height={svgHeight}
         style={{ display: "block", overflow: "visible" }}
-        aria-label="Training frequency heatmap"
+        aria-label={t("progress.HEATMAP_ARIA")}
         role="img"
       >
         {/* Month labels */}
@@ -217,6 +220,7 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
         {grid.map((week, w) =>
           week.map((cell, d) => {
             const color = getIntensityColor(cell.volume, maxVolume, cell.count);
+            const sessionWord = cell.count !== 1 ? t("progress.HEATMAP_SESSIONS") : t("progress.HEATMAP_SESSION");
             return (
               <rect
                 key={`${w}-${d}`}
@@ -230,7 +234,7 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
                 style={{ cursor: cell.count > 0 ? "pointer" : "default" }}
                 onMouseEnter={(e) => handleMouseEnter(e, cell.date, cell.volume, cell.count)}
                 onMouseLeave={handleMouseLeave}
-                aria-label={`${cell.date.toDateString()}: ${cell.count} sessions`}
+                aria-label={`${cell.date.toDateString()}: ${cell.count} ${sessionWord}`}
               />
             );
           })
@@ -242,7 +246,7 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
         className="flex items-center gap-1 justify-end mt-2"
         style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "10px", textTransform: "uppercase", color: "rgba(163,163,163,0.9)" }}
       >
-        <span>LESS</span>
+        <span>{t("progress.HEATMAP_LESS")}</span>
         {(["var(--surface-2)", "#14532d", "var(--tactical)", "#22c55e"] as const).map(
           (color, i) => (
             <span
@@ -257,7 +261,7 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
             />
           )
         )}
-        <span>MORE</span>
+        <span>{t("progress.HEATMAP_MORE")}</span>
       </div>
     </div>
   );

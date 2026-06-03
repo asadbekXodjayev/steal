@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../data/models.dart';
 import '../../data/providers.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/ops_theme.dart';
 import '../../shared/widgets/widgets.dart';
+import 'stats_aggregations.dart';
+import 'widgets/calendar_heatmap.dart';
+import 'widgets/kpi_row.dart';
+import 'widgets/muscle_pie_chart.dart';
+import 'widgets/reps_distribution_chart.dart';
+import 'widgets/stats_section_header.dart';
+import 'widgets/volume_chart.dart';
 
 // ── Screen ───────────────────────────────────────────────────────────────────
 
@@ -13,6 +22,7 @@ class StatsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(tProvider);
     final progressAsync = ref.watch(progressDataProvider);
 
     return Scaffold(
@@ -25,113 +35,20 @@ class StatsScreen extends ConsumerWidget {
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              // ── Header ──────────────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'ANALYTICS',
-                            style: steelMonoStyle(
-                              fontSize: 10,
-                              color: SteelOpsColors.muted,
-                            ),
-                          ),
-                          Container(
-                            width: 40,
-                            height: 1,
-                            margin:
-                                const EdgeInsets.symmetric(horizontal: 8),
-                            color: SteelOpsColors.borderStrong,
-                          ),
-                          Text(
-                            'FORGED IN IRON',
-                            style: steelMonoStyle(
-                              fontSize: 10,
-                              color: SteelOpsColors.orange,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'STATS',
-                        style: steelHeadingStyle(
-                          fontSize: 42,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      Container(
-                        width: 48,
-                        height: 3,
-                        margin: const EdgeInsets.only(top: 4, bottom: 24),
-                        color: SteelOpsColors.orange,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ── Body ────────────────────────────────────────────────────
+              SliverToBoxAdapter(child: _Header(t: t)),
               SliverToBoxAdapter(
                 child: SteelAsyncBody<ProgressData>(
                   isLoading: progressAsync.isLoading,
                   errorMessage: progressAsync.hasError
-                      ? progressAsync.error.toString()
+                      ? t('stats.SIGNAL_LOST_DESC')
                       : null,
                   data: progressAsync.valueOrNull,
                   onRetry: () => ref.invalidate(progressDataProvider),
                   builder: (context, data) {
                     if (data.sessions.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 40),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 60),
-                          decoration: BoxDecoration(
-                            color: SteelOpsColors.surface,
-                            border:
-                                Border.all(color: SteelOpsColors.border),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const SteelEmptyState(
-                            icon: Icons.bar_chart_outlined,
-                            title:
-                                'No training logged yet — start a session',
-                            subtitle:
-                                'Complete a workout to unlock your analytics',
-                          ),
-                        ),
-                      );
+                      return _EmptyState(t: t);
                     }
-
-                    final streak = ref.watch(streakProvider);
-                    final prs = ref.watch(personalRecordsProvider);
-                    final muscles = ref.watch(muscleDistributionProvider);
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _StreakSection(streak: streak),
-                          const SizedBox(height: 28),
-                          if (prs.isNotEmpty) ...[
-                            _PersonalRecordsSection(records: prs),
-                            const SizedBox(height: 28),
-                          ],
-                          if (muscles.isNotEmpty) ...[
-                            _MuscleDistributionSection(slices: muscles),
-                            const SizedBox(height: 40),
-                          ],
-                        ],
-                      ),
-                    );
+                    return _StatsBody(t: t);
                   },
                 ),
               ),
@@ -143,10 +60,277 @@ class StatsScreen extends ConsumerWidget {
   }
 }
 
+// ── Header ───────────────────────────────────────────────────────────────────
+
+class _Header extends StatelessWidget {
+  const _Header({required this.t});
+  final String Function(String) t;
+
+  @override
+  Widget build(BuildContext context) {
+    final clock = DateFormat.Hm().format(DateTime.now());
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                t('stats.EYEBROW_LEFT'),
+                style: steelMonoStyle(fontSize: 10, color: SteelOpsColors.muted),
+              ),
+              Container(
+                width: 40,
+                height: 1,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                color: SteelOpsColors.borderStrong,
+              ),
+              Expanded(
+                child: Text(
+                  t('stats.EYEBROW_RIGHT'),
+                  style: steelMonoStyle(
+                    fontSize: 10,
+                    color: SteelOpsColors.orange,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                '${t('stats.LAST_SYNC')} $clock',
+                style: steelMonoStyle(
+                  fontSize: 9,
+                  color: SteelOpsColors.inkDim,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            t('stats.TITLE'),
+            style: steelHeadingStyle(fontSize: 42, fontWeight: FontWeight.w900),
+          ),
+          Container(
+            width: 48,
+            height: 3,
+            margin: const EdgeInsets.only(top: 4, bottom: 24),
+            color: SteelOpsColors.orange,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Empty state ──────────────────────────────────────────────────────────────
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.t});
+  final String Function(String) t;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 60),
+        decoration: BoxDecoration(
+          color: SteelOpsColors.surface,
+          border: Border.all(color: SteelOpsColors.border),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: SteelEmptyState(
+          icon: Icons.bar_chart_outlined,
+          title: t('stats.NO_DATA_TITLE'),
+          subtitle: t('stats.NO_DATA_DESC'),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Body ─────────────────────────────────────────────────────────────────────
+
+class _StatsBody extends ConsumerWidget {
+  const _StatsBody({required this.t});
+  final String Function(String) t;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final streak = ref.watch(streakProvider);
+    final prs = ref.watch(personalRecordsProvider);
+    final muscles = ref.watch(muscleDistributionProvider);
+    final weeklyVolume = ref.watch(weeklyVolumeProvider);
+    final reps = ref.watch(repsDistributionProvider);
+    final heatmap = ref.watch(heatmapDaysProvider);
+    final hud = ref.watch(hudTotalsProvider);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── KPI row ──
+          _KpiSection(t: t, streak: streak, hud: hud),
+          const SizedBox(height: 28),
+
+          // ── Streak & sessions ──
+          _StreakSection(t: t, streak: streak),
+          const SizedBox(height: 28),
+
+          // ── Weekly volume ──
+          StatsSectionHeader(
+            label: t('stats.LAST_8_WEEKS'),
+            title: t('stats.WEEKLY_VOLUME'),
+            panelNum: '05',
+          ),
+          const SizedBox(height: 12),
+          VolumeChart(
+            data: weeklyVolume,
+            peakLabel: t('stats.PEAK'),
+            avgLabel: t('stats.AVG'),
+            sessionsLabel: t('stats.SESSIONS_LABEL'),
+            emptyLabel: t('stats.INSUFFICIENT_DATA'),
+          ),
+          const SizedBox(height: 28),
+
+          // ── Rep distribution ──
+          StatsSectionHeader(
+            label: t('stats.INTENSITY_PROFILE'),
+            title: t('stats.REP_DISTRIBUTION'),
+            panelNum: '06',
+          ),
+          const SizedBox(height: 12),
+          RepsDistributionChart(
+            data: reps,
+            emptyLabel: t('stats.NO_REP_DATA'),
+          ),
+          const SizedBox(height: 28),
+
+          // ── Contact matrix (calendar heatmap) ──
+          StatsSectionHeader(
+            label: '${t('stats.YEAR_LABEL')} ${DateTime.now().year}',
+            title: t('stats.CONTACT_MATRIX'),
+            panelNum: '07',
+          ),
+          const SizedBox(height: 12),
+          CalendarHeatmap(
+            days: heatmap,
+            lessLabel: t('stats.HEATMAP_LESS'),
+            moreLabel: t('stats.HEATMAP_MORE'),
+          ),
+          const SizedBox(height: 28),
+
+          // ── Muscle map ──
+          if (muscles.isNotEmpty) ...[
+            StatsSectionHeader(
+              label: t('stats.VOLUME_BREAKDOWN'),
+              title: t('stats.MUSCLE_MAP'),
+              panelNum: '08',
+            ),
+            const SizedBox(height: 12),
+            MusclePieChart(
+              slices: muscles,
+              setsLabel: t('stats.SETS_LABEL'),
+              labelFor: (key) => t('stats.muscle.$key'),
+            ),
+            const SizedBox(height: 28),
+          ],
+
+          // ── Personal records ──
+          if (prs.isNotEmpty) ...[
+            StatsSectionHeader(
+              label: t('stats.PERSONAL_BESTS'),
+              title: t('stats.RECORDS'),
+              panelNum: '09',
+            ),
+            const SizedBox(height: 12),
+            _PersonalRecordsTable(t: t, records: prs),
+            const SizedBox(height: 28),
+          ],
+
+          // ── HUD strip ──
+          _HudStrip(t: t, hud: hud),
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+}
+
+// ── KPI section ──────────────────────────────────────────────────────────────
+
+class _KpiSection extends StatelessWidget {
+  const _KpiSection({required this.t, required this.streak, required this.hud});
+  final String Function(String) t;
+  final StreakData streak;
+  final HudTotals hud;
+
+  @override
+  Widget build(BuildContext context) {
+    final grouped = NumberFormat.decimalPattern();
+    final tonnes = (hud.totalVolume / 1000).round();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        StatsSectionHeader(
+          label: t('stats.KPI'),
+          title: t('stats.READOUT'),
+          panelNum: '01',
+        ),
+        const SizedBox(height: 12),
+        KpiGrid(
+          tiles: [
+            KpiPanel(
+              label: t('stats.TOTAL_SESSIONS'),
+              value: '${streak.totalSessions}',
+              subValue: t('stats.LIFETIME'),
+              accent: SteelOpsColors.orange,
+              panelNum: '01',
+            ),
+            KpiPanel(
+              label: t('stats.CURRENT_STREAK'),
+              value: '${streak.currentStreak}',
+              subValue: '${t('stats.BEST')}: ${streak.longestStreak}${_d(t)}',
+              accent: SteelOpsColors.green,
+              panelNum: '02',
+            ),
+            KpiPanel(
+              label: t('stats.TOTAL_VOLUME'),
+              value: '$tonnes',
+              subValue:
+                  '${grouped.format(hud.totalVolume.round())} ${t('stats.KG')}',
+              accent: SteelOpsColors.orange,
+              panelNum: '03',
+            ),
+            KpiPanel(
+              label: t('stats.THIS_MONTH'),
+              value: '${streak.thisMonthSessions}',
+              subValue: '${streak.thisWeekSessions} ${t('stats.THIS_WK')}',
+              accent: SteelOpsColors.blue,
+              panelNum: '04',
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _d(String Function(String) t) {
+    final days = t('stats.DAYS');
+    return days.isNotEmpty ? days[0] : 'D';
+  }
+}
+
 // ── Streak section ───────────────────────────────────────────────────────────
 
 class _StreakSection extends StatelessWidget {
-  const _StreakSection({required this.streak});
+  const _StreakSection({required this.t, required this.streak});
+  final String Function(String) t;
   final StreakData streak;
 
   @override
@@ -154,20 +338,19 @@ class _StreakSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionHeader(
-          label: 'CONSISTENCY',
-          title: 'STREAK & SESSIONS',
+        StatsSectionHeader(
+          label: t('stats.CONSISTENCY'),
+          title: t('stats.STREAK_SESSIONS'),
+          panelNum: '02',
         ),
         const SizedBox(height: 12),
-
-        // Primary streak cards (2 col)
         Row(
           children: [
             Expanded(
               child: _StreakCard(
                 value: '${streak.currentStreak}',
-                unit: 'DAYS',
-                label: 'CURRENT STREAK',
+                unit: t('stats.DAYS'),
+                label: t('stats.CURRENT_STREAK'),
                 accent: SteelOpsColors.orange,
                 isHero: true,
               ),
@@ -176,36 +359,34 @@ class _StreakSection extends StatelessWidget {
             Expanded(
               child: _StreakCard(
                 value: '${streak.longestStreak}',
-                unit: 'DAYS',
-                label: 'LONGEST STREAK',
+                unit: t('stats.DAYS'),
+                label: t('stats.LONGEST_STREAK'),
                 accent: SteelOpsColors.forge,
               ),
             ),
           ],
         ),
         const SizedBox(height: 10),
-
-        // Secondary stat row (3 col)
         Row(
           children: [
             Expanded(
               child: _StatMini(
                 value: '${streak.totalSessions}',
-                label: 'TOTAL',
+                label: t('stats.TOTAL'),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: _StatMini(
                 value: '${streak.thisWeekSessions}',
-                label: 'THIS WEEK',
+                label: t('stats.THIS_WEEK'),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: _StatMini(
                 value: '${streak.thisMonthSessions}',
-                label: 'THIS MONTH',
+                label: t('stats.THIS_MONTH'),
               ),
             ),
           ],
@@ -274,6 +455,8 @@ class _StreakCard extends StatelessWidget {
               color: SteelOpsColors.muted,
               letterSpacing: 1.2,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -314,6 +497,8 @@ class _StatMini extends StatelessWidget {
               color: SteelOpsColors.muted,
               letterSpacing: 1,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -321,87 +506,75 @@ class _StatMini extends StatelessWidget {
   }
 }
 
-// ── Personal records section ─────────────────────────────────────────────────
+// ── Personal records table ───────────────────────────────────────────────────
 
-class _PersonalRecordsSection extends StatelessWidget {
-  const _PersonalRecordsSection({required this.records});
+class _PersonalRecordsTable extends StatelessWidget {
+  const _PersonalRecordsTable({required this.t, required this.records});
+  final String Function(String) t;
   final List<PersonalRecord> records;
 
   @override
   Widget build(BuildContext context) {
-    // Show top 8 by estimated 1RM (already sorted by provider).
     final top = records.take(8).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionHeader(
-          label: 'PERSONAL BESTS',
-          title: 'RECORDS',
-        ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: SteelOpsColors.surfaceElevated,
-            border: Border.all(color: SteelOpsColors.border),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Column(
-            children: [
-              // Column headers
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        'EXERCISE',
-                        style: steelMonoStyle(
-                          fontSize: 8,
-                          color: SteelOpsColors.inkDim,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
+    return Container(
+      decoration: BoxDecoration(
+        color: SteelOpsColors.surfaceElevated,
+        border: Border.all(color: SteelOpsColors.border),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    t('stats.EXERCISE'),
+                    style: steelMonoStyle(
+                      fontSize: 10,
+                      color: SteelOpsColors.inkDim,
+                      letterSpacing: 1.2,
                     ),
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        'BEST SET',
-                        textAlign: TextAlign.right,
-                        style: steelMonoStyle(
-                          fontSize: 8,
-                          color: SteelOpsColors.inkDim,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 72,
-                      child: Text(
-                        'EST 1RM',
-                        textAlign: TextAlign.right,
-                        style: steelMonoStyle(
-                          fontSize: 8,
-                          color: SteelOpsColors.inkDim,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              Container(height: 1, color: SteelOpsColors.border),
-              ...top.asMap().entries.map((entry) {
-                final idx = entry.key;
-                final pr = entry.value;
-                final isLast = idx == top.length - 1;
-                return _PRRow(pr: pr, isLast: isLast);
-              }),
-            ],
+                SizedBox(
+                  width: 88,
+                  child: Text(
+                    t('stats.BEST_SET'),
+                    textAlign: TextAlign.right,
+                    style: steelMonoStyle(
+                      fontSize: 10,
+                      color: SteelOpsColors.inkDim,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 84,
+                  child: Text(
+                    t('stats.EST_1RM'),
+                    textAlign: TextAlign.right,
+                    style: steelMonoStyle(
+                      fontSize: 10,
+                      color: SteelOpsColors.inkDim,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          Container(height: 1, color: SteelOpsColors.border),
+          ...top.asMap().entries.map((entry) {
+            return _PRRow(
+              pr: entry.value,
+              isLast: entry.key == top.length - 1,
+            );
+          }),
+        ],
+      ),
     );
   }
 }
@@ -414,21 +587,11 @@ class _PRRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateStr = () {
-      try {
-        final dt = DateTime.parse(pr.date).toLocal();
-        final months = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-        ];
-        return '${dt.day.toString().padLeft(2, '0')} ${months[dt.month - 1]}';
-      } catch (_) {
-        return '';
-      }
+      final dt = DateTime.tryParse(pr.date)?.toLocal();
+      return dt == null ? '' : DateFormat.MMMd().format(dt);
     }();
-    String fmtNum(double v) {
-      if (v == v.truncate()) return v.toInt().toString();
-      return v.toStringAsFixed(1);
-    }
+    final num = NumberFormat('#.#');
+    String fmt(double v) => num.format(v);
 
     return Column(
       children: [
@@ -444,7 +607,7 @@ class _PRRow extends StatelessWidget {
                     Text(
                       pr.exerciseName,
                       style: steelHeadingStyle(
-                        fontSize: 13,
+                        fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),
                       maxLines: 1,
@@ -454,7 +617,7 @@ class _PRRow extends StatelessWidget {
                       Text(
                         dateStr,
                         style: steelMonoStyle(
-                          fontSize: 8,
+                          fontSize: 10,
                           color: SteelOpsColors.inkDim,
                         ),
                       ),
@@ -462,27 +625,27 @@ class _PRRow extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: 80,
+                width: 88,
                 child: Text(
-                  '${fmtNum(pr.weight)} kg × ${pr.reps}',
+                  '${fmt(pr.weight)} kg × ${pr.reps}',
                   textAlign: TextAlign.right,
                   style: steelMonoStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     color: SteelOpsColors.inkMid,
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ),
               SizedBox(
-                width: 72,
+                width: 84,
                 child: Text(
-                  '${fmtNum(pr.estimated1RM)} kg',
+                  '${fmt(pr.estimated1RM)} kg',
                   textAlign: TextAlign.right,
                   style: steelMonoStyle(
-                    fontSize: 11,
+                    fontSize: 13,
                     color: SteelOpsColors.orange,
                     fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ),
@@ -495,128 +658,68 @@ class _PRRow extends StatelessWidget {
   }
 }
 
-// ── Muscle distribution section ───────────────────────────────────────────────
+// ── HUD strip ────────────────────────────────────────────────────────────────
 
-class _MuscleDistributionSection extends StatelessWidget {
-  const _MuscleDistributionSection({required this.slices});
-  final List<MuscleSlice> slices;
-
-  @override
-  Widget build(BuildContext context) {
-    final maxVol = slices.fold(0.0, (m, s) => s.volume > m ? s.volume : m);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionHeader(
-          label: 'VOLUME BREAKDOWN',
-          title: 'MUSCLE MAP',
-        ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: SteelOpsColors.surfaceElevated,
-            border: Border.all(color: SteelOpsColors.border),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: slices.asMap().entries.map((entry) {
-              final idx = entry.key;
-              final slice = entry.value;
-              final isLast = idx == slices.length - 1;
-              final ratio = maxVol > 0 ? slice.volume / maxVol : 0.0;
-              return _MuscleBar(
-                slice: slice,
-                ratio: ratio,
-                isLast: isLast,
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _MuscleBar extends StatelessWidget {
-  const _MuscleBar({
-    required this.slice,
-    required this.ratio,
-    required this.isLast,
-  });
-  final MuscleSlice slice;
-  final double ratio;
-  final bool isLast;
+class _HudStrip extends StatelessWidget {
+  const _HudStrip({required this.t, required this.hud});
+  final String Function(String) t;
+  final HudTotals hud;
 
   @override
   Widget build(BuildContext context) {
-    String fmtVol(double v) {
-      final i = v.round();
-      if (i >= 1000) {
-        final thousands = i ~/ 1000;
-        final remainder = i % 1000;
-        return '$thousands,${remainder.toString().padLeft(3, '0')}';
-      }
-      return i.toString();
-    }
+    final grouped = NumberFormat.decimalPattern();
+    final num1 = NumberFormat('#.#');
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      padding: const EdgeInsets.only(top: 16),
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(color: SteelOpsColors.orange, width: 2),
+        ),
+      ),
+      child: Row(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                slice.name,
-                style: steelMonoStyle(
-                  fontSize: 10,
-                  color: SteelOpsColors.inkMid,
-                  letterSpacing: 1,
-                ),
-              ),
-              Row(
-                children: [
-                  Text(
-                    '${fmtVol(slice.volume)} kg',
-                    style: steelMonoStyle(
-                      fontSize: 10,
-                      color: SteelOpsColors.orange,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${slice.count} sets',
-                    style: steelMonoStyle(
-                      fontSize: 9,
-                      color: SteelOpsColors.inkDim,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          // Bar track
-          Container(
-            height: 6,
-            decoration: BoxDecoration(
-              color: SteelOpsColors.border,
-              borderRadius: BorderRadius.circular(2),
+          Expanded(
+            child: _HudCell(
+              label: t('stats.TOTAL_REPS'),
+              value: grouped.format(hud.totalReps),
+              caption: t('stats.REPS_LOGGED'),
+              valueColor: SteelOpsColors.inkHigh,
+              captionColor: SteelOpsColors.orange,
             ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: ratio.clamp(0.0, 1.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: SteelOpsColors.orange,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+          ),
+          Expanded(
+            child: _HudCell(
+              label: t('stats.AVG_RPE'),
+              value: hud.avgRpe > 0 ? num1.format(hud.avgRpe) : '—',
+              caption: t('stats.INTENSITY_10'),
+              valueColor: hud.avgRpe >= 8
+                  ? SteelOpsColors.orange
+                  : SteelOpsColors.inkHigh,
+              captionColor: SteelOpsColors.inkDim,
+            ),
+          ),
+          Expanded(
+            child: _HudCell(
+              label: t('stats.HEAVIEST_SET'),
+              value: hud.heaviestWeight > 0
+                  ? num1.format(hud.heaviestWeight)
+                  : '—',
+              caption: hud.heaviestWeight > 0
+                  ? t('stats.HEAVIEST_CAPTION')
+                      .replaceAll('{n}', '${hud.heaviestReps}')
+                  : t('stats.NO_DATA'),
+              valueColor: SteelOpsColors.green,
+              captionColor: SteelOpsColors.inkDim,
+            ),
+          ),
+          Expanded(
+            child: _HudCell(
+              label: t('stats.TOTAL_VOLUME'),
+              value: '${(hud.totalVolume / 1000).round()}',
+              caption: t('stats.TONNES'),
+              valueColor: SteelOpsColors.orange,
+              captionColor: SteelOpsColors.orange,
             ),
           ),
         ],
@@ -625,46 +728,63 @@ class _MuscleBar extends StatelessWidget {
   }
 }
 
-// ── Shared section header ────────────────────────────────────────────────────
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.label, required this.title});
+class _HudCell extends StatelessWidget {
+  const _HudCell({
+    required this.label,
+    required this.value,
+    required this.caption,
+    required this.valueColor,
+    required this.captionColor,
+  });
   final String label;
-  final String title;
+  final String value;
+  final String caption;
+  final Color valueColor;
+  final Color captionColor;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: steelMonoStyle(
-            fontSize: 10,
-            color: SteelOpsColors.muted,
-            letterSpacing: 2,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: steelMonoStyle(
+              fontSize: 8,
+              color: SteelOpsColors.inkDim,
+              letterSpacing: 1,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
-        const SizedBox(height: 2),
-        Row(
-          children: [
-            Text(
-              title,
-              style: steelHeadingStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-              ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: steelMonoStyle(
+              fontSize: 22,
+              color: valueColor,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Container(
-                height: 1,
-                color: SteelOpsColors.border,
-              ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            caption,
+            style: steelMonoStyle(
+              fontSize: 8,
+              color: captionColor,
+              letterSpacing: 0.5,
             ),
-          ],
-        ),
-      ],
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 }

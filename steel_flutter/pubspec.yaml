@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   cupertino_icons: ^1.0.8
   pocketbase: ^0.20.0
@@ -37,6 +39,12 @@ dependencies:
   flutter_riverpod: ^2.6.1
   shared_preferences: ^2.5.3
   google_fonts: ^6.2.1
+  intl: ^0.20.2
+  http: ^1.2.2
+  fl_chart: ^0.69.2
+  cached_network_image: ^3.4.1
+  url_launcher: ^6.3.1
+  package_info_plus: ^8.1.2
 
 dev_dependencies:
   flutter_test:

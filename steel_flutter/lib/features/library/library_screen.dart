@@ -1,8 +1,12 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:steel/l10n/app_localizations.dart';
 
+import '../../core/router.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
 import '../../shared/ops_theme.dart';
@@ -99,6 +103,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   @override
   Widget build(BuildContext context) {
     final catalog = ref.watch(exerciseCatalogProvider);
+    final t = ref.watch(tProvider);
 
     return Scaffold(
       backgroundColor: SteelOpsColors.background,
@@ -106,6 +111,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Top breathing room below the status bar.
+            const SizedBox(height: 10),
             // ── Header ────────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -119,7 +126,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                       Row(
                         children: [
                           Text(
-                            'FIELD MANUAL',
+                            t('library.FIELD_MANUAL'),
                             style: steelMonoStyle(
                               fontSize: 10,
                               color: SteelOpsColors.muted,
@@ -132,7 +139,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                             color: SteelOpsColors.borderStrong,
                           ),
                           Text(
-                            catalog.isLoading ? 'LOADING' : 'LOADED',
+                            catalog.isLoading
+                                ? t('library.LOADING')
+                                : t('library.LOADED'),
                             style: steelMonoStyle(
                               fontSize: 10,
                               color: catalog.isLoading
@@ -143,7 +152,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                         ],
                       ),
                       Text(
-                        'ENTRIES',
+                        t('library.ENTRIES'),
                         style: steelMonoStyle(
                           fontSize: 10,
                           color: SteelOpsColors.muted,
@@ -159,7 +168,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'EXERCISE LIBRARY',
+                        t('library.TITLE'),
                         style: steelHeadingStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.w900,
@@ -231,7 +240,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                         color: SteelOpsColors.inkHigh,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'SEARCH EXERCISES...',
+                        hintText: t('library.SEARCH_HINT'),
                         hintStyle: steelMonoStyle(
                           fontSize: 12,
                           color: SteelOpsColors.muted,
@@ -270,18 +279,21 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               items: _muscleCategories,
               selected: _selectedCategory,
               onSelect: (v) => setState(() => _selectedCategory = v),
+              t: t,
             ),
             const SizedBox(height: 8),
             _FilterRow(
               items: _equipmentFilters,
               selected: _selectedEquipment,
               onSelect: (v) => setState(() => _selectedEquipment = v),
+              t: t,
             ),
             const SizedBox(height: 8),
             _FilterRow(
               items: _muscleFilters,
               selected: _selectedMuscle,
               onSelect: (v) => setState(() => _selectedMuscle = v),
+              t: t,
             ),
             const SizedBox(height: 12),
 
@@ -307,7 +319,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'FAILED TO LOAD EXERCISES',
+                          t('library.LOAD_FAILED'),
                           style: steelHeadingStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -338,7 +350,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              'RETRY',
+                              t('common.RETRY'),
                               style: steelMonoStyle(
                                 fontSize: 11,
                                 color: SteelOpsColors.orange,
@@ -357,10 +369,10 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     return Center(
                       child: SteelEmptyState(
                         icon: Icons.search_off_outlined,
-                        title: 'No exercises found',
+                        title: t('library.NO_RESULTS'),
                         subtitle: items.isEmpty
-                            ? 'Exercise catalog is empty'
-                            : 'Try adjusting your filters or search term',
+                            ? t('library.EMPTY_CATALOG')
+                            : t('library.ADJUST_FILTERS'),
                       ),
                     );
                   }
@@ -394,10 +406,12 @@ class _FilterRow extends StatelessWidget {
     required this.items,
     required this.selected,
     required this.onSelect,
+    required this.t,
   });
   final List<String> items;
   final String selected;
   final ValueChanged<String> onSelect;
+  final String Function(String) t;
 
   @override
   Widget build(BuildContext context) {
@@ -429,7 +443,7 @@ class _FilterRow extends StatelessWidget {
                 ),
               ),
               child: Text(
-                item,
+                t('library.filter.$item'),
                 style: steelMonoStyle(
                   fontSize: 10,
                   color: isSelected ? Colors.white : SteelOpsColors.inkMid,
@@ -450,12 +464,11 @@ class _ExerciseCard extends StatelessWidget {
   const _ExerciseCard({required this.exercise});
   final ExerciseCatalogItem exercise;
 
-  void _showDetail(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => _ExerciseDetailSheet(exercise: exercise),
+  void _openDetail(BuildContext context) {
+    // Separate detail PAGE (route) — mirrors the web /exercises/[slug].
+    context.push(
+      SteelRoutes.exerciseDetailPathFor(exercise.id),
+      extra: exercise,
     );
   }
 
@@ -479,7 +492,7 @@ class _ExerciseCard extends StatelessWidget {
     final accent = _accentColor();
 
     return GestureDetector(
-      onTap: () => _showDetail(context),
+      onTap: () => _openDetail(context),
       child: Container(
         decoration: BoxDecoration(
           color: SteelOpsColors.surfaceElevated,
@@ -489,22 +502,18 @@ class _ExerciseCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon placeholder
+            // Animated demo (gif) with spinner + icon fallback.
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                width: double.infinity,
+                decoration: const BoxDecoration(
                   color: SteelOpsColors.surface,
-                  borderRadius: const BorderRadius.vertical(
+                  borderRadius: BorderRadius.vertical(
                     top: Radius.circular(3),
                   ),
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.fitness_center,
-                    color: accent.withAlpha(80),
-                    size: 36,
-                  ),
-                ),
+                clipBehavior: Clip.antiAlias,
+                child: _CardMedia(url: exercise.gifUrl, accent: accent),
               ),
             ),
 
@@ -552,146 +561,39 @@ class _ExerciseCard extends StatelessWidget {
   }
 }
 
-// ── Exercise detail sheet ────────────────────────────────────────────────────
+// ── Card media (gif with spinner + icon fallback) ────────────────────────────
 
-class _ExerciseDetailSheet extends StatelessWidget {
-  const _ExerciseDetailSheet({required this.exercise});
-  final ExerciseCatalogItem exercise;
+class _CardMedia extends StatelessWidget {
+  const _CardMedia({required this.url, required this.accent});
+  final String url;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      maxChildSize: 0.92,
-      minChildSize: 0.4,
-      expand: false,
-      builder: (context, scrollController) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: SteelOpsColors.surface,
-            border: Border(
-              top: BorderSide(color: SteelOpsColors.orange, width: 2),
-              left: BorderSide(color: SteelOpsColors.border),
-              right: BorderSide(color: SteelOpsColors.border),
-            ),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+    if (url.isEmpty) return _fallbackIcon();
+    return CachedNetworkImage(
+      imageUrl: url,
+      fit: BoxFit.cover,
+      placeholder: (_, _) => Center(
+        child: SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 1.5,
+            color: accent.withAlpha(160),
           ),
-          child: ListView(
-            controller: scrollController,
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
-            children: [
-              // Drag handle
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 3,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: SteelOpsColors.borderStrong,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-
-              // Mono label
-              Text(
-                'EXERCISE DETAIL',
-                style: steelMonoStyle(
-                  fontSize: 10,
-                  color: SteelOpsColors.orange,
-                  letterSpacing: 2,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Name
-              Text(
-                exercise.name,
-                style: steelHeadingStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              Container(
-                width: 40,
-                height: 2,
-                margin: const EdgeInsets.only(top: 4, bottom: 16),
-                color: SteelOpsColors.orange,
-              ),
-
-              // Tags row
-              Row(
-                children: [
-                  _Tag(
-                    label: exercise.muscleGroup.toUpperCase(),
-                    color: SteelOpsColors.orange,
-                  ),
-                  const SizedBox(width: 8),
-                  _Tag(
-                    label: exercise.equipment.toUpperCase(),
-                    color: SteelOpsColors.muted,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Instructions
-              Text(
-                'INSTRUCTIONS',
-                style: steelMonoStyle(
-                  fontSize: 10,
-                  color: SteelOpsColors.muted,
-                  letterSpacing: 2,
-                ),
-              ),
-              Container(
-                height: 1,
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                color: SteelOpsColors.border,
-              ),
-              exercise.instructions.trim().isEmpty
-                  ? Text(
-                      'No instructions available.',
-                      style: steelMonoStyle(
-                        fontSize: 12,
-                        color: SteelOpsColors.inkDim,
-                        letterSpacing: 0.5,
-                      ),
-                    )
-                  : Text(
-                      exercise.instructions,
-                      style: steelMonoStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: SteelOpsColors.inkMid,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-            ],
-          ),
-        );
-      },
+        ),
+      ),
+      errorWidget: (_, _, _) => _fallbackIcon(),
     );
   }
-}
 
-class _Tag extends StatelessWidget {
-  const _Tag({required this.label, required this.color});
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(color: color.withAlpha(120)),
-        borderRadius: BorderRadius.circular(2),
-        color: color.withAlpha(20),
-      ),
-      child: Text(
-        label,
-        style: steelMonoStyle(fontSize: 10, color: color, letterSpacing: 1),
+  Widget _fallbackIcon() {
+    return Center(
+      child: Icon(
+        Icons.fitness_center,
+        color: accent.withAlpha(80),
+        size: 36,
       ),
     );
   }

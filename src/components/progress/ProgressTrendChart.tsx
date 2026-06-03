@@ -8,6 +8,7 @@ import {
   YAxis,
   Tooltip
 } from "recharts";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface ProgressTrendData {
   week: string;
@@ -21,15 +22,21 @@ interface ProgressTrendChartProps {
 }
 
 export function ProgressTrendChart({ data }: ProgressTrendChartProps) {
+  const { t } = useI18n();
+
   if (data.length === 0) {
     return (
       <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-6 text-center">
         <p className="font-data text-xs uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">
-          Insufficient Data — Log More Sessions
+          {t("progress.INSUFFICIENT_DATA")}
         </p>
       </div>
     );
   }
+
+  const tooltipMaxE1RM = t("progress.TOOLTIP_MAX_E1RM");
+  const tooltipAvgRpe = t("progress.LEGEND_AVG_RPE");
+  const tooltipTotalSets = t("progress.TOOLTIP_TOTAL_SETS");
 
   return (
     <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-3 w-full overflow-hidden">
@@ -75,9 +82,9 @@ export function ProgressTrendChart({ data }: ProgressTrendChartProps) {
                     <div style={{ color: "#e53e00", textTransform: "uppercase", fontWeight: 700, marginBottom: "4px" }}>
                       {d.week}
                     </div>
-                    <div style={{ color: "#e53e00" }}>Max e1RM: {d.maxE1RM.toFixed(1)} kg</div>
-                    <div style={{ color: "#10b981" }}>Avg RPE: {d.avgRpe.toFixed(1)} / 10</div>
-                    <div style={{ color: "#a3a3a3" }}>Total Sets: {d.totalSets}</div>
+                    <div style={{ color: "#e53e00" }}>{tooltipMaxE1RM}: {d.maxE1RM.toFixed(1)} kg</div>
+                    <div style={{ color: "#10b981" }}>{tooltipAvgRpe}: {d.avgRpe.toFixed(1)} / 10</div>
+                    <div style={{ color: "#a3a3a3" }}>{tooltipTotalSets}: {d.totalSets}</div>
                   </div>
                 );
               }}
@@ -107,11 +114,11 @@ export function ProgressTrendChart({ data }: ProgressTrendChartProps) {
       <div className="flex items-center justify-center gap-6 mt-3 pt-3 border-t border-[#2a2a2a]">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-[#e53e00]" />
-          <span className="font-data text-[9px] uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">Max e1RM (kg)</span>
+          <span className="font-data text-[9px] uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">{t("progress.LEGEND_MAX_E1RM")}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-[#10b981]" />
-          <span className="font-data text-[9px] uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">Avg RPE</span>
+          <span className="font-data text-[9px] uppercase tracking-[0.08em] sm:tracking-widest text-[#71717A]">{t("progress.LEGEND_AVG_RPE")}</span>
         </div>
       </div>
     </div>

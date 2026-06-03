@@ -121,7 +121,7 @@ export function Navbar() {
                   href={link.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "relative flex items-center px-4 py-4 font-data text-[12px] font-semibold uppercase tracking-widest transition-colors duration-100",
+                    "relative flex items-center px-3 py-4 font-data text-[11px] font-semibold uppercase tracking-wider transition-colors duration-100",
                     active ? "text-rust" : "text-ink-mid hover:text-ink-high",
                   )}
                 >
@@ -180,7 +180,7 @@ export function Navbar() {
               </div>
 
               <div className="border-b border-surface-3 px-3 py-2">
-                <p className="stamp mb-2 text-[10px] text-ink-mid">LANGUAGE</p>
+                <p className="stamp mb-2 text-[10px] text-ink-mid">{t("navbar.LANGUAGE")}</p>
                 <div className="flex gap-1">
                   {(["en", "ru", "uz"] as const).map((lang) => (
                     <button
@@ -201,15 +201,15 @@ export function Navbar() {
 
               <div className="py-1">
                 <DropdownMenuItem asChild className="rounded-none px-3 py-2 focus:bg-surface-3">
-                  <Link href="/dashboard" className="flex items-center gap-2 font-data text-[11px] uppercase tracking-widest text-ink-mid hover:text-ink-high">
-                    <LayoutDashboard className="h-3.5 w-3.5" />
-                    {t("navbar.DASHBOARD")}
+                  <Link href="/dashboard" className="flex items-center gap-2 font-data text-[11px] uppercase tracking-wide text-ink-mid hover:text-ink-high">
+                    <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{t("navbar.DASHBOARD")}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="rounded-none px-3 py-2 focus:bg-surface-3">
-                  <Link href="/settings" className="flex items-center gap-2 font-data text-[11px] uppercase tracking-widest text-ink-mid hover:text-ink-high">
-                    <Settings className="h-3.5 w-3.5" />
-                    {t("navbar.SETTINGS")}
+                  <Link href="/settings" className="flex items-center gap-2 font-data text-[11px] uppercase tracking-wide text-ink-mid hover:text-ink-high">
+                    <Settings className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{t("navbar.SETTINGS")}</span>
                   </Link>
                 </DropdownMenuItem>
               </div>
@@ -219,10 +219,10 @@ export function Navbar() {
               <div className="py-1">
                 <DropdownMenuItem
                   onClick={logout}
-                  className="cursor-pointer rounded-none px-3 py-2 font-data text-[11px] uppercase tracking-widest text-rust focus:bg-surface-3 focus:text-rust"
+                  className="cursor-pointer rounded-none px-3 py-2 font-data text-[11px] uppercase tracking-wide text-rust focus:bg-surface-3 focus:text-rust"
                 >
-                  <LogOut className="mr-2 h-3.5 w-3.5" />
-                  {t("navbar.SIGN_OUT")}
+                  <LogOut className="mr-2 h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{t("navbar.SIGN_OUT")}</span>
                 </DropdownMenuItem>
               </div>
             </DropdownMenuContent>

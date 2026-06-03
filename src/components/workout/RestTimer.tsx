@@ -78,7 +78,7 @@ export function RestTimer({
                 size="icon"
                 className="h-10 w-10 sm:h-8 sm:w-8"
                 onClick={onStop}
-                aria-label="Skip rest"
+                aria-label={t("workout.SKIP_REST")}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -87,7 +87,7 @@ export function RestTimer({
 
           {secondsLeft === 0 && (
             <p className="mt-2 text-center text-sm font-medium text-success">
-              Rest complete — you&apos;re ready for the next set
+              {t("workout.REST_COMPLETE")}
             </p>
           )}
         </div>

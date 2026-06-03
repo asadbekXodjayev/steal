@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:steel/l10n/app_localizations.dart';
 
 import '../../data/providers.dart';
 import '../../shared/ops_theme.dart';
@@ -121,7 +122,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           SnackBar(
             backgroundColor: SteelOpsColors.blood,
             content: Text(
-              'SETUP FAILED: $e',
+              '${tr(ref, 'onboarding.SETUP_FAILED')}: $e',
               style: steelMonoStyle(fontSize: 11, color: Colors.white),
             ),
           ),
@@ -132,7 +133,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final steps = ['STATS', 'INJURIES', 'MISSION', 'ARENA'];
+    final t = ref.watch(tProvider);
+    final steps = [
+      t('onboarding.STEPS.STATS'),
+      t('onboarding.STEPS.INJURIES'),
+      t('onboarding.STEPS.MISSION'),
+      t('onboarding.STEPS.ARENA'),
+    ];
 
     return Scaffold(
       backgroundColor: SteelOpsColors.background,
@@ -141,7 +148,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           children: [
             // App bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
               child: Row(
                 children: [
                   Text(
@@ -159,7 +166,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     color: SteelOpsColors.borderStrong,
                   ),
                   Text(
-                    'THERAPY',
+                    t('onboarding.BRAND'),
                     style: steelMonoStyle(
                       fontSize: 11,
                       color: SteelOpsColors.inkMid,
@@ -199,7 +206,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'STEP ${_step + 1} / 4',
+                        t('onboarding.STEP_OF')
+                            .replaceFirst('{current}', '${_step + 1}')
+                            .replaceFirst('{total}', '4'),
                         style: steelMonoStyle(
                           fontSize: 11,
                           color: SteelOpsColors.muted,
@@ -255,7 +264,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   if (_step > 0)
                     Expanded(
                       child: _NavButton(
-                        label: 'BACK',
+                        label: t('onboarding.BACK'),
                         icon: Icons.arrow_back,
                         filled: false,
                         onTap: _saving ? () {} : _back,
@@ -283,7 +292,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             ),
                           )
                         : _NavButton(
-                            label: _step == 3 ? 'FINISH SETUP' : 'NEXT',
+                            label: _step == 3
+                                ? t('onboarding.FINISH')
+                                : t('onboarding.NEXT'),
                             icon: _step == 3 ? Icons.check : Icons.arrow_forward,
                             filled: true,
                             onTap: _next,
@@ -300,28 +311,40 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Step 1: Your Stats ──────────────────────────────────────────────────────
   Widget _buildStep1() {
+    // (canonical key, localized label, localized description)
     final levels = [
-      ('BEGINNER', 'New to structured training (0-1 years)'),
-      ('INTERMEDIATE', 'Consistent training experience (1-3 years)'),
-      ('ADVANCED', 'Seasoned lifter with solid foundation (3+ years)'),
-      ('ELITE', 'Competitive athlete or coach-level experience'),
+      ('BEGINNER', tr(ref, 'onboarding.EXPERIENCE.BEGINNER'),
+          tr(ref, 'onboarding.EXPERIENCE.BEGINNER_DESC')),
+      ('INTERMEDIATE', tr(ref, 'onboarding.EXPERIENCE.INTERMEDIATE'),
+          tr(ref, 'onboarding.EXPERIENCE.INTERMEDIATE_DESC')),
+      ('ADVANCED', tr(ref, 'onboarding.EXPERIENCE.ADVANCED'),
+          tr(ref, 'onboarding.EXPERIENCE.ADVANCED_DESC')),
+      ('ELITE', tr(ref, 'onboarding.EXPERIENCE.ELITE'),
+          tr(ref, 'onboarding.EXPERIENCE.ELITE_DESC')),
+    ];
+
+    // (canonical gender value, localized label)
+    final genders = [
+      ('Male', tr(ref, 'onboarding.GENDER.MALE')),
+      ('Female', tr(ref, 'onboarding.GENDER.FEMALE')),
+      ('Other', tr(ref, 'onboarding.GENDER.OTHER')),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'YOUR STATS',
+          tr(ref, 'onboarding.STATS.TITLE'),
           style: steelHeadingStyle(fontSize: 32, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 6),
         Text(
-          'Raw numbers only. No fluff.',
+          tr(ref, 'onboarding.STATS.SUBTITLE'),
           style: steelMonoStyle(fontSize: 12, color: SteelOpsColors.muted),
         ),
         const SizedBox(height: 28),
 
-        _fieldLabel('AGE'),
+        _fieldLabel(tr(ref, 'onboarding.STATS.AGE')),
         const SizedBox(height: 6),
         _DarkField(
           controller: _ageController,
@@ -330,16 +353,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 18),
 
-        _fieldLabel('GENDER'),
+        _fieldLabel(tr(ref, 'onboarding.STATS.GENDER')),
         const SizedBox(height: 6),
         _DropdownField(
           value: _gender,
-          items: const ['Male', 'Female', 'Other'],
+          items: genders,
           onChanged: (v) => setState(() => _gender = v!),
         ),
         const SizedBox(height: 18),
 
-        _fieldLabel('HEIGHT (CM)'),
+        _fieldLabel(tr(ref, 'onboarding.STATS.HEIGHT')),
         const SizedBox(height: 6),
         _DarkField(
           controller: _heightController,
@@ -348,7 +371,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 18),
 
-        _fieldLabel('WEIGHT (KG)'),
+        _fieldLabel(tr(ref, 'onboarding.STATS.WEIGHT')),
         const SizedBox(height: 6),
         _DarkField(
           controller: _weightController,
@@ -357,10 +380,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 28),
 
-        _fieldLabel('EXPERIENCE LEVEL'),
+        _fieldLabel(tr(ref, 'onboarding.STATS.EXPERIENCE')),
         const SizedBox(height: 4),
         Text(
-          'Be straight with yourself.',
+          tr(ref, 'onboarding.STATS.EXPERIENCE_HINT'),
           style: steelMonoStyle(fontSize: 11, color: SteelOpsColors.muted),
         ),
         const SizedBox(height: 12),
@@ -386,7 +409,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    l.$1,
+                    l.$2,
                     style: steelHeadingStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -397,7 +420,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    l.$2,
+                    l.$3,
                     style: steelMonoStyle(
                       fontSize: 11,
                       color: SteelOpsColors.muted,
@@ -419,12 +442,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'INJURIES & LIMITS',
+          tr(ref, 'onboarding.INJURIES.TITLE'),
           style: steelHeadingStyle(fontSize: 32, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 6),
         Text(
-          "Report your damage. We'll train around it, not through it.",
+          tr(ref, 'onboarding.INJURIES.SUBTITLE'),
           style: steelMonoStyle(fontSize: 12, color: SteelOpsColors.muted),
         ),
         const SizedBox(height: 28),
@@ -443,7 +466,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 Icon(Icons.add, color: SteelOpsColors.inkMid, size: 16),
                 const SizedBox(width: 8),
                 Text(
-                  'ADD INJURY',
+                  tr(ref, 'onboarding.INJURIES.ADD'),
                   style: steelMonoStyle(
                     fontSize: 12,
                     color: SteelOpsColors.inkMid,
@@ -492,14 +515,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ],
 
         const SizedBox(height: 24),
-        _fieldLabel('INJURY HISTORY (OPTIONAL)'),
+        _fieldLabel(tr(ref, 'onboarding.INJURIES.NOTES_LABEL')),
         const SizedBox(height: 8),
         TextField(
           controller: _injuryNotesController,
           maxLines: 4,
           style: steelMonoStyle(fontSize: 12, color: SteelOpsColors.inkHigh),
           decoration: InputDecoration(
-            hintText: 'Other notes...',
+            hintText: tr(ref, 'onboarding.INJURIES.NOTES_HINT'),
             hintStyle: steelMonoStyle(
               fontSize: 12,
               color: SteelOpsColors.inkDim,
@@ -532,13 +555,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: SteelOpsColors.surface,
-        title: Text('ADD INJURY', style: steelHeadingStyle(fontSize: 18)),
+        title: Text(
+          tr(ref, 'onboarding.INJURIES.ADD'),
+          style: steelHeadingStyle(fontSize: 18),
+        ),
         content: TextField(
           controller: ctrl,
           autofocus: true,
           style: steelMonoStyle(fontSize: 12, color: SteelOpsColors.inkHigh),
           decoration: InputDecoration(
-            hintText: 'e.g. Left knee, Lower back...',
+            hintText: tr(ref, 'onboarding.INJURIES.DIALOG_HINT'),
             hintStyle: steelMonoStyle(
               fontSize: 12,
               color: SteelOpsColors.inkDim,
@@ -549,7 +575,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
-              'CANCEL',
+              tr(ref, 'common.CANCEL'),
               style: steelMonoStyle(fontSize: 11, color: SteelOpsColors.muted),
             ),
           ),
@@ -561,7 +587,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               Navigator.pop(ctx);
             },
             child: Text(
-              'ADD',
+              tr(ref, 'onboarding.INJURIES.ADD_CONFIRM'),
               style: steelMonoStyle(fontSize: 11, color: SteelOpsColors.orange),
             ),
           ),
@@ -572,24 +598,31 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Step 3: Mission ─────────────────────────────────────────────────────────
   Widget _buildStep3() {
+    // (icon, canonical key, localized label, localized description)
     final missions = [
-      (Icons.bolt, 'BUILD MUSCLE', 'Hypertrophy-focused training to grow and sculpt'),
-      (Icons.show_chart, 'GET STRONGER', 'Heavy compounds to build raw strength'),
-      (Icons.local_fire_department, 'LOSE FAT', 'High-intensity circuits to burn and tone'),
-      (Icons.favorite_border, 'BUILD ENDURANCE', 'Condition your body for lasting performance'),
-      (Icons.track_changes, 'REHAB & RECOVERY', 'Gentle, progressive movement for healing'),
+      (Icons.bolt, 'BUILD MUSCLE', tr(ref, 'onboarding.MISSION.BUILD_MUSCLE'),
+          tr(ref, 'onboarding.MISSION.BUILD_MUSCLE_DESC')),
+      (Icons.show_chart, 'GET STRONGER', tr(ref, 'onboarding.MISSION.GET_STRONGER'),
+          tr(ref, 'onboarding.MISSION.GET_STRONGER_DESC')),
+      (Icons.local_fire_department, 'LOSE FAT', tr(ref, 'onboarding.MISSION.LOSE_FAT'),
+          tr(ref, 'onboarding.MISSION.LOSE_FAT_DESC')),
+      (Icons.favorite_border, 'BUILD ENDURANCE',
+          tr(ref, 'onboarding.MISSION.BUILD_ENDURANCE'),
+          tr(ref, 'onboarding.MISSION.BUILD_ENDURANCE_DESC')),
+      (Icons.track_changes, 'REHAB & RECOVERY', tr(ref, 'onboarding.MISSION.REHAB'),
+          tr(ref, 'onboarding.MISSION.REHAB_DESC')),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'YOUR MISSION',
+          tr(ref, 'onboarding.MISSION.TITLE'),
           style: steelHeadingStyle(fontSize: 32, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 6),
         Text(
-          'Pick your target. Everything else follows.',
+          tr(ref, 'onboarding.MISSION.SUBTITLE'),
           style: steelMonoStyle(fontSize: 12, color: SteelOpsColors.muted),
         ),
         const SizedBox(height: 28),
@@ -622,7 +655,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          m.$2,
+                          m.$3,
                           style: steelHeadingStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -633,7 +666,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          m.$3,
+                          m.$4,
                           style: steelMonoStyle(
                             fontSize: 11,
                             color: SteelOpsColors.muted,
@@ -653,7 +686,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         Row(
           children: [
             Text(
-              'DAYS/WEEK: ',
+              tr(ref, 'onboarding.MISSION.DAYS_PER_WEEK'),
               style: steelMonoStyle(fontSize: 11, color: SteelOpsColors.muted),
             ),
             Text(
@@ -688,11 +721,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         Row(
           children: [
             Text(
-              'SESSION LENGTH: ',
+              tr(ref, 'onboarding.MISSION.SESSION_LENGTH'),
               style: steelMonoStyle(fontSize: 11, color: SteelOpsColors.muted),
             ),
             Text(
-              '${_sessionLength.round()} MIN',
+              '${_sessionLength.round()} ${tr(ref, 'onboarding.MISSION.MIN')}',
               style: steelMonoStyle(
                 fontSize: 11,
                 color: SteelOpsColors.heroText,
@@ -724,14 +757,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // ── Step 4: Arena ───────────────────────────────────────────────────────────
   Widget _buildStep4() {
+    // (icon, canonical key, localized label, localized description)
     final arenas = [
-      (Icons.fitness_center, 'GYM', 'Full access to machines, barbells, and cables'),
-      (Icons.home_outlined, 'HOME', 'Limited equipment — dumbbells, bands, bodyweight'),
-      (Icons.park_outlined, 'OUTDOOR', 'Parks, tracks, and calisthenics setups'),
-      (Icons.shuffle, 'MIXED', 'Combination of gym and home training'),
+      (Icons.fitness_center, 'GYM', tr(ref, 'onboarding.ARENA.GYM'),
+          tr(ref, 'onboarding.ARENA.GYM_DESC')),
+      (Icons.home_outlined, 'HOME', tr(ref, 'onboarding.ARENA.HOME'),
+          tr(ref, 'onboarding.ARENA.HOME_DESC')),
+      (Icons.park_outlined, 'OUTDOOR', tr(ref, 'onboarding.ARENA.OUTDOOR'),
+          tr(ref, 'onboarding.ARENA.OUTDOOR_DESC')),
+      (Icons.shuffle, 'MIXED', tr(ref, 'onboarding.ARENA.MIXED'),
+          tr(ref, 'onboarding.ARENA.MIXED_DESC')),
     ];
 
-    final gearItems = [
+    const gearItems = [
       'Bodyweight', 'Dumbbells', 'Barbell', 'Kettlebell',
       'Resistance Bands', 'Pull-up Bar', 'Bench', 'Squat Rack',
       'Cable Machine', 'Gym Machines', 'Dip Bars', 'Foam Roller',
@@ -741,12 +779,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'YOUR ARENA',
+          tr(ref, 'onboarding.ARENA.TITLE'),
           style: steelHeadingStyle(fontSize: 32, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 6),
         Text(
-          "Where do you lift? We'll build around it.",
+          tr(ref, 'onboarding.ARENA.SUBTITLE'),
           style: steelMonoStyle(fontSize: 12, color: SteelOpsColors.muted),
         ),
         const SizedBox(height: 28),
@@ -779,7 +817,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          a.$2,
+                          a.$3,
                           style: steelHeadingStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -790,7 +828,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          a.$3,
+                          a.$4,
                           style: steelMonoStyle(
                             fontSize: 11,
                             color: SteelOpsColors.muted,
@@ -806,10 +844,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         }),
 
         const SizedBox(height: 24),
-        _fieldLabel('AVAILABLE GEAR'),
+        _fieldLabel(tr(ref, 'onboarding.ARENA.GEAR_LABEL')),
         const SizedBox(height: 4),
         Text(
-          'More gear = more variety.',
+          tr(ref, 'onboarding.ARENA.GEAR_HINT'),
           style: steelMonoStyle(fontSize: 11, color: SteelOpsColors.muted),
         ),
         const SizedBox(height: 12),
@@ -842,7 +880,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
-                  item,
+                  tr(ref, 'onboarding.EQUIPMENT.$item'),
                   style: steelMonoStyle(
                     fontSize: 11,
                     color: selected ? SteelOpsColors.inkHigh : SteelOpsColors.muted,
@@ -919,7 +957,9 @@ class _DropdownField extends StatelessWidget {
     required this.onChanged,
   });
   final String value;
-  final List<String> items;
+
+  /// (canonical value, localized label) pairs.
+  final List<(String, String)> items;
   final ValueChanged<String?> onChanged;
 
   @override
@@ -940,9 +980,9 @@ class _DropdownField extends StatelessWidget {
           items: items
               .map(
                 (e) => DropdownMenuItem(
-                  value: e,
+                  value: e.$1,
                   child: Text(
-                    e,
+                    e.$2,
                     style: steelMonoStyle(
                       fontSize: 13,
                       color: SteelOpsColors.inkHigh,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:steel/l10n/app_localizations.dart';
+
 import '../../core/router.dart';
 import '../../shared/ops_theme.dart';
 import '../../shared/widgets/widgets.dart';
@@ -28,6 +30,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
+    final t = ref.watch(tProvider);
 
     return Scaffold(
       backgroundColor: SteelOpsColors.background,
@@ -48,7 +51,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'ACCESS PORTAL',
+                  t('auth.ACCESS_PORTAL'),
                   textAlign: TextAlign.center,
                   style: steelMonoStyle(
                     fontSize: 10,
@@ -61,14 +64,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: 'STEEL',
+                        text: t('auth.STEEL'),
                         style: steelHeadingStyle(
                           fontSize: 36,
                           color: SteelOpsColors.forge,
                         ),
                       ),
                       TextSpan(
-                        text: '  |  SIGN IN',
+                        text: '  |  ${t('auth.SIGN_IN_TITLE')}',
                         style: steelHeadingStyle(fontSize: 28),
                       ),
                     ],
@@ -77,14 +80,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'NO EXCUSES. SHOW UP.',
+                  t('auth.SIGN_IN_SUBTITLE'),
                   textAlign: TextAlign.center,
                   style: steelMonoStyle(fontSize: 12, letterSpacing: 1.2),
                 ),
                 const SizedBox(height: 28),
                 SteelTextField(
                   controller: _emailCtrl,
-                  label: 'Email',
+                  label: t('auth.EMAIL'),
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   autofillHints: const [
@@ -96,7 +99,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 12),
                 SteelTextField(
                   controller: _passwordCtrl,
-                  label: 'Password',
+                  label: t('auth.PASSWORD'),
                   obscureText: true,
                   textInputAction: TextInputAction.done,
                   autofillHints: const [AutofillHints.password],
@@ -109,13 +112,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 12),
                 ],
                 SteelPrimaryButton(
-                  label: 'Sign In',
+                  label: t('auth.SIGN_IN'),
                   isLoading: auth.isBusy,
                   onPressed: _onLogin,
                 ),
                 const SizedBox(height: 10),
                 SteelLinkButton(
-                  label: 'Create account',
+                  label: t('auth.CREATE_ACCOUNT'),
                   enabled: !auth.isBusy,
                   onPressed: () => context.goNamed(SteelRoutes.register),
                 ),

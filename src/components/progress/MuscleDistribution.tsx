@@ -7,6 +7,7 @@ import {
   Cell,
   Tooltip,
 } from "recharts";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface MuscleDatum {
   name: string;
@@ -66,17 +67,20 @@ function renderLabel(props: unknown): React.ReactNode {
 }
 
 export function MuscleDistribution({ data }: MuscleDistributionProps) {
+  const { t } = useI18n();
+
   if (data.length === 0) {
     return (
       <div className="border border-border bg-card p-6 text-center">
         <p className="font-data text-sm uppercase tracking-wider text-muted-foreground">
-          Log sessions to see muscle distribution.
+          {t("progress.LOG_FOR_DISTRIBUTION")}
         </p>
       </div>
     );
   }
 
   const total = data.reduce((acc, d) => acc + d.value, 0);
+  const sessionsLabel = t("progress.SESSIONS_TOOLTIP");
 
   return (
     <div className="grid gap-4 border border-border bg-card p-4 sm:grid-cols-2 overflow-hidden">
@@ -110,7 +114,7 @@ export function MuscleDistribution({ data }: MuscleDistributionProps) {
                 color: "#f0f0f0",
               }}
               formatter={(value, name) => [
-                `${value ?? 0} sessions`,
+                `${value ?? 0} ${sessionsLabel}`,
                 String(name ?? "").toUpperCase(),
               ]}
             />

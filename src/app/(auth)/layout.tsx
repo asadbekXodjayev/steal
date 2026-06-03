@@ -51,7 +51,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             className="font-heading text-4xl font-black uppercase leading-none tracking-tight text-[#E5E5E5] sm:text-6xl"
             style={{ fontFamily: "var(--font-heading, system-ui)" }}
           >
-            {t("authLayout.STEAL")}
+            {t("authLayout.STEEL")}
           </h1>
           <p className="stamp mt-2" style={{ color: "var(--rust)", letterSpacing: "0.25em" }}>
             {t("authLayout.FORGES_STEEL")}

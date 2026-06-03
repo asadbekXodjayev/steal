@@ -96,7 +96,7 @@ export function PlanCard({ plan }: PlanCardProps) {
             <div className="flex items-start justify-between gap-2">
               <div>
                 {isActive && (
-                  <span className="tag-pill tag-pill-acc text-[8px] mb-1.5 block w-fit">ACTIVE</span>
+                  <span className="tag-pill tag-pill-acc text-[8px] mb-1.5 block w-fit">{t("plans.ACTIVE_TAG")}</span>
                 )}
                 <h3 className="font-heading text-lg font-black uppercase text-[#f0f0f0] leading-tight">
                   {plan.title}
@@ -127,10 +127,10 @@ export function PlanCard({ plan }: PlanCardProps) {
             </div>
             <div className="flex gap-2 pt-1">
               <button className="btn-forge flex-1 h-7 text-[10px]" onClick={(e) => e.preventDefault()}>
-                Continue
+                {t("plans.CONTINUE")}
               </button>
               <button className="btn-ghost h-7 px-3 text-[10px]" onClick={(e) => e.preventDefault()}>
-                Details
+                {t("plans.DETAILS")}
               </button>
             </div>
           </div>

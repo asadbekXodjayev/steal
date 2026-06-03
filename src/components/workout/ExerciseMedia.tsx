@@ -78,7 +78,7 @@ export function ExerciseMedia({ exerciseName, size = "card", className }: Props)
     return (
       <Link
         href={`/exercises/${match.slug}`}
-        aria-label={`View tutorial for ${match.name}`}
+        aria-label={t("exerciseMedia.VIEW_TUTORIAL_FOR").replace("{name}", match.name)}
         className={cn(
           "relative h-12 w-12 shrink-0 block overflow-hidden border border-[#2a2a2a] bg-[#0a0a0a] hover:border-[#e53e00]/50 transition-colors",
           className,
@@ -121,7 +121,7 @@ export function ExerciseMedia({ exerciseName, size = "card", className }: Props)
       >
         <ImageOff className="h-5 w-5 text-[#525252]" />
         <span className="font-data text-[9px] uppercase tracking-widest text-[#525252]">
-          No tutorial
+          {t("exerciseMedia.NO_TUTORIAL")}
         </span>
       </div>
     );
@@ -171,14 +171,14 @@ export function ExerciseMedia({ exerciseName, size = "card", className }: Props)
 
       <div className="border-t border-[#2a2a2a] px-3 py-1.5 flex items-center justify-between bg-[#0a0a0a]">
         <span className="font-data text-[9px] uppercase tracking-widest text-[#525252]">
-          Tutorial
+          {t("exerciseMedia.TUTORIAL_LABEL")}
         </span>
         <Link
           href={`/exercises/${match.slug}`}
           className="flex items-center gap-1 font-data text-[9px] uppercase tracking-widest text-[#e53e00] hover:text-[#ff4500] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#e53e00]"
-          aria-label={`View full tutorial for ${match.name}`}
+          aria-label={t("exerciseMedia.VIEW_FULL_TUTORIAL_FOR").replace("{name}", match.name)}
         >
-          View full tutorial
+          {t("exerciseMedia.VIEW_FULL_TUTORIAL")}
           <ExternalLink className="h-3 w-3" />
         </Link>
       </div>

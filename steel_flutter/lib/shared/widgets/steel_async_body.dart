@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:steel/l10n/app_localizations.dart';
 
 /// Standard loading / error / data layout for feature screens.
-class SteelAsyncBody<T> extends StatelessWidget {
+class SteelAsyncBody<T> extends ConsumerWidget {
   const SteelAsyncBody({
     super.key,
     required this.isLoading,
@@ -18,7 +21,8 @@ class SteelAsyncBody<T> extends StatelessWidget {
   final VoidCallback? onRetry;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(tProvider);
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -40,7 +44,7 @@ class SteelAsyncBody<T> extends StatelessWidget {
                 const SizedBox(height: 16),
                 FilledButton.tonal(
                   onPressed: onRetry,
-                  child: const Text('Retry'),
+                  child: Text(t('common.RETRY')),
                 ),
               ],
             ],

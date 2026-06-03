@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cleartext (HTTP) traffic is blocked by default and permitted ONLY for the
+  self-hosted PocketBase backend, which is currently HTTP-only. All other
+  destinations (ExerciseDB media, Google Fonts, etc.) must use HTTPS.
+  TODO: once the backend is reachable over HTTPS, set its cleartext flag to
+  false (or remove this domain entry) and switch SteelPocketBase._defaultBaseUrl
+  to the https:// URL.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">34.56.67.158</domain>
+    </domain-config>
+</network-security-config>

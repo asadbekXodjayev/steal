@@ -17,7 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Main content with padding for bottom nav on mobile */}
       <main className="relative z-[1] flex-1 pb-20 pt-4 md:pb-6 overflow-x-hidden">
-        <div className="container-app w-full max-w-full sm:max-w-[90vw] md:max-w-[80vw] lg:max-w-[1000px] mx-auto">
+        <div className="container-app w-full mx-auto">
           <PageTransition>{children}</PageTransition>
         </div>
       </main>

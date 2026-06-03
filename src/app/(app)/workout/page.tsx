@@ -39,12 +39,11 @@ function PlanDayAction({ dayId, dayLabel, isGuest, t }: { dayId: string; dayLabe
   return (
     <Button
       asChild
-      className="w-full rounded-none bg-[#e53e00] font-data text-xs font-bold uppercase tracking-widest text-white hover:bg-[#ff4500]"
+      className="w-full rounded-none bg-[#e53e00] font-data text-xs font-bold uppercase tracking-wide text-white hover:bg-[#ff4500]"
     >
       <Link href={`/workout/${dayId}`}>
-        <Dumbbell className="mr-2 h-4 w-4" />
-        {t("workout.START_WORKOUT")}
-        <ArrowRight className="ml-2 h-4 w-4" />
+        <Dumbbell className="h-4 w-4 shrink-0" />
+        <span className="overflow-hidden text-ellipsis">{t("workout.START_WORKOUT")}</span>
       </Link>
     </Button>
   );

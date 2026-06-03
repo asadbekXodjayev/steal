@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/ops_theme.dart';
 
 const _allExercises = [
@@ -40,19 +41,32 @@ const _allExercises = [
   'Hip Thrust',
 ];
 
+// Stable English day labels — also persisted to the DB `label`/`focus` fields.
 const _dayLabels = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
+// Localization keys for each day label (display only).
+const _dayLabelKeys = [
+  'build.DAY_MON',
+  'build.DAY_TUE',
+  'build.DAY_WED',
+  'build.DAY_THU',
+  'build.DAY_FRI',
+  'build.DAY_SAT',
+  'build.DAY_SUN',
+];
+
+// (dbValue, localizationKey) — first is the stable DB key, second is display.
 const _goalOptions = [
-  ('muscle_building', 'HYPERTROPHY'),
-  ('strength', 'STRENGTH'),
-  ('fat_loss', 'FAT LOSS'),
-  ('endurance', 'ENDURANCE'),
+  ('muscle_building', 'build.GOAL_HYPERTROPHY'),
+  ('strength', 'build.GOAL_STRENGTH'),
+  ('fat_loss', 'build.GOAL_FAT_LOSS'),
+  ('endurance', 'build.GOAL_ENDURANCE'),
 ];
 
 const _environmentOptions = [
-  ('gym', 'GYM'),
-  ('home', 'HOME'),
-  ('outdoor', 'OUTDOOR'),
+  ('gym', 'build.ENV_GYM'),
+  ('home', 'build.ENV_HOME'),
+  ('outdoor', 'build.ENV_OUTDOOR'),
 ];
 
 class BuildProgramScreen extends ConsumerStatefulWidget {
@@ -111,12 +125,13 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
   }
 
   Future<void> _saveProgram() async {
+    final t = ref.read(tProvider);
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: SteelOpsColors.rust,
-          content: Text('PROGRAM NAME IS REQUIRED',
+          content: Text(t('build.NAME_REQUIRED'),
               style: steelMonoStyle(fontSize: 11, color: Colors.white)),
         ),
       );
@@ -164,7 +179,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
         SnackBar(
           backgroundColor: SteelOpsColors.surface,
           content: Text(
-            'PROGRAM "${name.toUpperCase()}" SAVED',
+            t('build.PROGRAM_SAVED').replaceAll('{title}', name.toUpperCase()),
             style: steelMonoStyle(fontSize: 11, color: Colors.white),
           ),
         ),
@@ -175,7 +190,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: SteelOpsColors.rust,
-          content: Text('ERROR: $e',
+          content: Text('${t('programs.ERROR_PREFIX')}: $e',
               style: steelMonoStyle(fontSize: 11, color: Colors.white)),
         ),
       );
@@ -193,6 +208,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(tProvider);
     return Scaffold(
       backgroundColor: SteelOpsColors.background,
       appBar: AppBar(
@@ -201,7 +217,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
           icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('BUILD PROGRAM', style: steelHeadingStyle(fontSize: 18)),
+        title: Text(t('build.TITLE'), style: steelHeadingStyle(fontSize: 18)),
       ),
       body: Column(
         children: [
@@ -212,7 +228,11 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               children: List.generate(3, (i) {
-                const labels = ['NAME', 'DAYS', 'EXERCISES'];
+                final labels = [
+                  t('build.STEP_NAME'),
+                  t('build.STEP_DAYS'),
+                  t('build.STEP_EXERCISES'),
+                ];
                 final active = i == _currentStep;
                 final done = i < _currentStep;
                 return Expanded(
@@ -294,7 +314,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'BACK',
+                          t('build.BACK'),
                           textAlign: TextAlign.center,
                           style: steelMonoStyle(
                             fontSize: 12,
@@ -337,7 +357,9 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
                               ),
                             )
                           : Text(
-                              _currentStep < 2 ? 'NEXT' : 'SAVE PROGRAM',
+                              _currentStep < 2
+                                  ? t('build.NEXT')
+                                  : t('build.SAVE_PROGRAM'),
                               textAlign: TextAlign.center,
                               style: steelMonoStyle(
                                 fontSize: 12,
@@ -371,6 +393,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
   }
 
   Widget _buildNameStep() {
+    final t = ref.watch(tProvider);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -378,7 +401,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
         children: [
           // Program name
           Text(
-            'PROGRAM NAME',
+            t('build.PROGRAM_NAME'),
             style: steelMonoStyle(
                 fontSize: 11,
                 color: SteelOpsColors.muted,
@@ -391,7 +414,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
             style: steelHeadingStyle(fontSize: 22),
             cursorColor: SteelOpsColors.orange,
             decoration: InputDecoration(
-              hintText: 'MY PROGRAM',
+              hintText: t('build.NAME_HINT'),
               hintStyle:
                   steelHeadingStyle(fontSize: 22, color: SteelOpsColors.muted),
               enabledBorder: const UnderlineInputBorder(
@@ -407,7 +430,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
 
           // Description (optional)
           Text(
-            'DESCRIPTION (OPTIONAL)',
+            t('build.DESCRIPTION_OPTIONAL'),
             style: steelMonoStyle(
                 fontSize: 11,
                 color: SteelOpsColors.muted,
@@ -420,7 +443,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
             cursorColor: SteelOpsColors.orange,
             maxLines: 2,
             decoration: InputDecoration(
-              hintText: 'Describe your program...',
+              hintText: t('build.DESCRIPTION_HINT'),
               hintStyle: steelMonoStyle(
                   fontSize: 12, color: SteelOpsColors.muted),
               enabledBorder: const UnderlineInputBorder(
@@ -436,7 +459,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
 
           // Goal type
           Text(
-            'GOAL',
+            t('build.GOAL'),
             style: steelMonoStyle(
                 fontSize: 11,
                 color: SteelOpsColors.muted,
@@ -465,7 +488,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
                     borderRadius: BorderRadius.circular(2),
                   ),
                   child: Text(
-                    opt.$2,
+                    t(opt.$2),
                     style: steelMonoStyle(
                       fontSize: 10,
                       color: selected
@@ -482,7 +505,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
 
           // Environment
           Text(
-            'ENVIRONMENT',
+            t('build.ENVIRONMENT'),
             style: steelMonoStyle(
                 fontSize: 11,
                 color: SteelOpsColors.muted,
@@ -511,7 +534,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
                     borderRadius: BorderRadius.circular(2),
                   ),
                   child: Text(
-                    opt.$2,
+                    t(opt.$2),
                     style: steelMonoStyle(
                       fontSize: 10,
                       color: selected
@@ -528,7 +551,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
 
           // Duration weeks
           Text(
-            'DURATION: $_durationWeeks WEEKS',
+            t('build.DURATION').replaceAll('{n}', '$_durationWeeks'),
             style: steelMonoStyle(
                 fontSize: 11,
                 color: SteelOpsColors.muted,
@@ -554,10 +577,10 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('1 WK',
+              Text(t('build.ONE_WEEK'),
                   style: steelMonoStyle(
                       fontSize: 9, color: SteelOpsColors.muted)),
-              Text('16 WK',
+              Text(t('build.SIXTEEN_WEEKS'),
                   style: steelMonoStyle(
                       fontSize: 9, color: SteelOpsColors.muted)),
             ],
@@ -568,13 +591,14 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
   }
 
   Widget _buildDaysStep() {
+    final t = ref.watch(tProvider);
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SELECT TRAINING DAYS',
+            t('build.SELECT_TRAINING_DAYS'),
             style: steelMonoStyle(
                 fontSize: 11,
                 color: SteelOpsColors.muted,
@@ -602,7 +626,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      _dayLabels[i],
+                      t(_dayLabelKeys[i]),
                       textAlign: TextAlign.center,
                       style: steelMonoStyle(
                         fontSize: 9,
@@ -617,7 +641,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
           ),
           const SizedBox(height: 20),
           Text(
-            '${_activeDays.length} DAYS SELECTED',
+            t('build.DAYS_SELECTED').replaceAll('{n}', '${_activeDays.length}'),
             style:
                 steelMonoStyle(fontSize: 12, color: SteelOpsColors.inkMid),
           ),
@@ -627,6 +651,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
   }
 
   Widget _buildExercisesStep() {
+    final t = ref.watch(tProvider);
     final sortedDays = _activeDays.toList()..sort();
     return Column(
       children: [
@@ -659,7 +684,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
                       ),
                     ),
                     child: Text(
-                      _dayLabels[dayI],
+                      t(_dayLabelKeys[dayI]),
                       style: steelMonoStyle(
                         fontSize: 11,
                         color: sel ? Colors.white : SteelOpsColors.inkMid,
@@ -682,7 +707,7 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
             style: steelMonoStyle(fontSize: 12, color: Colors.white),
             cursorColor: SteelOpsColors.orange,
             decoration: InputDecoration(
-              hintText: 'SEARCH EXERCISES...',
+              hintText: t('build.SEARCH_EXERCISES'),
               hintStyle: steelMonoStyle(
                   fontSize: 12, color: SteelOpsColors.muted),
               prefixIcon: Icon(Icons.search,
@@ -703,7 +728,14 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Text(
-            '${(_dayExercises[_selectedDayIndex] ?? []).length} EXERCISES SELECTED FOR ${_selectedDayIndex < 7 ? _dayLabels[_selectedDayIndex] : "THIS DAY"}',
+            t('build.EXERCISES_SELECTED_FOR')
+                .replaceAll(
+                    '{n}', '${(_dayExercises[_selectedDayIndex] ?? []).length}')
+                .replaceAll(
+                    '{day}',
+                    _selectedDayIndex < 7
+                        ? t(_dayLabelKeys[_selectedDayIndex])
+                        : t('build.THIS_DAY')),
             style:
                 steelMonoStyle(fontSize: 9, color: SteelOpsColors.muted),
           ),

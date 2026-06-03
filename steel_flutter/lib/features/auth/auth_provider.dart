@@ -121,5 +121,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(isBusy: false, errorMessage: e.toString());
     }
   }
+
+  /// Permanently delete the current user's account (and, via PocketBase
+  /// cascade rules, their data) then reset to a logged-out state.
+  ///
+  /// Errors are rethrown so the UI can surface them; on success the auth
+  /// state flips to unauthenticated, which the router uses to redirect home.
+  Future<void> deleteAccount() async {
+    state = state.copyWith(isBusy: true, errorMessage: null);
+    try {
+      final pb = await _pb();
+      final id = pb.authStore.record?.id;
+      if (id == null || id.isEmpty) {
+        throw StateError('No authenticated user to delete.');
+      }
+      await pb.collection('users').delete(id);
+      pb.authStore.clear();
+      state = const AuthState(status: AuthStatus.unauthenticated, isBusy: false);
+    } catch (e) {
+      state = state.copyWith(isBusy: false, errorMessage: e.toString());
+      rethrow;
+    }
+  }
 }
 

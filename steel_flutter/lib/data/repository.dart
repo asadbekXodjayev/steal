@@ -339,6 +339,31 @@ class SteelRepository {
 
   // ── Exercise catalog ──────────────────────────────────────────────────────
 
+  /// Fetch every exercise translation for [locale] in one batched call and
+  /// return them keyed by `exerciseExtId`. Short-circuits for English and for
+  /// unauthenticated users (the `exercise_translations` listRule requires
+  /// auth). Mirrors the web `useExercisesBatchTranslation` overlay source.
+  Future<Map<String, ExerciseTranslation>> fetchExerciseTranslations(
+    String locale,
+  ) async {
+    if (locale == 'en') return const {};
+    if (!pb.authStore.isValid) return const {};
+    try {
+      final records = await pb.collection('exercise_translations').getFullList(
+            filter: 'locale="$locale"',
+            batch: 500,
+          );
+      final map = <String, ExerciseTranslation>{};
+      for (final r in records) {
+        final t = ExerciseTranslation.fromRecord(r);
+        if (t.exerciseExtId.isNotEmpty) map[t.exerciseExtId] = t;
+      }
+      return map;
+    } catch (_) {
+      return const {};
+    }
+  }
+
   Future<List<ExerciseCatalogItem>> fetchExercises({String search = ''}) async {
     final filter = search.trim().isEmpty ? null : 'name~"${search.trim()}"';
     final res = await pb.collection('exercises').getList(

@@ -186,7 +186,7 @@ export default function SettingsPage() {
       {/* Language */}
       <div className="glass p-4 fade-up fade-up-2">
         <span className="mb-3 block font-data text-[11px] uppercase tracking-widest text-ink-low">
-          Language
+          {t("settings.LANGUAGE")}
         </span>
         <div className="flex gap-2">
           {(["en", "ru", "uz"] as const).map((lang) => (

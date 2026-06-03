@@ -2,9 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/router.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/ops_theme.dart';
 import '../../shared/widgets/widgets.dart';
 import '../programs/build_program_screen.dart';
@@ -33,6 +36,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
   }
 
   Future<void> _setActive(WorkoutPlan plan) async {
+    final t = ref.read(tProvider);
     try {
       await ref.read(repositoryProvider).updatePlanStatus(plan.id, 'active');
       ref.invalidate(plansProvider);
@@ -42,7 +46,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
           SnackBar(
             backgroundColor: SteelOpsColors.surface,
             content: Text(
-              '${plan.title.toUpperCase()} SET AS ACTIVE',
+              '${plan.title.toUpperCase()} ${t('plans.SET_AS_ACTIVE_MSG')}',
               style: steelMonoStyle(fontSize: 11, color: Colors.white),
             ),
           ),
@@ -53,7 +57,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: SteelOpsColors.rust,
-            content: Text('ERROR: $e',
+            content: Text('${t('common.ERROR')}: $e',
                 style: steelMonoStyle(fontSize: 11, color: Colors.white)),
           ),
         );
@@ -62,6 +66,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
   }
 
   Future<void> _archivePlan(WorkoutPlan plan) async {
+    final t = ref.read(tProvider);
     try {
       await ref.read(repositoryProvider).updatePlanStatus(plan.id, 'archived');
       ref.invalidate(plansProvider);
@@ -71,7 +76,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
           SnackBar(
             backgroundColor: SteelOpsColors.surface,
             content: Text(
-              '${plan.title.toUpperCase()} ARCHIVED',
+              '${plan.title.toUpperCase()} ${t('plans.ARCHIVED_MSG')}',
               style: steelMonoStyle(fontSize: 11, color: Colors.white),
             ),
           ),
@@ -82,7 +87,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: SteelOpsColors.rust,
-            content: Text('ERROR: $e',
+            content: Text('${t('common.ERROR')}: $e',
                 style: steelMonoStyle(fontSize: 11, color: Colors.white)),
           ),
         );
@@ -91,29 +96,30 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
   }
 
   Future<void> _deletePlan(WorkoutPlan plan) async {
+    final t = ref.read(tProvider);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: SteelOpsColors.surface,
         title: Text(
-          'DELETE PROGRAM?',
+          t('plans.DELETE_PROGRAM'),
           style: steelHeadingStyle(fontSize: 18),
         ),
         content: Text(
-          'This will permanently delete "${plan.title}" and all its days and exercises.',
+          t('plans.DELETE_PROGRAM_DESC').replaceFirst('{title}', plan.title),
           style: steelMonoStyle(
               fontSize: 12, color: SteelOpsColors.inkMid, letterSpacing: 0.3),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('CANCEL',
+            child: Text(t('common.CANCEL'),
                 style:
                     steelMonoStyle(fontSize: 11, color: SteelOpsColors.muted)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text('DELETE',
+            child: Text(t('common.DELETE'),
                 style: steelMonoStyle(fontSize: 11, color: SteelOpsColors.rust)),
           ),
         ],
@@ -130,7 +136,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
           SnackBar(
             backgroundColor: SteelOpsColors.surface,
             content: Text(
-              '${plan.title.toUpperCase()} DELETED',
+              '${plan.title.toUpperCase()} ${t('plans.DELETED_MSG')}',
               style: steelMonoStyle(fontSize: 11, color: Colors.white),
             ),
           ),
@@ -141,7 +147,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: SteelOpsColors.rust,
-            content: Text('ERROR: $e',
+            content: Text('${t('common.ERROR')}: $e',
                 style: steelMonoStyle(fontSize: 11, color: Colors.white)),
           ),
         );
@@ -157,6 +163,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(tProvider);
     final plansAsync = ref.watch(plansProvider);
 
     return Scaffold(
@@ -168,31 +175,39 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
             // ── Header ─────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PROGRAMS',
-                          style: steelHeadingStyle(
-                              fontSize: 42, fontWeight: FontWeight.w900),
-                        ),
-                        Container(
-                          width: 48,
-                          height: 3,
-                          margin: const EdgeInsets.only(top: 4),
-                          color: SteelOpsColors.orange,
-                        ),
-                      ],
-                    ),
+                  // Title gets the full width so the heading never wraps mid-word.
+                  Text(
+                    t('plans.TITLE'),
+                    style: steelHeadingStyle(
+                        fontSize: 42, fontWeight: FontWeight.w900),
                   ),
-                  _FilledActionButton(
-                    icon: Icons.edit_outlined,
-                    label: 'BUILD',
-                    onTap: _openBuildScreen,
+                  Container(
+                    width: 48,
+                    height: 3,
+                    margin: const EdgeInsets.only(top: 4),
+                    color: SteelOpsColors.orange,
+                  ),
+                  const SizedBox(height: 14),
+                  // Actions on their own row, right-aligned.
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _GhostActionButton(
+                        icon: Icons.bolt,
+                        label: t('quick.TITLE'),
+                        onTap: () =>
+                            context.pushNamed(SteelRoutes.quickSession),
+                      ),
+                      const SizedBox(width: 8),
+                      _FilledActionButton(
+                        icon: Icons.edit_outlined,
+                        label: t('plans.BUILD'),
+                        onTap: _openBuildScreen,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -227,9 +242,9 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
                 ),
                 labelColor: SteelOpsColors.orange,
                 unselectedLabelColor: SteelOpsColors.muted,
-                tabs: const [
-                  Tab(text: 'ACTIVE'),
-                  Tab(text: 'ALL PROGRAMS'),
+                tabs: [
+                  Tab(text: t('plans.TAB_ACTIVE')),
+                  Tab(text: t('plans.TAB_ALL')),
                 ],
               ),
             ),
@@ -246,10 +261,10 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
                         const Center(child: CircularProgressIndicator()),
                     error: (err, _) => Center(
                       child: SteelEmptyState(
-                        title: 'Could not load programs',
+                        title: t('plans.COULD_NOT_LOAD'),
                         subtitle: '$err',
                         icon: Icons.cloud_off,
-                        actionLabel: 'RETRY',
+                        actionLabel: t('common.RETRY'),
                         onAction: () => ref.invalidate(plansProvider),
                       ),
                     ),
@@ -268,10 +283,9 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
                                   horizontal: 20, vertical: 40),
                               child: Center(
                                 child: SteelEmptyState(
-                                  title: 'No active program',
-                                  subtitle:
-                                      'Build a custom plan or start a template to begin training.',
-                                  actionLabel: 'BUILD A PROGRAM',
+                                  title: t('plans.NO_ACTIVE_TITLE'),
+                                  subtitle: t('plans.NO_ACTIVE_DESC'),
+                                  actionLabel: t('plans.BUILD_A_PROGRAM'),
                                   onAction: _openBuildScreen,
                                 ),
                               ),
@@ -301,10 +315,10 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
                         const Center(child: CircularProgressIndicator()),
                     error: (err, _) => Center(
                       child: SteelEmptyState(
-                        title: 'Could not load programs',
+                        title: t('plans.COULD_NOT_LOAD'),
                         subtitle: '$err',
                         icon: Icons.cloud_off,
-                        actionLabel: 'RETRY',
+                        actionLabel: t('common.RETRY'),
                         onAction: () => ref.invalidate(plansProvider),
                       ),
                     ),
@@ -320,10 +334,9 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
                                   horizontal: 20, vertical: 40),
                               child: Center(
                                 child: SteelEmptyState(
-                                  title: 'No programs yet',
-                                  subtitle:
-                                      'Build your own or pick a template.',
-                                  actionLabel: 'BUILD A PROGRAM',
+                                  title: t('plans.NO_PLANS_TITLE'),
+                                  subtitle: t('plans.NO_PLANS_DESC'),
+                                  actionLabel: t('plans.BUILD_A_PROGRAM'),
                                   onAction: _openBuildScreen,
                                 ),
                               ),
@@ -391,8 +404,22 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
     }
   }
 
+  String _statusLabel(String Function(String) t, String status) {
+    switch (status) {
+      case 'active':
+        return t('plans.STATUS_ACTIVE');
+      case 'archived':
+        return t('plans.STATUS_ARCHIVED');
+      case 'completed':
+        return t('plans.STATUS_COMPLETED');
+      default:
+        return status.toUpperCase();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(tProvider);
     final p = widget.plan;
     final daysAsync = _expanded
         ? ref.watch(planDaysProvider(p.id))
@@ -427,7 +454,7 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
                                 horizontal: 6, vertical: 2),
                             color: _statusColor(p.status).withValues(alpha: 0.15),
                             child: Text(
-                              p.status.toUpperCase(),
+                              _statusLabel(t, p.status),
                               style: steelMonoStyle(
                                 fontSize: 8,
                                 color: _statusColor(p.status),
@@ -469,7 +496,7 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'WEEK',
+                      t('plans.WEEK'),
                       style: steelMonoStyle(
                           fontSize: 8, color: SteelOpsColors.muted),
                     ),
@@ -496,20 +523,20 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
                       itemBuilder: (_) => [
                         PopupMenuItem<String>(
                           value: 'active',
-                          child: Text('SET ACTIVE',
+                          child: Text(t('plans.SET_ACTIVE'),
                               style: steelMonoStyle(
                                   fontSize: 11, color: SteelOpsColors.green)),
                         ),
                         PopupMenuItem<String>(
                           value: 'archive',
-                          child: Text('ARCHIVE',
+                          child: Text(t('plans.ARCHIVE'),
                               style: steelMonoStyle(
                                   fontSize: 11,
                                   color: SteelOpsColors.inkMid)),
                         ),
                         PopupMenuItem<String>(
                           value: 'delete',
-                          child: Text('DELETE',
+                          child: Text(t('plans.DELETE'),
                               style: steelMonoStyle(
                                   fontSize: 11, color: SteelOpsColors.rust)),
                         ),
@@ -537,7 +564,7 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    _expanded ? 'HIDE DAYS' : 'VIEW DAYS',
+                    _expanded ? t('plans.HIDE_DAYS') : t('plans.VIEW_DAYS'),
                     style: steelMonoStyle(
                         fontSize: 9,
                         color: SteelOpsColors.muted,
@@ -565,7 +592,7 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
               ),
               error: (err, _) => Padding(
                 padding: const EdgeInsets.all(12),
-                child: Text('Could not load days: $err',
+                child: Text('${t('plans.COULD_NOT_LOAD_DAYS')}: $err',
                     style: steelMonoStyle(
                         fontSize: 10, color: SteelOpsColors.rust)),
               ),
@@ -574,7 +601,7 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
                   return Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
-                      'No training days found.',
+                      t('plans.NO_DAYS'),
                       style: steelMonoStyle(
                           fontSize: 11, color: SteelOpsColors.muted),
                     ),
@@ -589,11 +616,8 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
                     currentDays.isNotEmpty ? currentDays : days.take(7).toList();
                 return Column(
                   children: displayDays.map((day) {
-                    const dayNames = [
-                      'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN',
-                    ];
                     final dayName = day.dayOfWeek >= 1 && day.dayOfWeek <= 7
-                        ? dayNames[day.dayOfWeek - 1]
+                        ? t('plans.DOW_${day.dayOfWeek}')
                         : 'D${day.dayOfWeek}';
                     return Container(
                       padding: const EdgeInsets.symmetric(
@@ -620,7 +644,7 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
                             child: Text(
                               day.label.isNotEmpty
                                   ? day.label.toUpperCase()
-                                  : 'TRAINING',
+                                  : t('plans.TRAINING'),
                               style: steelMonoStyle(
                                   fontSize: 11,
                                   color: SteelOpsColors.inkMid),
@@ -641,6 +665,47 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
               },
             ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Ghost action button (outline) ─────────────────────────────────
+
+class _GhostActionButton extends StatelessWidget {
+  const _GhostActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: SteelOpsColors.borderStrong),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: SteelOpsColors.orange, size: 14),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: steelMonoStyle(
+                  fontSize: 10,
+                  color: SteelOpsColors.inkMid,
+                  letterSpacing: 1),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 const AXES = ["BACK", "CHEST", "SHOULDERS", "ARMS", "LEGS"] as const;
 
@@ -47,17 +48,18 @@ const DYS = [-10, 4, 18, 18, 4] as const;
 const DXS = [0, 6, 6, -6, -6] as const;
 
 export function MuscleRadar({ data, className }: MuscleRadarProps) {
+  const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [hovered, setHovered] = useState<number | null>(null);
 
   useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 80);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setMounted(true), 80);
+    return () => clearTimeout(timer);
   }, []);
 
-  const ordered = AXES.map((ax) => {
-    const d = data.find((p) => p.label === ax);
-    return { label: ax, value: d?.value ?? 0, volumeKg: d?.volumeKg ?? 0 };
+  const ordered = AXES.map((axisLabel) => {
+    const d = data.find((p) => p.label === axisLabel);
+    return { label: axisLabel, value: d?.value ?? 0, volumeKg: d?.volumeKg ?? 0 };
   });
   const vals = ordered.map((d) => d.value);
   const maxIdx = vals.indexOf(Math.max(...vals));
@@ -81,7 +83,7 @@ export function MuscleRadar({ data, className }: MuscleRadarProps) {
 
       {/* ── Mobile: horizontal bars ─────────────────────── */}
       <div className="sm:hidden space-y-2 pt-6">
-        <div className="stamp text-[8px] tracking-[0.2em] text-[#525252] mb-3">MUSCLE DISTRIBUTION — VOLUME %</div>
+        <div className="stamp text-[8px] tracking-[0.2em] text-[#525252] mb-3">{t("progress.MUSCLE_DISTRIBUTION_LABEL")}</div>
         {ordered.map((d, i) => (
           <div key={d.label} className="flex items-center gap-3">
             <span className="stamp text-[8px] w-20 text-[#A3A3A3] tracking-[0.1em]">{d.label}</span>
@@ -109,7 +111,7 @@ export function MuscleRadar({ data, className }: MuscleRadarProps) {
           className="absolute top-0 left-0 stamp z-10"
           style={{ background: "#FF4D00", color: "#fff", padding: "2px 7px", fontSize: 8, letterSpacing: "0.2em" }}
         >
-          MUSCLE RADAR
+          {t("progress.MUSCLE_RADAR_BADGE")}
         </div>
 
         <svg
@@ -230,9 +232,9 @@ export function MuscleRadar({ data, className }: MuscleRadarProps) {
                 fontFamily="var(--font-mono,monospace)"
                 fill={hovered === maxIdx ? "#22C55E" : "#e5e5e5"}
               >
-                {hoveredItem.label} — {hoveredItem.value}% of volume
+                {hoveredItem.label} — {hoveredItem.value}{t("progress.OF_VOLUME")}
                 {hoveredItem.volumeKg > 0 ? `  ·  ${hoveredItem.volumeKg.toLocaleString()} KG` : ""}
-                {hovered === maxIdx ? "  (highest)" : ""}
+                {hovered === maxIdx ? `  ${t("progress.HIGHEST")}` : ""}
               </text>
           )}
 

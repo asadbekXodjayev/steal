@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Dumbbell, Trophy, BarChart3 } from "lucide-react";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface PRRecord {
   exerciseName: string;
@@ -20,6 +21,7 @@ interface PRWallProps {
 
 export function PRWall({ prs, className }: PRWallProps) {
   const [mounted, setMounted] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 180);
@@ -33,8 +35,8 @@ export function PRWall({ prs, className }: PRWallProps) {
   if (sortedPRs.length === 0) {
     return (
       <Card className={cn("glass-card p-8 text-center", className)}>
-        <div className="stamp text-xs tracking-widest text-[#525252]">PERSONAL RECORDS</div>
-        <p className="text-[#A3A3A3] mt-3 text-sm">No PRs yet — keep forging steel</p>
+        <div className="stamp text-xs tracking-widest text-[#525252]">{t("progress.PERSONAL_RECORDS_LABEL")}</div>
+        <p className="text-[#A3A3A3] mt-3 text-sm">{t("progress.NO_PRS_FORGE")}</p>
       </Card>
     );
   }
@@ -75,7 +77,7 @@ export function PRWall({ prs, className }: PRWallProps) {
               <div className="flex justify-between items-start">
                 <div>
                   <Icon className="h-6 w-6 text-[#22C55E] mb-2" />
-                  <div className="stamp text-[10px] tracking-[0.2em] text-[#C8C8C8]">PERSONAL RECORD</div>
+                  <div className="stamp text-[10px] tracking-[0.2em] text-[#C8C8C8]">{t("progress.PERSONAL_RECORD_CARD")}</div>
                   <p className="font-bold text-lg text-[#E5E5E5] mt-1 uppercase tracking-tight">
                     {pr.exerciseName}
                   </p>
@@ -88,7 +90,7 @@ export function PRWall({ prs, className }: PRWallProps) {
                     </span>
                     <span className="text-sm font-mono text-[#22C55E]/70 mb-1">KG</span>
                   </div>
-                  <span className="text-xs text-[#A3A3A3] block">× {pr.reps} reps</span>
+                  <span className="text-xs text-[#A3A3A3] block">× {pr.reps} {t("progress.REPS_LABEL")}</span>
                   <span className="text-[10px] font-mono text-[#525252] block mt-0.5">
                     e1RM {pr.estimated1RM} kg
                   </span>
@@ -97,7 +99,7 @@ export function PRWall({ prs, className }: PRWallProps) {
 
               <div className="text-[10px] text-[#666666] mt-6 pt-3 border-t border-white/10 flex justify-between items-center">
                 <span>{formatDate(pr.date)}</span>
-                <span className="text-[#22C55E] font-medium">PERSONAL BEST</span>
+                <span className="text-[#22C55E] font-medium">{t("progress.PERSONAL_BEST")}</span>
               </div>
 
               <div

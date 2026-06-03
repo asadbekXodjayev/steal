@@ -4,6 +4,7 @@ import { ChevronLeft, Calendar, Clock, Target, Dumbbell } from "lucide-react";
 import { type LegendProgram } from "@/data/legend-programs";
 import { BrandNoiseOverlay } from "@/components/layout/BrandNoiseOverlay";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface Props {
   program: LegendProgram;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function ProgramDetail({ program, onBack }: Props) {
+  const { t } = useI18n();
   return (
     <div className="page-enter space-y-6 py-6">
       {/* Back button */}
@@ -19,7 +21,7 @@ export function ProgramDetail({ program, onBack }: Props) {
         className="inline-flex items-center gap-1.5 font-data text-[10px] uppercase tracking-widest text-[#71717A] hover:text-[#e5e5e5] transition-colors group"
       >
         <ChevronLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
-        Back to Programs
+        {t("programs.BACK_TO_PROGRAMS")}
       </button>
 
       {/* Header */}
@@ -44,12 +46,12 @@ export function ProgramDetail({ program, onBack }: Props) {
             <div className="grid grid-cols-2 gap-3 shrink-0">
               <div className="border border-[#2a2a2a] bg-[#050505] p-3">
                 <Calendar className="h-4 w-4 text-[#e53e00] mb-1" />
-                <p className="font-data text-[9px] uppercase tracking-widest text-[#525252]">Frequency</p>
+                <p className="font-data text-[9px] uppercase tracking-widest text-[#525252]">{t("programs.FREQUENCY_LABEL")}</p>
                 <p className="font-data text-[11px] text-[#e5e5e5]">{program.frequency}</p>
               </div>
               <div className="border border-[#2a2a2a] bg-[#050505] p-3">
                 <Clock className="h-4 w-4 text-[#e53e00] mb-1" />
-                <p className="font-data text-[9px] uppercase tracking-widest text-[#525252]">Session</p>
+                <p className="font-data text-[9px] uppercase tracking-widest text-[#525252]">{t("programs.SESSION_LABEL")}</p>
                 <p className="font-data text-[11px] text-[#e5e5e5]">{program.sessionLength}</p>
               </div>
             </div>
@@ -80,7 +82,7 @@ export function ProgramDetail({ program, onBack }: Props) {
           <BrandNoiseOverlay />
           <div className="relative z-10">
             <Dumbbell className="h-5 w-5 text-[#e53e00] mb-2" />
-            <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-1">Split</p>
+            <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-1">{t("programs.SPLIT_LABEL")}</p>
             <p className="font-data text-[11px] text-[#e5e5e5]">{program.split}</p>
           </div>
         </div>
@@ -89,7 +91,7 @@ export function ProgramDetail({ program, onBack }: Props) {
           <BrandNoiseOverlay />
           <div className="relative z-10">
             <Target className="h-5 w-5 text-[#e53e00] mb-2" />
-            <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-1">Recommended For</p>
+            <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-1">{t("programs.RECOMMENDED_FOR")}</p>
             <p className="font-data text-[11px] text-[#e5e5e5]">{program.recommendedFor}</p>
           </div>
         </div>
@@ -98,7 +100,7 @@ export function ProgramDetail({ program, onBack }: Props) {
           <BrandNoiseOverlay />
           <div className="relative z-10">
             <Calendar className="h-5 w-5 text-[#e53e00] mb-2" />
-            <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-1">Weekly Volume</p>
+            <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-1">{t("programs.WEEKLY_VOLUME_LABEL")}</p>
             <div className="space-y-0.5">
               {Object.entries(program.weeklyVolume).slice(0, 3).map(([muscle, sets]) => (
                 <p key={muscle} className="font-data text-[10px] text-[#a3a3a3] capitalize">
@@ -117,7 +119,7 @@ export function ProgramDetail({ program, onBack }: Props) {
           <div className="flex items-center gap-2 mb-4">
             <div className="h-px flex-1 bg-[#1a1a1a]" />
             <span className="stamp text-[9px] uppercase tracking-widest text-[#525252]">
-              WEEKLY SCHEDULE
+              {t("programs.WEEKLY_SCHEDULE_HEADING")}
             </span>
             <div className="h-px flex-1 bg-[#1a1a1a]" />
           </div>
@@ -157,7 +159,7 @@ export function ProgramDetail({ program, onBack }: Props) {
         <div className="flex items-center gap-4">
           <div className="h-px flex-1 bg-[#2a2a2a]" />
           <span className="font-data text-[10px] uppercase tracking-widest text-[#71717A]">
-            TRAINING DAYS
+            {t("programs.TRAINING_DAYS_HEADING")}
           </span>
           <div className="h-px flex-1 bg-[#2a2a2a]" />
         </div>
@@ -202,20 +204,20 @@ export function ProgramDetail({ program, onBack }: Props) {
                   {/* Exercise details */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div>
-                      <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-0.5">Sets</p>
+                      <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-0.5">{t("programs.SETS_LABEL")}</p>
                       <p className="font-data text-[10px] text-[#a3a3a3]">{exercise.sets}</p>
                     </div>
                     <div>
-                      <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-0.5">Reps</p>
+                      <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-0.5">{t("programs.REPS_LABEL")}</p>
                       <p className="font-data text-[10px] text-[#a3a3a3]">{exercise.reps}</p>
                     </div>
                     <div>
-                      <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-0.5">Rest</p>
+                      <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-0.5">{t("programs.REST_LABEL")}</p>
                       <p className="font-data text-[10px] text-[#a3a3a3]">{exercise.rest}</p>
                     </div>
                     {exercise.tempo && (
                       <div>
-                        <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-0.5">Tempo</p>
+                        <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-0.5">{t("programs.TEMPO_LABEL")}</p>
                         <p className="font-data text-[10px] text-[#a3a3a3]">{exercise.tempo}</p>
                       </div>
                     )}
@@ -240,7 +242,7 @@ export function ProgramDetail({ program, onBack }: Props) {
             <div className="flex items-center gap-2 mb-4">
               <div className="h-px flex-1 bg-[#1a1a1a]" />
               <span className="stamp text-[9px] uppercase tracking-widest text-[#525252]">
-                PROGRESSION
+                {t("programs.PROGRESSION_HEADING")}
               </span>
               <div className="h-px flex-1 bg-[#1a1a1a]" />
             </div>
@@ -255,7 +257,7 @@ export function ProgramDetail({ program, onBack }: Props) {
             </ul>
 
             <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
-              <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-1">Deload</p>
+              <p className="font-data text-[8px] uppercase tracking-widest text-[#525252] mb-1">{t("programs.DELOAD_LABEL")}</p>
               <p className="font-data text-[10px] text-[#71717A]">{program.deload}</p>
             </div>
           </div>
@@ -267,7 +269,7 @@ export function ProgramDetail({ program, onBack }: Props) {
             <div className="flex items-center gap-2 mb-4">
               <div className="h-px flex-1 bg-[#1a1a1a]" />
               <span className="stamp text-[9px] uppercase tracking-widest text-[#525252]">
-                RECOVERY
+                {t("programs.RECOVERY_HEADING")}
               </span>
               <div className="h-px flex-1 bg-[#1a1a1a]" />
             </div>

@@ -129,7 +129,7 @@ export default function WorkoutSessionPage({
           ex.name?.trim() ||
           ex.expand?.exercise?.name ||
           ex.notes?.trim() ||
-          `Exercise ${i + 1}`,
+          t("workout.EXERCISE_FALLBACK").replace("{n}", String(i + 1)),
         targetSets: ex.sets,
         completedSets: [],
       })),
@@ -148,7 +148,7 @@ export default function WorkoutSessionPage({
     ex.name?.trim() ||
     ex.expand?.exercise?.name ||
     store.exercises[i]?.exerciseName ||
-    `Exercise ${i + 1}`;
+    t("workout.EXERCISE_FALLBACK").replace("{n}", String(i + 1));
 
   function handleCompleteSet(exerciseIndex: number, data: ActiveSetInput) {
     store.completeSet(exerciseIndex, data);
@@ -164,6 +164,12 @@ export default function WorkoutSessionPage({
 
       if (isGuest) {
         // Guest mode - save to localStorage
+        // Capture summary data BEFORE clearing the store
+        const guestExercisesSummary = store.exercises.map((ex, i) => ({
+          name: ex.exerciseName || getExerciseName(currentExercises[i], i),
+          completedSets: ex.completedSets,
+        }));
+
         const guestSession: GuestSession = {
           id: `session_${Date.now()}`,
           planDayId: sessionId,
@@ -187,10 +193,7 @@ export default function WorkoutSessionPage({
         store.endSession();
 
         setSummaryData({
-          exercises: store.exercises.map((ex, i) => ({
-            name: ex.exerciseName || getExerciseName(currentExercises[i], i),
-            completedSets: ex.completedSets,
-          })),
+          exercises: guestExercisesSummary,
           duration: elapsedSeconds,
         });
 
@@ -199,10 +202,11 @@ export default function WorkoutSessionPage({
       } else {
         // Authenticated mode - save to PocketBase
         // Create the session record
+        // Use null (not "") for relation fields when no value — empty string causes PB 400
         const session = await pb.collection("workout_sessions").create({
           user: currentUserId,
           planDay: sessionId,
-          plan: planDay?.plan || "",
+          plan: planDay?.plan || null,
           startedAt: store.startedAt ?? new Date(Date.now() - elapsedSeconds * 1000).toISOString(),
           completedAt: new Date().toISOString(),
           status: "completed",
@@ -218,6 +222,9 @@ export default function WorkoutSessionPage({
           const ex = store.exercises[i];
           // Only send exercise relation if it came from a verified exercises-collection expand
           const verifiedExerciseId = planExercises?.[i]?.expand?.exercise?.id ?? null;
+          // exerciseName used for notes field — session_sets.notes stores the exercise name
+          // so that history queries (useQuickSessions) can group sets by exercise name
+          const exerciseName = ex.exerciseName || getExerciseName(planExercises?.[i] ?? ({} as PlanExercise), i);
           for (let s = 0; s < ex.completedSets.length; s++) {
             const set = ex.completedSets[s];
             const exerciseRelation = verifiedExerciseId ? { exercise: verifiedExerciseId } : {};
@@ -229,7 +236,7 @@ export default function WorkoutSessionPage({
               weight: set.weight,
               rpe: set.rpe,
               completed: true,
-              notes: set.notes || "",
+              notes: exerciseName,
             });
             totalSetsSaved++;
           }
@@ -255,7 +262,8 @@ export default function WorkoutSessionPage({
         await queryClient.invalidateQueries({ queryKey: ["plans", currentUserId] });
         await queryClient.invalidateQueries({ queryKey: ["planDaySession", sessionId, currentUserId] });
         if (planDay?.plan) {
-          await queryClient.invalidateQueries({ queryKey: ["planCompletedDays", planDay.plan] });
+          // queryKey must match usePlanCompletedSessions: ["planCompletedDays", planId, userId]
+          await queryClient.invalidateQueries({ queryKey: ["planCompletedDays", planDay.plan, currentUserId] });
         }
 
         // Advance currentWeek if all days in this week are now completed
@@ -264,7 +272,8 @@ export default function WorkoutSessionPage({
             const planRecord = await pb.collection("workout_plans").getOne<{ id: string; currentWeek: number; durationWeeks: number }>(planDay.plan);
             const finishedWeek = planDay.week;
 
-            if (finishedWeek === planRecord.currentWeek && planRecord.currentWeek < planRecord.durationWeeks) {
+            // Allow advancing even on the final week (marks plan as fully completed)
+            if (finishedWeek === planRecord.currentWeek) {
               const weekDays = await pb.collection("plan_days").getFullList<{ id: string }>({
                 filter: `plan="${planDay.plan}" && week=${finishedWeek}`,
                 fields: "id",
@@ -279,14 +288,22 @@ export default function WorkoutSessionPage({
               const allDaysComplete = weekDays.every((d) => completedPlanDayIds.has(d.id));
 
               if (allDaysComplete) {
-                await pb.collection("workout_plans").update(planDay.plan, { currentWeek: planRecord.currentWeek + 1 });
+                if (planRecord.currentWeek < planRecord.durationWeeks) {
+                  await pb.collection("workout_plans").update(planDay.plan, { currentWeek: planRecord.currentWeek + 1 });
+                  toast.success(t("workout.WEEK_UNLOCKED").replace("{w}", String(planRecord.currentWeek + 1)));
+                } else {
+                  // Final week complete — mark the plan as completed
+                  await pb.collection("workout_plans").update(planDay.plan, { status: "completed" });
+                  toast.success(t("workout.PLAN_COMPLETED"));
+                }
                 await queryClient.invalidateQueries({ queryKey: ["plans", currentUserId] });
                 await queryClient.invalidateQueries({ queryKey: ["activePlan", currentUserId] });
-                toast.success(t("workout.WEEK_UNLOCKED").replace("{w}", String(planRecord.currentWeek + 1)));
               }
             }
           } catch {
-            toast.error(t("workout.SAVE_FAILED"));
+            // Week advancement failed but the session is already saved — do not
+            // overwrite the success toast with a misleading save-failed message.
+            console.error("[workout] week advancement failed");
           }
         }
 
@@ -342,7 +359,7 @@ export default function WorkoutSessionPage({
       >
         <div className="flex-1">
           <h1 className="font-heading text-xl font-bold uppercase text-[#f0f0f0] leading-none">
-            {currentPlanDay?.label || "WORKOUT"}
+            {currentPlanDay?.label || t("workout.WORKOUT_FALLBACK")}
           </h1>
           <span className="font-data mt-0.5 block text-[10px] text-ink-low tracking-widest uppercase">
             {isGuest ? t("workout.GUEST_MODE") : `${totalSets} / ${targetSets} ${t("workout.SETS")} · ${formatDuration(elapsedSeconds)}`}
@@ -350,7 +367,7 @@ export default function WorkoutSessionPage({
         </div>
         {/* Rest timer display */}
         <div className="glass-acc px-3 py-1.5 text-center shrink-0">
-          <span className="font-data block text-[10px] text-[#EA580C] tracking-widest uppercase">REST</span>
+          <span className="font-data block text-[10px] text-[#EA580C] tracking-widest uppercase">{t("workout.REST_LABEL")}</span>
           <span className="font-data font-bold text-[#C2410C] tabular-nums" style={{ fontSize: "clamp(15px, 4.5vw, 18px)", lineHeight: 1 }}>
             {timer.isRunning ? String(Math.floor(timer.secondsLeft / 60)).padStart(2, "0") + ":" + String(timer.secondsLeft % 60).padStart(2, "0") : "--:--"}
           </span>

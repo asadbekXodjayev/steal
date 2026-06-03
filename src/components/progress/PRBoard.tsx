@@ -1,9 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/I18nProvider";
 import type { PersonalRecord } from "@/types/progress";
-
-const COLS = ["EXERCISE", "WEIGHT", "REPS"];
 
 interface PRBoardProps {
   records: PersonalRecord[];
@@ -11,11 +10,19 @@ interface PRBoardProps {
 }
 
 export function PRBoard({ records, className }: PRBoardProps) {
+  const { t } = useI18n();
+
+  const COLS = [
+    t("progress.COL_EXERCISE"),
+    t("progress.COL_WEIGHT"),
+    t("progress.COL_REPS"),
+  ];
+
   if (records.length === 0) {
     return (
       <div className={cn("flex items-center justify-center py-10", className)}>
         <span className="font-data text-sm text-[#A3A3A3] tracking-[0.15em] uppercase">
-          No records yet — earn them.
+          {t("progress.NO_RECORDS_YET")}
         </span>
       </div>
     );
@@ -25,7 +32,7 @@ export function PRBoard({ records, className }: PRBoardProps) {
     <div
       className={cn("overflow-hidden", className)}
       role="table"
-      aria-label="Personal records board"
+      aria-label={t("progress.PR_BOARD_ARIA")}
       style={{
         display: "grid",
         gridTemplateColumns: "2fr 1fr 1fr",

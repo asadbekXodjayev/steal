@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import 'package:steel/l10n/app_localizations.dart';
+
+import '../../core/legal_links.dart';
 import '../../data/providers.dart';
 import '../../shared/ops_theme.dart';
 import '../auth/auth_provider.dart';
@@ -26,6 +31,23 @@ class _GearScreenState extends ConsumerState<GearScreen> {
 
   bool _formInitialised = false;
   bool _saving = false;
+  bool _deleting = false;
+  String _appVersion = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() => _appVersion = '${info.version} (${info.buildNumber})');
+      }
+    } catch (_) {/* version row falls back to em dash */}
+  }
 
   static const _genders = ['male', 'female', 'other'];
   static const _fitnessLevels = ['beginner', 'intermediate', 'advanced', 'elite'];
@@ -95,7 +117,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
           SnackBar(
             backgroundColor: SteelOpsColors.tactical,
             content: Text(
-              'PROFILE SAVED',
+              tr(ref, 'gear.PROFILE_SAVED'),
               style: steelMonoStyle(fontSize: 12, color: Colors.white),
             ),
           ),
@@ -107,7 +129,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
           SnackBar(
             backgroundColor: SteelOpsColors.blood,
             content: Text(
-              'SAVE FAILED: $e',
+              '${tr(ref, 'gear.SAVE_FAILED')}: $e',
               style: steelMonoStyle(fontSize: 11, color: Colors.white),
             ),
           ),
@@ -123,6 +145,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
     final auth = ref.watch(authProvider);
     final profileAsync = ref.watch(profileProvider);
     final language = ref.watch(languageProvider);
+    final t = ref.watch(tProvider);
     final email = auth.email?.toUpperCase() ?? '';
 
     // Populate form fields once data arrives.
@@ -138,7 +161,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             children: [
               // ── Header ──────────────────────────────────────────────────
               Text(
-                'GEAR',
+                t('gear.TITLE'),
                 style: steelHeadingStyle(
                   fontSize: 42,
                   fontWeight: FontWeight.w900,
@@ -161,7 +184,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                 child: profileAsync.when(
                   loading: () => _profileFormSkeleton(),
                   error: (e, _) => Text(
-                    'PROFILE LOAD ERROR: $e',
+                    '${t('gear.PROFILE_LOAD_ERROR')}: $e',
                     style: steelMonoStyle(
                       fontSize: 11,
                       color: SteelOpsColors.muted,
@@ -177,49 +200,91 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.translate,
+                          color: SteelOpsColors.orange,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          t('settings.LANGUAGE'),
+                          style: steelMonoStyle(
+                            fontSize: 12,
+                            color: SteelOpsColors.inkHigh,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
                     Text(
-                      'LANGUAGE',
+                      t('settings.LANGUAGE_DESC'),
                       style: steelMonoStyle(
                         fontSize: 11,
                         color: SteelOpsColors.muted,
-                        letterSpacing: 2,
                       ),
                     ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: ['en', 'ru', 'uz'].map((lang) {
+                    const SizedBox(height: 16),
+                    Column(
+                      children: kSupportedLanguages.map((lang) {
                         final selected = language == lang;
                         return Padding(
-                          padding: const EdgeInsets.only(right: 10),
+                          padding: const EdgeInsets.only(bottom: 8),
                           child: GestureDetector(
-                            onTap: () =>
-                                ref.read(languageProvider.notifier).state = lang,
+                            onTap: selected
+                                ? null
+                                : () => setLanguage(ref, lang),
                             child: Container(
+                              width: double.infinity,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 10,
+                                horizontal: 16,
+                                vertical: 14,
                               ),
                               decoration: BoxDecoration(
                                 color: selected
-                                    ? SteelOpsColors.background
+                                    ? SteelOpsColors.surfaceElevated
                                     : Colors.transparent,
                                 border: Border.all(
                                   color: selected
                                       ? SteelOpsColors.orange
                                       : SteelOpsColors.borderStrong,
-                                  width: 1.5,
+                                  width: selected ? 1.5 : 1,
                                 ),
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: Text(
-                                lang.toUpperCase(),
-                                style: steelMonoStyle(
-                                  fontSize: 12,
-                                  color: selected
-                                      ? SteelOpsColors.orange
-                                      : SteelOpsColors.inkMid,
-                                  letterSpacing: 1.5,
-                                ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    lang.toUpperCase(),
+                                    style: steelMonoStyle(
+                                      fontSize: 11,
+                                      color: selected
+                                          ? SteelOpsColors.orange
+                                          : SteelOpsColors.inkDim,
+                                      letterSpacing: 1.5,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    kLanguageNames[lang] ?? lang,
+                                    style: steelMonoStyle(
+                                      fontSize: 13,
+                                      color: selected
+                                          ? SteelOpsColors.inkHigh
+                                          : SteelOpsColors.inkMid,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  if (selected)
+                                    Icon(
+                                      Icons.check,
+                                      color: SteelOpsColors.orange,
+                                      size: 16,
+                                    ),
+                                ],
                               ),
                             ),
                           ),
@@ -247,7 +312,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'SIGN OUT',
+                        t('gear.SIGN_OUT'),
                         style: steelMonoStyle(
                           fontSize: 12,
                           color: SteelOpsColors.orange,
@@ -258,6 +323,14 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // ── About / Legal ────────────────────────────────────────────
+              _SectionCard(child: _aboutSection(t)),
+              const SizedBox(height: 16),
+
+              // ── Delete account (Play requirement) ────────────────────────
+              _SectionCard(child: _deleteSection(t)),
 
               const SizedBox(height: 40),
             ],
@@ -265,6 +338,210 @@ class _GearScreenState extends ConsumerState<GearScreen> {
         ),
       ),
     );
+  }
+
+  // ── About / Legal section ────────────────────────────────────────────────────
+
+  Widget _aboutSection(String Function(String) t) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.shield_outlined, color: SteelOpsColors.orange, size: 18),
+            const SizedBox(width: 8),
+            Text(
+              t('legal.ABOUT'),
+              style: steelMonoStyle(
+                fontSize: 12,
+                color: SteelOpsColors.inkHigh,
+                letterSpacing: 2,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _LegalRow(
+          icon: Icons.privacy_tip_outlined,
+          label: t('legal.PRIVACY_POLICY'),
+          onTap: () => _openUrl(LegalLinks.privacyPolicyUrl, t),
+        ),
+        _LegalRow(
+          icon: Icons.description_outlined,
+          label: t('legal.TERMS'),
+          onTap: () => _openUrl(LegalLinks.termsOfUseUrl, t),
+        ),
+        _LegalRow(
+          icon: Icons.mail_outline,
+          label: t('legal.CONTACT'),
+          onTap: () => _openUrl('mailto:${LegalLinks.supportEmail}', t),
+        ),
+        const SizedBox(height: 4),
+        Divider(color: SteelOpsColors.border, height: 1),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Text(
+              t('legal.VERSION').toUpperCase(),
+              style: steelMonoStyle(
+                fontSize: 11,
+                color: SteelOpsColors.muted,
+                letterSpacing: 1.5,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              _appVersion.isEmpty ? '—' : _appVersion,
+              style: steelMonoStyle(
+                fontSize: 11,
+                color: SteelOpsColors.inkMid,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ── Delete account section ───────────────────────────────────────────────────
+
+  Widget _deleteSection(String Function(String) t) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: _deleting ? null : () => _confirmDelete(t),
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_deleting)
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: SteelOpsColors.rust,
+                  ),
+                )
+              else
+                Icon(Icons.delete_forever, color: SteelOpsColors.rust, size: 16),
+              const SizedBox(width: 8),
+              Text(
+                t('legal.DELETE_ACCOUNT'),
+                style: steelMonoStyle(
+                  fontSize: 12,
+                  color: SteelOpsColors.rust,
+                  letterSpacing: 2,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          t('legal.DATA_DELETE_NOTE')
+              .replaceAll('{email}', LegalLinks.supportEmail)
+              .replaceAll('{url}', LegalLinks.accountDeletionUrl),
+          style: steelMonoStyle(
+            fontSize: 10,
+            color: SteelOpsColors.inkDim,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _confirmDelete(String Function(String) t) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: SteelOpsColors.surfaceElevated,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        title: Text(
+          t('legal.DELETE_CONFIRM_TITLE'),
+          style: steelHeadingStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: SteelOpsColors.inkHigh,
+          ),
+        ),
+        content: Text(
+          t('legal.DELETE_CONFIRM_BODY'),
+          style: steelMonoStyle(
+            fontSize: 12,
+            color: SteelOpsColors.inkMid,
+            letterSpacing: 0.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(
+              t('common.CANCEL'),
+              style: steelMonoStyle(
+                fontSize: 12,
+                color: SteelOpsColors.muted,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(
+              t('legal.DELETE_CONFIRM_CTA'),
+              style: steelMonoStyle(
+                fontSize: 12,
+                color: SteelOpsColors.rust,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    if (!mounted) return;
+    setState(() => _deleting = true);
+    try {
+      await ref.read(authProvider.notifier).deleteAccount();
+      // Auth state flips to unauthenticated → router redirects automatically.
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: SteelOpsColors.blood,
+            content: Text(
+              '${t('legal.DELETE_FAILED')}: $e',
+              style: steelMonoStyle(fontSize: 11, color: Colors.white),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
+  }
+
+  Future<void> _openUrl(String url, String Function(String) t) async {
+    final ok = await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: SteelOpsColors.blood,
+          content: Text(
+            t('legal.OPEN_LINK_FAILED'),
+            style: steelMonoStyle(fontSize: 11, color: Colors.white),
+          ),
+        ),
+      );
+    }
   }
 
   // ── Profile form (data loaded) ──────────────────────────────────────────────
@@ -282,7 +559,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              'PROFILE',
+              tr(ref, 'gear.PROFILE'),
               style: steelMonoStyle(
                 fontSize: 12,
                 color: SteelOpsColors.inkHigh,
@@ -293,7 +570,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
         ),
         const SizedBox(height: 20),
 
-        _fieldLabel('AGE'),
+        _fieldLabel(tr(ref, 'gear.AGE')),
         const SizedBox(height: 6),
         _StyledTextField(
           controller: _ageController,
@@ -302,7 +579,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
         ),
         const SizedBox(height: 16),
 
-        _fieldLabel('HEIGHT (CM)'),
+        _fieldLabel(tr(ref, 'gear.HEIGHT')),
         const SizedBox(height: 6),
         _StyledTextField(
           controller: _heightController,
@@ -311,7 +588,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
         ),
         const SizedBox(height: 16),
 
-        _fieldLabel('WEIGHT (KG)'),
+        _fieldLabel(tr(ref, 'gear.WEIGHT')),
         const SizedBox(height: 6),
         _StyledTextField(
           controller: _weightController,
@@ -320,51 +597,51 @@ class _GearScreenState extends ConsumerState<GearScreen> {
         ),
         const SizedBox(height: 16),
 
-        _fieldLabel('GENDER'),
+        _fieldLabel(tr(ref, 'gear.GENDER')),
         const SizedBox(height: 6),
         _ChipSelector(
           options: _genders,
           selected: _gender,
           onSelect: (v) => setState(() => _gender = v),
-          labelBuilder: (v) => v.toUpperCase(),
+          labelBuilder: (v) => tr(ref, 'gear.GENDER_OPT.$v'),
         ),
         const SizedBox(height: 16),
 
-        _fieldLabel('FITNESS LEVEL'),
+        _fieldLabel(tr(ref, 'gear.FITNESS_LEVEL')),
         const SizedBox(height: 6),
         _ChipSelector(
           options: _fitnessLevels,
           selected: _fitnessLevel,
           onSelect: (v) => setState(() => _fitnessLevel = v),
-          labelBuilder: (v) => v.toUpperCase(),
+          labelBuilder: (v) => tr(ref, 'gear.FITNESS_OPT.$v'),
         ),
         const SizedBox(height: 16),
 
-        _fieldLabel('GOAL'),
+        _fieldLabel(tr(ref, 'gear.GOAL')),
         const SizedBox(height: 6),
         _ChipSelector(
           options: _goalTypes,
           selected: _goalType,
           onSelect: (v) => setState(() => _goalType = v),
-          labelBuilder: _goalLabel,
+          labelBuilder: (v) => tr(ref, 'gear.GOAL_OPT.$v'),
         ),
         const SizedBox(height: 16),
 
-        _fieldLabel('ENVIRONMENT'),
+        _fieldLabel(tr(ref, 'gear.ENVIRONMENT')),
         const SizedBox(height: 6),
         _ChipSelector(
           options: _environments,
           selected: _environment,
           onSelect: (v) => setState(() => _environment = v),
-          labelBuilder: (v) => v.toUpperCase(),
+          labelBuilder: (v) => tr(ref, 'gear.ENV_OPT.$v'),
         ),
         const SizedBox(height: 16),
 
-        _fieldLabel('INJURY HISTORY (OPTIONAL)'),
+        _fieldLabel(tr(ref, 'gear.INJURY_LABEL')),
         const SizedBox(height: 6),
         _StyledTextField(
           controller: _injuryController,
-          hint: 'e.g. left knee, lower back...',
+          hint: tr(ref, 'gear.INJURY_HINT'),
           maxLines: 3,
         ),
         const SizedBox(height: 20),
@@ -392,7 +669,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                     ),
                   )
                 : Text(
-                    'SAVE PROFILE',
+                    tr(ref, 'gear.SAVE_PROFILE'),
                     style: steelMonoStyle(
                       fontSize: 13,
                       color: Colors.white,
@@ -414,7 +691,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             Icon(Icons.person_outline, color: SteelOpsColors.orange, size: 18),
             const SizedBox(width: 8),
             Text(
-              'PROFILE',
+              tr(ref, 'gear.PROFILE'),
               style: steelMonoStyle(
                 fontSize: 12,
                 color: SteelOpsColors.inkHigh,
@@ -456,17 +733,6 @@ class _GearScreenState extends ConsumerState<GearScreen> {
       letterSpacing: 2,
     ),
   );
-
-  String _goalLabel(String v) {
-    switch (v) {
-      case 'muscle_building':
-        return 'MUSCLE';
-      case 'fat_loss':
-        return 'FAT LOSS';
-      default:
-        return v.toUpperCase();
-    }
-  }
 }
 
 // ── Chip selector ─────────────────────────────────────────────────────────────
@@ -516,6 +782,52 @@ class _ChipSelector extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+// ── Legal / external-link row ─────────────────────────────────────────────────
+
+class _LegalRow extends StatelessWidget {
+  const _LegalRow({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, color: SteelOpsColors.inkDim, size: 16),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: steelMonoStyle(
+                  fontSize: 12,
+                  color: SteelOpsColors.inkMid,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.open_in_new,
+              color: SteelOpsColors.inkDim,
+              size: 14,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

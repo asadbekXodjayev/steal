@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface MuscleSlice {
   muscle: string;
@@ -31,6 +32,7 @@ const MUSCLE_COLORS = [
 ];
 
 export function MusclePieChart({ data }: MusclePieChartProps) {
+  const { t } = useI18n();
   const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
 
   const totalVolume = useMemo(() => {
@@ -84,8 +86,8 @@ export function MusclePieChart({ data }: MusclePieChartProps) {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="text-center">
-          <div className="stamp text-[12px] text-[#525252] tracking-widest">NO DATA</div>
-          <div className="stamp mt-2 text-[9px] text-[#71717A]">LOG WORKOUTS TO SEE DISTRIBUTION</div>
+          <div className="stamp text-[12px] text-[#525252] tracking-widest">{t("progress.NO_DATA_DISTRIBUTION")}</div>
+          <div className="stamp mt-2 text-[9px] text-[#71717A]">{t("progress.LOG_WORKOUTS_DISTRIBUTION")}</div>
         </div>
       </div>
     );
@@ -121,7 +123,7 @@ export function MusclePieChart({ data }: MusclePieChartProps) {
             className="fill-[#e5e5e5] text-[10px] font-bold"
             style={{ fontFamily: "var(--font-mono, monospace)" }}
           >
-            TOTAL
+            {t("progress.TOTAL_CENTER")}
           </text>
           <text
             x="100"

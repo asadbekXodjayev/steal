@@ -219,7 +219,7 @@ export function ExerciseLibrary({ filters }: Props) {
           value={rawQ}
           onChange={(e) => handleQueryChange(e.target.value)}
           placeholder={t("library.SEARCH")}
-          aria-label="Search exercises"
+          aria-label={t("library.SEARCH_ARIA")}
           className="w-full h-full bg-transparent pl-10 pr-4 font-heading text-[13px] uppercase text-[#f0f0f0] placeholder:text-[#525252] focus:outline-none"
         />
       </div>

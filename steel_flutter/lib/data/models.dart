@@ -243,6 +243,10 @@ class ExerciseCatalogItem {
     this.bodyPart = '',
     this.target = '',
     this.image = '',
+    this.gifUrl = '',
+    this.slug = '',
+    this.secondaryMuscles = const [],
+    this.steps = const [],
   });
 
   final String id;
@@ -254,6 +258,26 @@ class ExerciseCatalogItem {
   final String target;
   final String image;
 
+  /// Animated demo URL from the ExerciseDB API (empty in offline/bundled mode).
+  final String gifUrl;
+
+  /// URL-safe slug derived from the name (mirrors the web's `slugify`).
+  final String slug;
+
+  /// Synergist muscles worked alongside the primary target.
+  final List<String> secondaryMuscles;
+
+  /// Step-by-step instructions as a list (joined form lives in [instructions]).
+  final List<String> steps;
+
+  /// Slugify a name like the web app: lowercase, non-alphanumeric runs → `-`,
+  /// trimmed of leading/trailing dashes.
+  static String slugify(String input) {
+    final lowered = input.toLowerCase();
+    final dashed = lowered.replaceAll(RegExp(r'[^a-z0-9]+'), '-');
+    return dashed.replaceAll(RegExp(r'^-+|-+$'), '');
+  }
+
   factory ExerciseCatalogItem.fromRecord(RecordModel r) => ExerciseCatalogItem(
         id: r.id,
         name: r.get<String>('name', 'Exercise'),
@@ -262,22 +286,140 @@ class ExerciseCatalogItem {
         instructions: r.get<String>('instructions', ''),
       );
 
+  /// Build from a raw ExerciseDB API exercise object (envelope already
+  /// unwrapped). Mirrors `toLibraryExercise` in `src/lib/exercise-library.ts`.
+  factory ExerciseCatalogItem.fromApi(Map<String, dynamic> j) {
+    final steps = asStringList(j['instructions']);
+    final bodyPart = asStringList(j['bodyParts']);
+    final target = asStringList(j['targetMuscles']);
+    final equipment = asStringList(j['equipments']);
+    final gif = (j['gifUrl'] ?? j['imageUrl'] ?? '').toString();
+    final name = (j['name'] ?? 'Exercise').toString();
+    final primaryTarget = target.isNotEmpty ? target.first : '';
+
+    return ExerciseCatalogItem(
+      id: (j['exerciseId'] ?? j['id'] ?? '').toString(),
+      name: name,
+      // Web uses first(targetMuscles) for both muscleGroup and target.
+      muscleGroup: primaryTarget,
+      target: primaryTarget,
+      bodyPart: bodyPart.isNotEmpty ? bodyPart.first : '',
+      equipment: equipment.isNotEmpty ? equipment.first : '',
+      instructions: steps.join(' '),
+      steps: steps,
+      secondaryMuscles: asStringList(j['secondaryMuscles']),
+      slug: slugify(name),
+      gifUrl: gif,
+      image: gif,
+    );
+  }
+
   /// Build from a record in the bundled `assets/exercises.json` catalog
-  /// (the same dataset the web app's library uses).
+  /// (offline fallback — no gif). The bundled shape ships `steps`,
+  /// `secondaryMuscles`, `slug`, etc.
   factory ExerciseCatalogItem.fromJson(Map<String, dynamic> j) {
     final muscle =
         (j['muscleGroup'] ?? j['target'] ?? j['bodyPart'] ?? '').toString();
+    final name = (j['name'] ?? 'Exercise').toString();
+    final image = (j['image'] ?? j['gif'] ?? j['gifUrl'] ?? '').toString();
+    final rawSlug = (j['slug'] ?? '').toString();
     return ExerciseCatalogItem(
       id: (j['id'] ?? j['slug'] ?? '').toString(),
-      name: (j['name'] ?? 'Exercise').toString(),
+      name: name,
       muscleGroup: muscle,
       equipment: (j['equipment'] ?? '').toString(),
       instructions: (j['instructions'] ?? '').toString(),
       bodyPart: (j['bodyPart'] ?? '').toString(),
       target: (j['target'] ?? '').toString(),
-      image: (j['image'] ?? j['gif'] ?? '').toString(),
+      image: image,
+      gifUrl: (j['gifUrl'] ?? j['gif'] ?? '').toString(),
+      slug: rawSlug.isNotEmpty ? rawSlug : slugify(name),
+      secondaryMuscles: asStringList(j['secondaryMuscles']),
+      steps: asStringList(j['steps']),
     );
   }
+
+  /// Overlay a PocketBase [ExerciseTranslation] on top of this canonical
+  /// English exercise. Each field falls back to the English value when the
+  /// translation is missing it. Mirrors `applyTranslationToLibraryExercise`
+  /// in `src/lib/exercise-translate.ts`.
+  ExerciseCatalogItem withTranslation(ExerciseTranslation? t) {
+    if (t == null) return this;
+    final tSteps = t.steps ?? steps;
+    return ExerciseCatalogItem(
+      id: id,
+      name: t.name ?? name,
+      muscleGroup: t.muscleGroup ?? muscleGroup,
+      equipment: t.equipment ?? equipment,
+      instructions: t.steps != null ? tSteps.join(' ') : instructions,
+      bodyPart: t.bodyPart ?? bodyPart,
+      target: t.target ?? target,
+      image: image,
+      gifUrl: gifUrl,
+      slug: slug,
+      secondaryMuscles: t.secondaryMuscles ?? secondaryMuscles,
+      steps: tSteps,
+    );
+  }
+}
+
+/// A translated exercise row from the PocketBase `exercise_translations`
+/// collection, keyed by (`exerciseExtId`, `locale`). List fields are stored as
+/// newline-joined text in PB and split back on read. Mirrors the web
+/// `ExerciseTranslation` shape in `src/lib/exercise-translate.ts`.
+class ExerciseTranslation {
+  const ExerciseTranslation({
+    required this.exerciseExtId,
+    this.name,
+    this.overview,
+    this.steps,
+    this.secondaryMuscles,
+    this.bodyPart,
+    this.equipment,
+    this.muscleGroup,
+    this.target,
+  });
+
+  final String exerciseExtId;
+  final String? name;
+  final String? overview;
+  final List<String>? steps;
+  final List<String>? secondaryMuscles;
+  final String? bodyPart;
+  final String? equipment;
+  final String? muscleGroup;
+  final String? target;
+
+  factory ExerciseTranslation.fromRecord(RecordModel r) {
+    String? str(String key) {
+      final v = r.get<String>(key, '').trim();
+      return v.isEmpty ? null : v;
+    }
+
+    return ExerciseTranslation(
+      exerciseExtId: r.get<String>('exerciseExtId', ''),
+      name: str('name'),
+      overview: str('overview'),
+      steps: splitLines(r.get<String>('instructions', '')),
+      secondaryMuscles: splitLines(r.get<String>('secondaryMuscles', '')),
+      bodyPart: str('bodyPart'),
+      equipment: str('equipment'),
+      muscleGroup: str('muscleGroup'),
+      target: str('target'),
+    );
+  }
+}
+
+/// Split a newline-joined PB text field back into a trimmed, non-empty list,
+/// or null when there is nothing to split.
+List<String>? splitLines(String? value) {
+  if (value == null || value.trim().isEmpty) return null;
+  final parts = value
+      .split(RegExp(r'\r?\n'))
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .toList();
+  return parts.isEmpty ? null : parts;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -495,48 +637,50 @@ class ProgramTemplate {
 
   int get daysPerWeek => days.where((d) => !d.isRest).length;
 
+  // NOTE: `tags` hold canonical, language-independent keys. The UI resolves them
+  // through `t('programs.tag.<KEY>')` so they localize with the active language.
   static const _slugMeta = <String, Map<String, dynamic>>{
     'arnold': {
       'athlete': 'Arnold Schwarzenegger',
       'image': 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800',
       'len': '75-90 min',
-      'tags': ['Classic Bodybuilding', 'High Volume', 'Pump Focus'],
+      'tags': ['CLASSIC_BB', 'HIGH_VOLUME', 'PUMP_FOCUS'],
     },
     'platz': {
       'athlete': 'Tom Platz',
       'image': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
       'len': '75-105 min',
-      'tags': ['Quad Focus', 'High Intensity', 'Extreme Volume'],
+      'tags': ['QUAD_FOCUS', 'HIGH_INTENSITY', 'EXTREME_VOLUME'],
     },
     'piana': {
       'athlete': 'Rich Piana',
       'image': 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800',
       'len': '90-120 min',
-      'tags': ['Extreme Volume', 'High Intensity', 'Drop Sets'],
+      'tags': ['EXTREME_VOLUME', 'HIGH_INTENSITY', 'DROP_SETS'],
     },
     'mentzer': {
       'athlete': 'Mike Mentzer',
       'image': 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800',
       'len': '30-45 min',
-      'tags': ['HIT', 'Low Volume', 'Maximum Intensity'],
+      'tags': ['HIT', 'LOW_VOLUME', 'MAX_INTENSITY'],
     },
     'yates': {
       'athlete': 'Dorian Yates',
       'image': 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=800',
       'len': '45-60 min',
-      'tags': ['Blood & Guts', 'HIT', 'Controlled Negatives'],
+      'tags': ['BLOOD_GUTS', 'HIT', 'CONTROLLED_NEG'],
     },
     'ronnie': {
       'athlete': 'Ronnie Coleman',
       'image': 'https://images.unsplash.com/photo-1526232760687-16e82e987c72?w=800',
       'len': '75-90 min',
-      'tags': ['High Frequency', 'Heavy Compounds', 'Maximum Mass'],
+      'tags': ['HIGH_FREQUENCY', 'HEAVY_COMPOUNDS', 'MAX_MASS'],
     },
     'nippard': {
       'athlete': 'Jeff Nippard',
       'image': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800',
       'len': '60-75 min',
-      'tags': ['Science-Based', 'RIR Tracking', 'Evidence-Based'],
+      'tags': ['SCIENCE_BASED', 'RIR_TRACKING', 'EVIDENCE_BASED'],
     },
   };
 

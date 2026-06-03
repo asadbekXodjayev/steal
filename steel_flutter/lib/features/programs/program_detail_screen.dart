@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/models.dart';
 import '../../data/providers.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/ops_theme.dart';
 import '../../shared/widgets/widgets.dart';
 
@@ -22,17 +23,20 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
   bool _starting = false;
 
   Future<void> _startProgram() async {
+    final t = ref.read(tProvider);
     setState(() => _starting = true);
     try {
       await ref
           .read(repositoryProvider)
           .createPlanFromTemplate(widget.template);
+      ref.invalidate(plansProvider);
+      ref.invalidate(activePlanProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: SteelOpsColors.surface,
           content: Text(
-            'PROGRAM STARTED: ${widget.template.title.toUpperCase()}',
+            '${t('programs.PROGRAM_STARTED')}: ${widget.template.title.toUpperCase()}',
             style: steelMonoStyle(fontSize: 11, color: Colors.white),
           ),
         ),
@@ -44,7 +48,7 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
         SnackBar(
           backgroundColor: SteelOpsColors.rust,
           content: Text(
-            'ERROR: $e',
+            '${t('programs.ERROR_PREFIX')}: $e',
             style: steelMonoStyle(fontSize: 11, color: Colors.white),
           ),
         ),
@@ -56,6 +60,7 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = ref.watch(tProvider);
     final t = widget.template;
 
     return Scaffold(
@@ -161,12 +166,12 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
                 // ── Stats row ────────────────────────────────────
                 Row(
                   children: [
-                    _StatChip(label: 'DAYS/WEEK', value: '${t.daysPerWeek}'),
+                    _StatChip(label: tr('programs.DAYS_WEEK'), value: '${t.daysPerWeek}'),
                     const SizedBox(width: 8),
-                    _StatChip(label: 'SESSION', value: t.sessionLength),
+                    _StatChip(label: tr('programs.SESSION'), value: t.sessionLength),
                     const SizedBox(width: 8),
                     _StatChip(
-                        label: 'WEEKS',
+                        label: tr('programs.WEEKS'),
                         value: t.durationWeeks > 0
                             ? '${t.durationWeeks}'
                             : '—'),
@@ -189,7 +194,7 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
                                   Border.all(color: SteelOpsColors.borderStrong),
                             ),
                             child: Text(
-                              tag,
+                              tr('programs.tag.$tag'),
                               style: steelMonoStyle(
                                   fontSize: 9,
                                   color: SteelOpsColors.inkMid,
@@ -204,17 +209,17 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
 
                 // ── Split / Best For ─────────────────────────────
                 if (t.split.isNotEmpty || t.bestFor.isNotEmpty) ...[
-                  _SectionHeader(label: 'OVERVIEW'),
+                  _SectionHeader(label: tr('programs.OVERVIEW')),
                   if (t.split.isNotEmpty)
-                    _InfoRow(label: 'SPLIT', value: t.split),
+                    _InfoRow(label: tr('programs.SPLIT'), value: t.split),
                   if (t.bestFor.isNotEmpty)
-                    _InfoRow(label: 'BEST FOR', value: t.bestFor),
+                    _InfoRow(label: tr('programs.BEST_FOR'), value: t.bestFor),
                   const SizedBox(height: 16),
                 ],
 
                 // ── Characteristics ──────────────────────────────
                 if (t.characteristics.isNotEmpty) ...[
-                  _SectionHeader(label: 'CHARACTERISTICS'),
+                  _SectionHeader(label: tr('programs.CHARACTERISTICS')),
                   ...t.characteristics.map(
                     (c) => Padding(
                       padding: const EdgeInsets.only(bottom: 6),
@@ -247,12 +252,12 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
                 ],
 
                 // ── Weekly Schedule ──────────────────────────────
-                _SectionHeader(label: 'WEEKLY SCHEDULE'),
+                _SectionHeader(label: tr('programs.WEEKLY_SCHEDULE')),
                 if (t.days.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
-                      'No schedule available.',
+                      tr('programs.NO_SCHEDULE'),
                       style: steelMonoStyle(
                           fontSize: 11, color: SteelOpsColors.muted),
                     ),
@@ -296,7 +301,7 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
                                   child: Text(
                                     day.label.isNotEmpty
                                         ? day.label.toUpperCase()
-                                        : 'REST',
+                                        : tr('programs.REST'),
                                     style: steelMonoStyle(
                                       fontSize: 12,
                                       color: isRest
@@ -307,7 +312,7 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
                                 ),
                                 if (!isRest) ...[
                                   Text(
-                                    '${day.exercises.length} EXERCISES',
+                                    '${day.exercises.length} ${tr('programs.EXERCISES')}',
                                     style: steelMonoStyle(
                                         fontSize: 9,
                                         color: SteelOpsColors.muted),
@@ -380,7 +385,7 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
                                                     if (ex.rest.isNotEmpty) ...[
                                                       const SizedBox(width: 8),
                                                       Text(
-                                                        'REST ${ex.rest}',
+                                                        '${tr('programs.REST')} ${ex.rest}',
                                                         style: steelMonoStyle(
                                                           fontSize: 9,
                                                           color: SteelOpsColors
@@ -431,7 +436,7 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
 
                 // ── Progression guidelines ───────────────────────
                 if (t.progression.isNotEmpty) ...[
-                  _SectionHeader(label: 'PROGRESSION'),
+                  _SectionHeader(label: tr('programs.PROGRESSION')),
                   ...t.progression.map(
                     (p) => Padding(
                       padding: const EdgeInsets.only(bottom: 6),
@@ -466,7 +471,7 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
 
                 // ── Recovery guidelines ──────────────────────────
                 if (t.recovery.isNotEmpty) ...[
-                  _SectionHeader(label: 'RECOVERY'),
+                  _SectionHeader(label: tr('programs.RECOVERY')),
                   ...t.recovery.map(
                     (r) => Padding(
                       padding: const EdgeInsets.only(bottom: 6),
@@ -508,7 +513,7 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
           child: SteelForgeButton(
-            label: 'START PROGRAM',
+            label: tr('programs.START_PROGRAM'),
             isLoading: _starting,
             onPressed: _starting ? null : _startProgram,
           ),

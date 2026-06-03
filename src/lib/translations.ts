@@ -1485,4 +1485,34 @@ const uz: TranslationData = {
   },
 };
 
-export const translations: Record<Language, TranslationData> = { en, ru, uz };
+import { additions } from "@/lib/i18n-additions";
+
+/**
+ * Pure deep-merge: returns a new object where `extra` keys extend `base`.
+ * Nested objects merge recursively; leaf values in `extra` win.
+ */
+function mergeDeep(base: TranslationData, extra: TranslationData | undefined): TranslationData {
+  if (!extra) return base;
+  const out: TranslationData = { ...base };
+  for (const key of Object.keys(extra)) {
+    const extraValue = extra[key];
+    const baseValue = out[key];
+    if (
+      extraValue &&
+      typeof extraValue === "object" &&
+      baseValue &&
+      typeof baseValue === "object"
+    ) {
+      out[key] = mergeDeep(baseValue as TranslationData, extraValue as TranslationData);
+    } else {
+      out[key] = extraValue;
+    }
+  }
+  return out;
+}
+
+export const translations: Record<Language, TranslationData> = {
+  en: mergeDeep(en, additions.en),
+  ru: mergeDeep(ru, additions.ru),
+  uz: mergeDeep(uz, additions.uz),
+};

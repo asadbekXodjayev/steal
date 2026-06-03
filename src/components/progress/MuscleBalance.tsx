@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface MuscleBalanceProps {
   push: number;
@@ -13,23 +14,18 @@ interface MuscleBalanceProps {
   className?: string;
 }
 
-const BARS = [
-  { key: "push" as const, label: "PUSH", color: "#22C55E" },
-  { key: "pull" as const, label: "PULL", color: "#C8C8C8" },
-  { key: "legs" as const, label: "LEGS", color: "#16a34a" },
-];
-
 const BAR_H = 110;
 
 export function MuscleBalance({ push, pull, legs, pushVol, pullVol, legsVol, className }: MuscleBalanceProps) {
+  const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [hovered, setHovered] = useState<"push" | "pull" | "legs" | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 120);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setMounted(true), 120);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -43,12 +39,18 @@ export function MuscleBalance({ push, pull, legs, pushVol, pullVol, legsVol, cla
     return () => observer.disconnect();
   }, []);
 
+  const BARS = [
+    { key: "push" as const, label: t("progress.PUSH_LABEL"), color: "#22C55E" },
+    { key: "pull" as const, label: t("progress.PULL_LABEL"), color: "#C8C8C8" },
+    { key: "legs" as const, label: t("progress.LEGS_LABEL"), color: "#16a34a" },
+  ];
+
   const total = push + pull + legs;
 
   if (total === 0) {
     return (
       <div className={cn("flex items-center justify-center py-12", className)}>
-        <span className="stamp text-[10px] tracking-[0.2em] text-[#525252]">NO SPLIT DATA YET</span>
+        <span className="stamp text-[10px] tracking-[0.2em] text-[#525252]">{t("progress.NO_SPLIT_DATA")}</span>
       </div>
     );
   }
@@ -73,7 +75,8 @@ export function MuscleBalance({ push, pull, legs, pushVol, pullVol, legsVol, cla
     "push" as "push" | "pull" | "legs"
   );
   const dominantColor = BARS.find((b) => b.key === dominant)!.color;
-  const dominantLabel = `${dominant.toUpperCase()} DOMINANT`;
+  const dominantBarLabel = BARS.find((b) => b.key === dominant)!.label;
+  const dominantLabel = `${dominantBarLabel} DOMINANT`;
 
   return (
     <div ref={containerRef} className={cn("relative w-full", className)}>

@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ExerciseMedia } from "@/components/workout/ExerciseMedia";
 import { Calendar, Dumbbell, CheckCircle2, Target, Clock, ChevronRight, Lock } from "lucide-react";
 import type { WorkoutPlan, PlanDay } from "@/types/plan";
-import { DAYS_OF_WEEK } from "@/lib/constants";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/providers/I18nProvider";
@@ -121,7 +120,7 @@ function DayCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-data text-[10px] font-bold uppercase tracking-widest" style={{ color: isCompleted ? "#10b981" : "#e5e5e5" }}>
-                {DAYS_OF_WEEK[day.dayOfWeek - 1]}
+                {t(`daysOfWeek.${(["MON","TUE","WED","THU","FRI","SAT","SUN"] as const)[day.dayOfWeek - 1]}`)}
               </span>
               <span className="text-[#2a2a2a]">—</span>
               <span className="font-data text-[10px] font-semibold uppercase tracking-wide text-[#a3a3a3]">
@@ -306,7 +305,7 @@ export default function PlanDetailPage({
                 "font-data text-[9px] font-bold uppercase tracking-widest px-2 py-0.5",
                 plan.status === "active" ? "bg-[#10b981]/10 text-[#10b981]" : "bg-[#525252]/10 text-[#71717A]"
               )}>
-                {plan.status}
+                {plan.status ? t(`enums.planStatus.${plan.status}`) : "—"}
               </span>
             </div>
           </div>
@@ -338,7 +337,7 @@ export default function PlanDetailPage({
             </div>
             <div>
               <div className="font-data text-[9px] text-[#525252]">{t("plans.GOAL")}</div>
-              <div className="font-data text-xs text-[#a3a3a3]">{plan.goalType?.replace(/_/g, " ") || "N/A"}</div>
+              <div className="font-data text-xs text-[#a3a3a3]">{plan.goalType ? t(`enums.goalType.${plan.goalType}`) : "N/A"}</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -347,7 +346,7 @@ export default function PlanDetailPage({
             </div>
             <div>
               <div className="font-data text-[9px] text-[#525252]">{t("plans.ENVIRONMENT")}</div>
-              <div className="font-data text-xs text-[#a3a3a3]">{plan.environment || "N/A"}</div>
+              <div className="font-data text-xs text-[#a3a3a3]">{plan.environment ? t(`enums.environment.${plan.environment}`) : "N/A"}</div>
             </div>
           </div>
         </div>

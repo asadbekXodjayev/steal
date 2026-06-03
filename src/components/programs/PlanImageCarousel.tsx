@@ -80,7 +80,7 @@ export function PlanImageCarousel({
             <span className="text-[#e53e00] text-2xl">💪</span>
           </div>
           <p className="font-data text-[10px] uppercase tracking-widest text-[#525252]">
-            NO IMAGES AVAILABLE
+            {t("programs.NO_IMAGES")}
           </p>
         </div>
       </div>
@@ -160,7 +160,7 @@ export function PlanImageCarousel({
                   ? "w-6 bg-[#e53e00]"
                   : "w-2 bg-[#525252] hover:bg-[#71717A]",
               )}
-              aria-label={`Go to slide ${index + 1}`}
+              aria-label={t("programs.GO_TO_SLIDE").replace("{n}", String(index + 1))}
             />
           ))}
         </div>
@@ -170,7 +170,7 @@ export function PlanImageCarousel({
       {isPaused && imageUrls.length > 1 && (
         <div className="absolute top-3 left-3 z-10 bg-[#0a0a0a]/80 border border-[#2a2a2a] px-2 py-1">
           <span className="font-data text-[8px] uppercase tracking-widest text-[#10b981]">
-            ● PAUSED
+            {t("programs.PAUSED_INDICATOR")}
           </span>
         </div>
       )}

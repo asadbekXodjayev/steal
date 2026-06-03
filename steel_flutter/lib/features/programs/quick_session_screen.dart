@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/ops_theme.dart';
 import '../../shared/widgets/widgets.dart';
 
@@ -107,12 +108,14 @@ class _QuickSessionScreenState extends ConsumerState<QuickSessionScreen> {
 
   void _finishSession() {
     _stopwatch.stop();
+    final t = ref.read(tProvider);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: SteelOpsColors.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       builder: (ctx) => _QuickFinishSheet(
+        t: t,
         exercises: _exercises,
         elapsed: _stopwatch.elapsed,
         onConfirm: (mood, energy, notes) =>
@@ -141,7 +144,7 @@ class _QuickSessionScreenState extends ConsumerState<QuickSessionScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'SESSION LOGGED — STEEL FORGED.',
+            ref.read(tProvider)('quick.SAVED'),
             style: steelMonoStyle(
                 fontSize: 12, color: Colors.white, letterSpacing: 1.2),
           ),
@@ -167,22 +170,23 @@ class _QuickSessionScreenState extends ConsumerState<QuickSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(tProvider);
     return Scaffold(
       backgroundColor: SteelOpsColors.background,
       appBar: AppBar(
         backgroundColor: SteelOpsColors.background,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.white),
-          tooltip: 'Close',
+          tooltip: t('quick.CLOSE'),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('QUICK SESSION', style: steelHeadingStyle(fontSize: 18)),
+        title: Text(t('quick.TITLE'), style: steelHeadingStyle(fontSize: 18)),
         actions: [
           if (_sessionStarted && !_isSaving)
             TextButton(
               onPressed: _finishSession,
               child: Text(
-                'FINISH',
+                t('quick.FINISH'),
                 style: steelMonoStyle(
                     fontSize: 12, color: SteelOpsColors.orange),
               ),
@@ -238,23 +242,23 @@ class _QuickSessionScreenState extends ConsumerState<QuickSessionScreen> {
             ),
 
           if (!_sessionStarted)
-            Expanded(child: _StartPrompt(onStart: _startSession))
+            Expanded(child: _StartPrompt(t: t, onStart: _startSession))
           else ...[
             // Exercise cards
             Expanded(
               child: _exercises.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: SteelEmptyState(
                         icon: Icons.add_circle_outline,
-                        title: 'No exercises yet',
-                        subtitle:
-                            'Tap an exercise below to start logging sets.',
+                        title: t('quick.NO_EXERCISES'),
+                        subtitle: t('quick.NO_EXERCISES_DESC'),
                       ),
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                       itemCount: _exercises.length,
                       itemBuilder: (_, i) => _QuickExerciseRow(
+                        t: t,
                         entry: _exercises[i],
                         onSetLogged: (set) =>
                             _persistSet(_exercises[i], set),
@@ -263,7 +267,7 @@ class _QuickSessionScreenState extends ConsumerState<QuickSessionScreen> {
             ),
 
             // Quick-add bar
-            _QuickAddBar(onAdd: _addExercise),
+            _QuickAddBar(t: t, onAdd: _addExercise),
           ],
         ],
       ),
@@ -276,7 +280,8 @@ class _QuickSessionScreenState extends ConsumerState<QuickSessionScreen> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _StartPrompt extends StatelessWidget {
-  const _StartPrompt({required this.onStart});
+  const _StartPrompt({required this.t, required this.onStart});
+  final String Function(String) t;
   final VoidCallback onStart;
 
   @override
@@ -289,10 +294,10 @@ class _StartPrompt extends StatelessWidget {
           children: [
             const Icon(Icons.bolt, color: SteelOpsColors.orange, size: 48),
             const SizedBox(height: 16),
-            Text('READY TO TRAIN?', style: steelHeadingStyle(fontSize: 24)),
+            Text(t('quick.START_TITLE'), style: steelHeadingStyle(fontSize: 24)),
             const SizedBox(height: 8),
             Text(
-              'Start a freeform session and log\nexercises as you go.',
+              t('quick.START_DESC'),
               textAlign: TextAlign.center,
               style: steelMonoStyle(
                   fontSize: 12, color: SteelOpsColors.muted),
@@ -308,7 +313,7 @@ class _StartPrompt extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  'START SESSION',
+                  t('quick.START'),
                   style: steelMonoStyle(
                     fontSize: 13,
                     color: Colors.white,
@@ -330,7 +335,8 @@ class _StartPrompt extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _QuickAddBar extends StatefulWidget {
-  const _QuickAddBar({required this.onAdd});
+  const _QuickAddBar({required this.t, required this.onAdd});
+  final String Function(String) t;
   final ValueChanged<String> onAdd;
 
   @override
@@ -355,7 +361,7 @@ class _QuickAddBarState extends State<_QuickAddBar> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'ADD EXERCISE',
+            widget.t('quick.ADD_EXERCISE'),
             style: steelMonoStyle(
                 fontSize: 9,
                 color: SteelOpsColors.muted,
@@ -418,10 +424,12 @@ class _ExerciseEntry {
 
 class _QuickExerciseRow extends StatefulWidget {
   const _QuickExerciseRow({
+    required this.t,
     required this.entry,
     required this.onSetLogged,
   });
 
+  final String Function(String) t;
   final _ExerciseEntry entry;
   final ValueChanged<_LoggedSet> onSetLogged;
 
@@ -461,6 +469,7 @@ class _QuickExerciseRowState extends State<_QuickExerciseRow> {
   @override
   Widget build(BuildContext context) {
     final entry = widget.entry;
+    final t = widget.t;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -490,15 +499,15 @@ class _QuickExerciseRowState extends State<_QuickExerciseRow> {
                 child: Row(
                   children: [
                     Text(
-                      'SET ${s.setNumber}',
+                      t('quick.SET').replaceAll('{n}', '${s.setNumber}'),
                       style: steelMonoStyle(
                           fontSize: 9, color: SteelOpsColors.forge),
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      '${s.reps} reps  ·  '
-                      '${s.weight.toStringAsFixed(s.weight % 1 == 0 ? 0 : 1)} kg  ·  '
-                      'RPE ${s.rpe.toStringAsFixed(0)}',
+                      '${s.reps} ${t('quick.REPS')}  ·  '
+                      '${s.weight.toStringAsFixed(s.weight % 1 == 0 ? 0 : 1)} ${t('quick.KG')}  ·  '
+                      '${t('quick.RPE')} ${s.rpe.toStringAsFixed(0)}',
                       style: steelMonoStyle(
                           fontSize: 10, color: SteelOpsColors.inkMid),
                     ),
@@ -514,22 +523,22 @@ class _QuickExerciseRowState extends State<_QuickExerciseRow> {
           Row(
             children: [
               _QuickNumField(
-                  label: 'REPS',
+                  label: t('quick.FIELD_REPS'),
                   controller: _repsCtrl,
                   decimal: false),
               const SizedBox(width: 8),
               _QuickNumField(
-                  label: 'KG',
+                  label: t('quick.FIELD_KG'),
                   controller: _weightCtrl,
                   decimal: true),
               const SizedBox(width: 8),
               _QuickNumField(
-                  label: 'RPE',
+                  label: t('quick.FIELD_RPE'),
                   controller: _rpeCtrl,
                   decimal: true),
               const SizedBox(width: 10),
               SteelForgeButton(
-                label: '+ SET',
+                label: t('quick.ADD_SET'),
                 expanded: false,
                 onPressed: _addSet,
               ),
@@ -547,11 +556,13 @@ class _QuickExerciseRowState extends State<_QuickExerciseRow> {
 
 class _QuickFinishSheet extends StatefulWidget {
   const _QuickFinishSheet({
+    required this.t,
     required this.exercises,
     required this.elapsed,
     required this.onConfirm,
   });
 
+  final String Function(String) t;
   final List<_ExerciseEntry> exercises;
   final Duration elapsed;
   final void Function(String? mood, int energy, String? notes) onConfirm;
@@ -566,7 +577,13 @@ class _QuickFinishSheetState extends State<_QuickFinishSheet> {
   final _notesCtrl = TextEditingController();
 
   static const _moods = ['great', 'good', 'okay', 'tired', 'bad'];
-  static const _moodLabels = ['GREAT', 'GOOD', 'OKAY', 'TIRED', 'BAD'];
+  static const _moodKeys = [
+    'quick.MOOD_GREAT',
+    'quick.MOOD_GOOD',
+    'quick.MOOD_OKAY',
+    'quick.MOOD_TIRED',
+    'quick.MOOD_BAD',
+  ];
 
   @override
   void dispose() {
@@ -576,6 +593,7 @@ class _QuickFinishSheetState extends State<_QuickFinishSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = widget.t;
     final bottom = MediaQuery.viewInsetsOf(context).bottom;
     final totalSets =
         widget.exercises.fold<int>(0, (acc, e) => acc + e.loggedSets.length);
@@ -588,11 +606,15 @@ class _QuickFinishSheetState extends State<_QuickFinishSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('SESSION COMPLETE', style: steelHeadingStyle(fontSize: 22)),
+            Text(t('quick.SESSION_COMPLETE'),
+                style: steelHeadingStyle(fontSize: 22)),
             const SizedBox(height: 4),
             Text(
-              '${widget.exercises.length} exercises · $totalSets sets · '
-              '${widget.elapsed.inMinutes}m ${widget.elapsed.inSeconds % 60}s',
+              t('quick.SUMMARY')
+                  .replaceAll('{ex}', '${widget.exercises.length}')
+                  .replaceAll('{sets}', '$totalSets')
+                  .replaceAll('{min}', '${widget.elapsed.inMinutes}')
+                  .replaceAll('{sec}', '${widget.elapsed.inSeconds % 60}'),
               style: steelMonoStyle(
                   fontSize: 12, color: SteelOpsColors.inkMid),
             ),
@@ -600,7 +622,7 @@ class _QuickFinishSheetState extends State<_QuickFinishSheet> {
 
             // Mood
             Text(
-              'MOOD',
+              t('quick.MOOD'),
               style: steelMonoStyle(
                   fontSize: 9,
                   color: SteelOpsColors.muted,
@@ -629,7 +651,7 @@ class _QuickFinishSheetState extends State<_QuickFinishSheet> {
                       borderRadius: BorderRadius.circular(2),
                     ),
                     child: Text(
-                      _moodLabels[i],
+                      t(_moodKeys[i]),
                       style: steelMonoStyle(
                         fontSize: 11,
                         color: selected
@@ -645,7 +667,7 @@ class _QuickFinishSheetState extends State<_QuickFinishSheet> {
 
             // Energy
             Text(
-              'ENERGY LEVEL  $_energy / 5',
+              t('quick.ENERGY').replaceAll('{n}', '$_energy'),
               style: steelMonoStyle(
                   fontSize: 9,
                   color: SteelOpsColors.muted,
@@ -664,7 +686,7 @@ class _QuickFinishSheetState extends State<_QuickFinishSheet> {
 
             // Notes
             Text(
-              'NOTES (optional)',
+              t('quick.NOTES'),
               style: steelMonoStyle(
                   fontSize: 9,
                   color: SteelOpsColors.muted,
@@ -677,7 +699,7 @@ class _QuickFinishSheetState extends State<_QuickFinishSheet> {
               style: steelMonoStyle(
                   fontSize: 12, color: SteelOpsColors.inkHigh),
               decoration: InputDecoration(
-                hintText: 'Any notes about today\'s session...',
+                hintText: t('quick.NOTES_HINT'),
                 hintStyle: steelMonoStyle(
                     fontSize: 12, color: SteelOpsColors.inkDim),
                 enabledBorder: OutlineInputBorder(
@@ -695,7 +717,7 @@ class _QuickFinishSheetState extends State<_QuickFinishSheet> {
             const SizedBox(height: 24),
 
             SteelForgeButton(
-              label: 'SAVE SESSION',
+              label: t('quick.SAVE'),
               onPressed: () => widget.onConfirm(
                 _mood,
                 _energy,
@@ -706,7 +728,7 @@ class _QuickFinishSheetState extends State<_QuickFinishSheet> {
             ),
             const SizedBox(height: 8),
             SteelGhostButton(
-              label: 'Cancel',
+              label: t('quick.CANCEL'),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],

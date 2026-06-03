@@ -467,18 +467,18 @@ export default function QuickWorkoutPage() {
         <button
           type="button"
           onClick={() => setPickerOpen(true)}
-          className="flex-1 flex items-center justify-center gap-2 border border-[#2a2a2a] py-3 font-data text-[10px] font-bold uppercase tracking-widest text-[#e5e5e5] hover:border-[#e53e00]/50 transition-colors"
+          className="flex-1 flex min-w-0 items-center justify-center gap-1.5 border border-[#2a2a2a] py-3 font-data text-[10px] font-bold uppercase tracking-wide text-[#e5e5e5] hover:border-[#e53e00]/50 transition-colors"
         >
-          <Plus className="h-3.5 w-3.5" />
-          {t("quickWorkout.ADD_EXERCISE")}
+          <Plus className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">{t("quickWorkout.ADD_EXERCISE")}</span>
         </button>
         {exercises.length > 0 && (
           <button
             type="button"
             onClick={() => setShowFinish(true)}
-            className="flex-1 flex items-center justify-center gap-2 bg-[#e53e00] py-3 font-data text-[10px] font-bold uppercase tracking-widest text-white hover:bg-[#ff4500] transition-colors"
+            className="flex-1 flex min-w-0 items-center justify-center gap-1.5 bg-[#e53e00] py-3 font-data text-[10px] font-bold uppercase tracking-wide text-white hover:bg-[#ff4500] transition-colors"
           >
-            {t("quickWorkout.FINISH")}
+            <span className="truncate">{t("quickWorkout.FINISH")}</span>
           </button>
         )}
       </div>
@@ -536,7 +536,7 @@ export default function QuickWorkoutPage() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="w-full bg-[#e53e00] py-4 font-data text-[11px] font-bold uppercase tracking-widest text-white hover:bg-[#ff4500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-[#e53e00] py-4 font-data text-[11px] font-bold uppercase tracking-wide text-white hover:bg-[#ff4500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {saving ? (
                 <><Loader2 className="h-4 w-4 animate-spin" />{t("quickWorkout.SAVING")}</>

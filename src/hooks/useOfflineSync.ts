@@ -56,8 +56,11 @@ export function useOfflineSync() {
           // If one fails, continue with the rest
         }
       }
-      // Refetch relevant queries
-      await queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      // Refetch relevant queries — use broader invalidation so all session-derived
+      // queries (quickSessions, planCompletedDays, progressData) pick up synced data
+      await queryClient.invalidateQueries({ queryKey: ["quickSessions"] });
+      await queryClient.invalidateQueries({ queryKey: ["planCompletedDays"] });
+      await queryClient.invalidateQueries({ queryKey: ["progressData"] });
       setPendingCount(0);
     } finally {
       setSyncing(false);

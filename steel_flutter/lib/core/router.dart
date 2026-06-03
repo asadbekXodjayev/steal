@@ -2,10 +2,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/models.dart';
 import '../features/auth/auth_provider.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
 import '../features/home/root_gate.dart';
+import '../features/library/exercise_detail_screen.dart';
+import '../features/programs/quick_session_screen.dart';
 import '../features/therapy/session_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 
@@ -14,14 +17,22 @@ class SteelRoutes {
   static const register = 'register';
   static const home = 'home';
   static const therapySession = 'therapySession';
+  static const quickSession = 'quickSession';
 
   static const loginPath = '/login';
   static const registerPath = '/register';
   static const homePath = '/';
   static const therapySessionPath = '/workout/session';
+  static const quickSessionPath = '/workout/quick';
 
   static const onboarding = 'onboarding';
   static const onboardingPath = '/onboarding';
+
+  static const exerciseDetail = 'exerciseDetail';
+  static const exerciseDetailPath = '/exercises/:id';
+
+  /// Build a concrete path to an exercise detail page.
+  static String exerciseDetailPathFor(String id) => '/exercises/$id';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -66,6 +77,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SessionScreen(),
       ),
       GoRoute(
+        name: SteelRoutes.quickSession,
+        path: SteelRoutes.quickSessionPath,
+        builder: (context, state) => const QuickSessionScreen(),
+      ),
+      GoRoute(
         name: SteelRoutes.login,
         path: SteelRoutes.loginPath,
         builder: (context, state) => const LoginScreen(),
@@ -81,6 +97,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => OnboardingScreen(
           onComplete: () => context.go(SteelRoutes.homePath),
         ),
+      ),
+      GoRoute(
+        name: SteelRoutes.exerciseDetail,
+        path: SteelRoutes.exerciseDetailPath,
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          final extra = state.extra;
+          return ExerciseDetailScreen(
+            id: id,
+            initial: extra is ExerciseCatalogItem ? extra : null,
+          );
+        },
       ),
     ],
   );

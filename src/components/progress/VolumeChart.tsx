@@ -10,6 +10,7 @@ import {
   CartesianGrid,
   Cell,
 } from "recharts";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface VolumeDataPoint {
   week: string;
@@ -21,11 +22,13 @@ interface VolumeChartProps {
 }
 
 export function VolumeChart({ data }: VolumeChartProps) {
+  const { t } = useI18n();
+
   if (data.length === 0) {
     return (
       <div className="border border-border bg-card p-6 text-center">
         <p className="font-data text-sm uppercase tracking-wider text-muted-foreground">
-          No data yet. Log sessions to see volume.
+          {t("progress.NO_DATA_VOLUME")}
         </p>
       </div>
     );
@@ -35,6 +38,8 @@ export function VolumeChart({ data }: VolumeChartProps) {
     (acc, d, i) => (d.volume > data[acc].volume ? i : acc),
     0,
   );
+
+  const volumeLabel = t("progress.VOLUME_TOOLTIP");
 
   return (
     <div className="border border-border bg-card p-4 w-full overflow-hidden">
@@ -68,7 +73,7 @@ export function VolumeChart({ data }: VolumeChartProps) {
               labelStyle={{ color: "#888888", textTransform: "uppercase" }}
               formatter={(value) => [
                 `${Number(value ?? 0).toLocaleString()} kg`,
-                "Volume",
+                volumeLabel,
               ]}
             />
             <Bar dataKey="volume" radius={0}>

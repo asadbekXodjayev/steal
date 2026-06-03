@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ActiveSetInput } from "@/types/session";
 import { Check } from "lucide-react";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface SetRowProps {
   setNumber: number;
@@ -23,6 +24,7 @@ export function SetRow({
   onComplete,
   isActive = false,
 }: SetRowProps) {
+  const { t } = useI18n();
   const [weight, setWeight] = useState(completed?.weight ?? previousWeight ?? 0);
   const [reps, setReps] = useState(completed?.reps ?? previousReps ?? 0);
 
@@ -95,7 +97,7 @@ export function SetRow({
                 background: "rgba(0,0,0,0.5)",
               }
         }
-        aria-label={`Set ${setNumber} weight`}
+        aria-label={t("workout.SET_WEIGHT_LABEL").replace("{n}", String(setNumber))}
       />
 
       {/* Reps input — h-10 on mobile for comfortable tapping, h-7 at sm+ */}
@@ -121,7 +123,7 @@ export function SetRow({
                 background: "rgba(0,0,0,0.5)",
               }
         }
-        aria-label={`Set ${setNumber} reps`}
+        aria-label={t("workout.SET_REPS_LABEL").replace("{n}", String(setNumber))}
       />
 
       {/* Done button — h-10 w-10 on mobile, h-7 w-7 at sm+ */}
@@ -134,7 +136,7 @@ export function SetRow({
           border: `1.5px solid ${(reps > 0 || weight > 0) ? "#C2410C" : "rgba(255,255,255,0.08)"}`,
           background: (reps > 0 || weight > 0) ? "rgba(194,65,12,0.1)" : "transparent",
         }}
-        aria-label={`Log set ${setNumber}`}
+        aria-label={t("workout.LOG_SET_LABEL").replace("{n}", String(setNumber))}
       >
         {isActive && (reps > 0 || weight > 0) ? (
           <span style={{ color: "#C2410C", fontSize: 14 }}>✓</span>

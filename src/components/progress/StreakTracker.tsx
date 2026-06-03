@@ -3,6 +3,7 @@
 import { Flame, Calendar, Trophy, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { StreakData } from "@/types/progress";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 interface StreakTrackerProps {
   data: StreakData;
@@ -28,11 +29,13 @@ function StatBox({ icon: Icon, value, label }: StatBoxProps) {
 }
 
 export function StreakTracker({ data }: StreakTrackerProps) {
+  const { t } = useI18n();
+
   const stats: StatBoxProps[] = [
-    { icon: Flame, value: data.currentStreak, label: "Day Streak" },
-    { icon: Trophy, value: data.longestStreak, label: "Best Streak" },
-    { icon: Calendar, value: data.thisWeekSessions, label: "This Week" },
-    { icon: TrendingUp, value: data.totalSessions, label: "Total Sessions" },
+    { icon: Flame, value: data.currentStreak, label: t("progress.STREAK_DAY_STREAK") },
+    { icon: Trophy, value: data.longestStreak, label: t("progress.STREAK_BEST_STREAK") },
+    { icon: Calendar, value: data.thisWeekSessions, label: t("progress.STREAK_THIS_WEEK") },
+    { icon: TrendingUp, value: data.totalSessions, label: t("progress.STREAK_TOTAL_SESSIONS") },
   ];
 
   return (
