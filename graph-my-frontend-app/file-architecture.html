@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>my-frontend-app — File Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{--page-bg:#fafafa;--panel:#fff;--accent:#2a6099;--secondary:#666;--gen-fill:#f5f5f5;--gen-text:#999;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page-bg);color:#333;font-family:'IBM Plex Sans',sans-serif;font-size:14px;}
+  nav.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;background:var(--panel);border-bottom:1px solid #ddd;padding:10px 22px;}
+  nav.topbar .brand{font-size:14px;font-weight:600;}
+  nav.topbar .links{display:flex;gap:20px;}
+  nav.topbar .links a{text-decoration:none;color:#333;font-size:13px;}
+  nav.topbar .links a.active{color:var(--accent);text-decoration:underline;font-weight:600;}
+  nav.topbar .ts{font-size:11px;color:#999;font-family:'IBM Plex Mono',monospace;}
+  .stage{position:relative;height:calc(100vh - 49px);overflow:hidden;}
+  svg#tree{width:100%;height:100%;cursor:grab;background:var(--page-bg);}
+  svg#tree:active{cursor:grabbing;}
+  .controls{position:absolute;top:12px;left:12px;display:flex;gap:8px;align-items:center;z-index:10;}
+  .controls input{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 9px;border:1px solid #ccc;border-radius:6px;width:200px;}
+  .controls button{font-family:'IBM Plex Sans';font-size:12px;padding:6px 11px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;}
+  .controls button:hover{border-color:var(--accent);}
+  .legend{position:absolute;top:12px;right:12px;background:#fff;border:1px solid #ddd;border-radius:6px;padding:10px 12px;font-size:10px;color:var(--secondary);line-height:1.7;z-index:10;max-width:230px;}
+  .legend b{display:block;color:#333;margin-bottom:4px;font-size:11px;}
+  .legend .tag{display:inline-block;width:26px;text-align:center;color:#fff;font-family:'IBM Plex Mono';font-size:8px;border-radius:2px;margin-right:4px;padding:1px 0;}
+  .legend .row{margin-bottom:2px;}
+  aside.panel{position:absolute;top:0;right:0;width:300px;height:100%;background:#fff;border-left:1px solid #ddd;transform:translateX(100%);transition:transform .2s;z-index:20;overflow-y:auto;padding:18px;}
+  aside.panel.open{transform:translateX(0);}
+  aside.panel h3{margin:0 0 4px;font-size:15px;}
+  aside.panel .path{font-family:'IBM Plex Mono';font-size:11px;color:var(--accent);word-break:break-all;background:#f5f7fa;padding:6px 8px;border-radius:4px;margin-bottom:12px;}
+  aside.panel dt{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#999;margin-top:12px;}
+  aside.panel dd{margin:3px 0 0;font-size:12px;font-family:'IBM Plex Mono';color:#444;word-break:break-all;}
+  aside.panel .close{position:absolute;top:12px;right:14px;cursor:pointer;border:none;background:none;font-size:18px;color:#999;}
+  text{font-family:'IBM Plex Sans';}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <span class="brand">my-frontend-app</span>
+  <span class="links">
+    <a href="index.html">Overview</a>
+    <a href="file-architecture.html" class="active">File Architecture</a>
+    <a href="system-design.html">System Design</a>
+    <a href="flow-graph.html">Flow Graph</a>
+  </span>
+  <span class="ts">Generated 2026-06-04T17:35:19+05:00</span>
+</nav>
+<div class="stage">
+  <div class="controls">
+    <input id="search" placeholder="search files…" />
+    <button id="reset">Reset View</button>
+  </div>
+  <div class="legend">
+    <b>File types</b>
+    <div class="row"><span class="tag" style="background:#2a6099">TS</span><span class="tag" style="background:#2a6099">TSX</span> TypeScript</div>
+    <div class="row"><span class="tag" style="background:#b08c2a">JS</span><span class="tag" style="background:#b08c2a">MJS</span> JavaScript</div>
+    <div class="row"><span class="tag" style="background:#5a7a3a">JSON</span> JSON &nbsp; <span class="tag" style="background:#2a7a9a">CSS</span> CSS</div>
+    <div class="row"><span class="tag" style="background:#4a6a8a">MD</span> Markdown &nbsp; <span class="tag" style="background:#888">ENV</span> Env</div>
+    <b style="margin-top:8px">Markers</b>
+    <div class="row">&#9679; accent dot = entry point</div>
+    <div class="row">dashed border = test file</div>
+    <div class="row"><span style="background:#f5f5f5;color:#999;border:1px solid #ddd;padding:0 4px">grey</span> = generated / vendored</div>
+  </div>
+  <svg id="tree"><g id="troot"></g></svg>
+  <aside class="panel" id="panel">
+    <button class="close" id="closeP">&times;</button>
+    <h3 id="pName"></h3>
+    <div class="path" id="pPath"></div>
+    <dl>
+      <dt>Type / Role</dt><dd id="pRole"></dd>
+      <dt>Imports (detected)</dt><dd id="pImports"></dd>
+      <dt>Exports (detected)</dt><dd id="pExports"></dd>
+      <dt>Approx. lines</dt><dd id="pLines"></dd>
+      <dt>Reverse dependencies</dt><dd id="pRev"></dd>
+    </dl>
+  </aside>
+</div>
+<script>
+// ---- Tree model (from actual src/ tree) ----
+var TAG={ts:'#2a6099',tsx:'#2a6099',js:'#b08c2a',mjs:'#b08c2a',json:'#5a7a3a',css:'#2a7a9a',md:'#4a6a8a',env:'#888',html:'#a05a2a'};
+function tagFor(name){var ext=(name.split('.').pop()||'').toLowerCase();var c=TAG[ext]||'#7a7a7a';return{c:c,t:ext.toUpperCase().slice(0,4)};}
+function f(name,meta){return Object.assign({name:name,type:'file'},meta||{});}
+function d(name,children){return {name:name,type:'dir',children:children};}
+
+var TREE = d('my-frontend-app',[
+  d('src',[
+    d('app',[
+      f('layout.tsx',{role:'Root Layout (RSC)',entry:true,lines:57,imp:'Providers, next/font/google',exp:'RootLayout, metadata, viewport'}),
+      f('page.tsx',{role:'Landing Page',lines:'~120',imp:'next/link',exp:'default'}),
+      f('globals.css',{role:'Tailwind v4 entry + @theme tokens',lines:'~400'}),
+      f('manifest.ts',{role:'PWA Manifest',lines:15,exp:'default'}),
+      d('(auth)',[
+        f('layout.tsx',{role:'Auth route group layout',lines:'~20'}),
+        d('login',[f('page.tsx',{role:'Route — Login',lines:'~40',imp:'LoginForm'})]),
+        d('register',[f('page.tsx',{role:'Route — Register',lines:'~40',imp:'RegisterForm'})])
+      ]),
+      d('(app)',[
+        f('layout.tsx',{role:'Protected layout — auth guard',entry:true,lines:40,imp:'useAuth, AppShell, useRouter',exp:'AppLayout'}),
+        d('dashboard',[f('page.tsx',{role:'Route — Dashboard',lines:'~250'})]),
+        d('exercises',[
+          f('page.tsx',{role:'Route — Exercise Library',lines:'~30'}),
+          f('ExerciseLibrary.tsx',{role:'UI Component',lines:'~200'}),
+          f('ExercisePageHeader.tsx',{role:'UI Component',lines:'~60'}),
+          d('[slug]',[f('page.tsx',{role:'Route — Exercise detail'}),f('ExerciseDetailView.tsx',{role:'UI Component'})])
+        ]),
+        d('onboarding',[f('page.tsx',{role:'Route — Onboarding wizard'})]),
+        d('plans',[f('page.tsx',{role:'Route — Plans'}),d('create',[f('page.tsx',{role:'Route — Create plan'})]),d('[planId]',[f('page.tsx',{role:'Route — Plan detail'})])]),
+        d('programs',[f('page.tsx',{role:'Route — Programs'})]),
+        d('progress',[f('page.tsx',{role:'Route — Progress analytics'})]),
+        d('settings',[f('page.tsx',{role:'Route — Settings'})]),
+        d('workout',[
+          f('page.tsx',{role:'Route — Workout hub'}),
+          d('[sessionId]',[f('page.tsx',{role:'Route — Active session (write path)',lines:'~330',imp:'getPocketBase, useWorkoutStore',exp:'default'})]),
+          d('quick',[f('page.tsx',{role:'Route — Quick session'})])
+        ])
+      ]),
+      d('(public)',[f('layout.tsx',{role:'Public route group layout'}),d('explore',[f('page.tsx',{role:'Route — Explore (public)'})])])
+    ]),
+    d('components',[
+      d('ui',[f('button.tsx',{role:'shadcn primitive',gen:true}),f('card.tsx',{role:'shadcn primitive',gen:true}),f('dialog.tsx',{role:'shadcn primitive',gen:true}),f('form.tsx',{role:'shadcn primitive',gen:true}),f('input.tsx',{role:'shadcn primitive',gen:true}),f('sonner.tsx',{role:'shadcn primitive',gen:true}),f('… (22 files)',{role:'shadcn primitives',gen:true})]),
+      d('layout',[f('AppShell.tsx',{role:'UI Component',imp:'Navbar, BottomNav, AmbientGymLayer'}),f('Navbar.tsx',{role:'UI Component'}),f('BottomNav.tsx',{role:'UI Component'}),f('AmbientGymLayer.tsx',{role:'UI Component'}),f('BrandNoiseOverlay.tsx',{role:'UI Component'}),f('GymBackgroundOverlay.tsx',{role:'UI Component'})]),
+      d('auth',[f('LoginForm.tsx',{role:'UI Component — login',imp:'useAuth, react-hook-form, zod'}),f('RegisterForm.tsx',{role:'UI Component — register'}),f('ConnectionDebug.tsx',{role:'UI Component'})]),
+      d('onboarding',[f('ProfileStep.tsx',{role:'UI Component'}),f('GoalsStep.tsx',{role:'UI Component'}),f('EnvironmentStep.tsx',{role:'UI Component'}),f('LimitationsStep.tsx',{role:'UI Component'}),f('types.ts',{role:'Type Declaration'})]),
+      d('plans',[f('PlanCard.tsx',{role:'UI Component'}),f('ManualPlanForm.tsx',{role:'UI Component'}),f('TemplateGrid.tsx',{role:'UI Component'}),f('ExercisePickerModal.tsx',{role:'UI Component'}),f('SessionHistory.tsx',{role:'UI Component'})]),
+      d('programs',[f('ProgramDetail.tsx',{role:'UI Component'}),f('ProgramPreview.tsx',{role:'UI Component'}),f('PlanImageCarousel.tsx',{role:'UI Component'})]),
+      d('workout',[f('ExerciseCard.tsx',{role:'UI Component'}),f('ExerciseMedia.tsx',{role:'UI Component'}),f('SetRow.tsx',{role:'UI Component'}),f('RestTimer.tsx',{role:'UI Component'}),f('MoodCheck.tsx',{role:'UI Component'}),f('WorkoutSummary.tsx',{role:'UI Component'})]),
+      d('progress',[f('VolumeChart.tsx',{role:'UI Component — chart'}),f('MuscleRadar.tsx',{role:'UI Component — chart'}),f('PRWall.tsx',{role:'UI Component'}),f('StreakTracker.tsx',{role:'UI Component'}),f('CalendarHeatmap.tsx',{role:'UI Component'}),f('… (17 files)',{role:'analytics components'})]),
+      d('fx',[f('ImpactFlash.tsx',{role:'UI Component — effect'})]),
+      d('providers',[
+        f('Providers.tsx',{role:'Provider composer',entry:true,lines:20,imp:'QueryProvider, AuthProvider, I18nProvider, Toaster',exp:'Providers'}),
+        f('QueryProvider.tsx',{role:'Provider — TanStack Query',lines:22,imp:'@tanstack/react-query',exp:'QueryProvider'}),
+        f('AuthProvider.tsx',{role:'Provider — Auth context',lines:198,imp:'getPocketBase, clearPocketBase',exp:'AuthProvider, useAuthContext'}),
+        f('I18nProvider.tsx',{role:'Provider — i18n context',imp:'translations',exp:'I18nProvider, useI18n'}),
+        f('PageTransition.tsx',{role:'Provider — framer-motion',imp:'framer-motion'})
+      ])
+    ]),
+    d('hooks',[
+      f('useAuth.ts',{role:'Hook — auth re-export',lines:11,imp:'useAuthContext',exp:'useAuth'}),
+      f('useProfile.ts',{role:'Hook — profile CRUD'}),
+      f('usePlans.ts',{role:'Hook — plan CRUD',lines:203,imp:'useQuery, useMutation, getPocketBase',exp:'usePlans, useActivePlan, …'}),
+      f('useProgramTemplates.ts',{role:'Hook — templates (locale select)'}),
+      f('useProgress.ts',{role:'Hook — progress read path',lines:'~200',imp:'useQuery, getPocketBase'}),
+      f('useAchievements.ts',{role:'Hook — achievements'}),
+      f('useQuickSessions.ts',{role:'Hook — quick sessions',lines:110}),
+      f('useGuestWorkouts.ts',{role:'Hook — guest workouts'}),
+      f('useOfflineSync.ts',{role:'Hook — offline flush',lines:76,imp:'getQueuedMutations, getPocketBase',exp:'useOfflineSync'}),
+      f('useExerciseTranslation.ts',{role:'Hook — exercise i18n'}),
+      f('useRestTimer.ts',{role:'Hook — rest timer'}),
+      f('useMouseParallax.ts',{role:'Hook — parallax (UI)'})
+    ]),
+    d('stores',[
+      f('ui-store.ts',{role:'Zustand store — UI toggles',imp:'zustand',exp:'useUiStore'}),
+      f('workout-store.ts',{role:'Zustand store — active session (persist)',lines:82,imp:'zustand, zustand/middleware',exp:'useWorkoutStore'})
+    ]),
+    d('lib',[
+      f('pocketbase.ts',{role:'PocketBase client singleton',lines:82,imp:'pocketbase',exp:'getPocketBase, clearPocketBase'}),
+      f('api.ts',{role:'Typed fetch wrapper',lines:173,exp:'api, request, ApiError'}),
+      f('utils.ts',{role:'Utility (cn, estimate1RM)',exp:'cn, formatDate, estimate1RM'}),
+      f('constants.ts',{role:'Configuration constants',lines:87,exp:'MUSCLE_GROUPS, GOAL_OPTIONS, …'}),
+      f('translations.ts',{role:'i18n string map'}),
+      f('exercise-db-api.ts',{role:'Service — ExerciseDB'}),
+      f('exercise-library.ts',{role:'Service — exercise catalog'}),
+      f('exercise-taxonomy.ts',{role:'Domain logic'}),
+      f('exercise-translate.ts',{role:'Domain logic'}),
+      f('plan-renewal.ts',{role:'Domain logic'}),
+      f('program-templates.ts',{role:'Domain logic'}),
+      f('progression.ts',{role:'Domain logic'}),
+      f('workout-history.ts',{role:'Domain logic',lines:105}),
+      d('i18n-additions',[f('index.ts',{role:'i18n barrel'}),f('misc.ts',{role:'i18n strings'}),f('plans-programs.ts',{role:'i18n strings'}),f('progress.ts',{role:'i18n strings'}),f('workout-dashboard.ts',{role:'i18n strings'})])
+    ]),
+    d('types',[f('plan.ts',{role:'Data Model'}),f('profile.ts',{role:'Data Model'}),f('session.ts',{role:'Data Model'}),f('progress.ts',{role:'Data Model'}),f('exercise.ts',{role:'Data Model'}),f('achievement.ts',{role:'Data Model'})]),
+    d('locales',[f('en.json',{role:'Locale strings'}),f('ru.json',{role:'Locale strings'}),f('uz.json',{role:'Locale strings'})]),
+    d('data',[f('exercises.json',{role:'Static catalog',gen:true}),f('legend-programs.ts',{role:'Static catalog'})]),
+    d('utils',[f('offline-queue.ts',{role:'Utility — IndexedDB queue',lines:78,exp:'enqueueMutation, getQueuedMutations'})])
+  ]),
+  d('scripts',[f('fetch-exercises.mjs',{role:'Build Script',entry:true}),f('seed-exercise-translations.mjs',{role:'Build Script — AI seed',entry:true,imp:'pocketbase, ai, @ai-sdk/*'}),f('seed-legends-programs.mjs',{role:'Build Script',entry:true}),f('apply-translation-schema.mjs',{role:'Build Script',entry:true})]),
+  d('pocketbase',[f('pocketbase.exe',{role:'Backend binary',gen:true}),f('pb_schema.json',{role:'Schema'}),f('pb_migrations',{role:'Migrations dir'}),f('setup.md',{role:'Documentation'})]),
+  f('package.json',{role:'Manifest',entry:true,lines:47}),
+  f('next.config.mjs',{role:'Configuration — rewrites/images',lines:43}),
+  f('tsconfig.json',{role:'Configuration — TS'}),
+  f('components.json',{role:'Configuration — shadcn'}),
+  f('postcss.config.mjs',{role:'Configuration — PostCSS'}),
+  f('.env.local',{role:'Environment Template'}),
+  f('CLAUDE.md',{role:'Documentation'}),
+  f('README.md',{role:'Documentation'}),
+  d('flutter',[f('(vendored Flutter SDK ~1.4GB — gitignored)',{role:'Generated / vendored',gen:true})]),
+  d('steel_flutter',[f('(companion Flutter app — out of scope)',{role:'Generated / vendored',gen:true})])
+]);
+
+// ---- Layout (tidy-ish: leaves get x slots, parents centered) ----
+var NW_F=70,NH_F=24,NW_D=80,NH_D=28,HGAP=18,VGAP=70;
+var leafX=0;
+function layout(node,depth){
+  node.depth=depth; node.y=40+depth*VGAP;
+  if(node.type==='dir'&&node.children&&!node.collapsed){
+    var kids=node.children; var xs=[];
+    for(var i=0;i<kids.length;i++){layout(kids[i],depth+1);xs.push(kids[i].x);}
+    node.x=(xs[0]+xs[xs.length-1])/2;
+  } else {
+    var w=node.type==='dir'?NW_D:NW_F;
+    node.x=leafX+w/2; leafX+=w+HGAP;
+  }
+}
+var SVG_NS='http://www.w3.org/2000/svg';
+var root=document.getElementById('troot');
+function el(n,a){var e=document.createElementNS(SVG_NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+
+function buildRev(node,index,parents){
+  // build a flat index for reverse dep lookup by imp text
+}
+var ALL=[];
+function collect(node){ALL.push(node);if(node.children)node.children.forEach(collect);}
+
+function render(){
+  root.innerHTML='';leafX=0;layout(TREE,0);
+  // edges first
+  function edges(node){
+    if(node.type==='dir'&&node.children&&!node.collapsed){
+      node.children.forEach(function(c){
+        var px=node.x, pyb=node.y+(node.type==='dir'?NH_D:NH_F);
+        var cx=c.x, cyt=c.y;
+        var midY=pyb+(cyt-pyb)/2;
+        var p=el('path',{d:'M'+px+','+pyb+' V'+midY+' H'+cx+' V'+cyt,fill:'none',stroke:'#888',"stroke-width":1});
+        root.appendChild(p);
+        edges(c);
+      });
+    }
+  }
+  edges(TREE);
+  // nodes
+  function nodes(node){
+    var g=el('g',{}); g.style.cursor='pointer';
+    var isDir=node.type==='dir';
+    var w=isDir?NW_D:NW_F,h=isDir?NH_D:NH_F,x=node.x-w/2,y=node.y;
+    var rect=el('rect',{x:x,y:y,width:w,height:h,rx:4,
+      fill:node.gen?'#f5f5f5':(isDir?'#dde9f3':'#cde4f5'),
+      stroke:node.gen?'#ccc':'#7aaecc',"stroke-width":1});
+    if(node.test)rect.setAttribute('stroke-dasharray','3 2');
+    g.appendChild(rect);
+    if(isDir){ // double top border cue
+      g.appendChild(el('line',{x1:x+2,y1:y+3,x2:x+w-2,y2:y+3,stroke:'#7aaecc',"stroke-width":1}));
+    }
+    // entry dot
+    if(node.entry)g.appendChild(el('circle',{cx:x+4,cy:y+4,r:4,fill:'#2a6099'}));
+    // type tag (files only)
+    if(!isDir){var tg=tagFor(node.name);
+      g.appendChild(el('rect',{x:x+w-28,y:y-7,width:28,height:14,rx:2,fill:tg.c}));
+      var tt=el('text',{x:x+w-14,y:y+3,"text-anchor":"middle","font-size":8,fill:'#fff',"font-family":"'IBM Plex Mono'"});tt.textContent=tg.t;g.appendChild(tt);
+    }
+    // label
+    var label=node.name.length>16?node.name.slice(0,15)+'…':node.name;
+    var t=el('text',{x:node.x,y:y+h+12,"text-anchor":"middle","font-size":9.5,
+      fill:node.gen?'#999':'#333'});t.textContent=label;g.appendChild(t);
+    node._label=label;
+    g.addEventListener('click',function(e){
+      e.stopPropagation();
+      if(isDir){node.collapsed=!node.collapsed;render();}
+      else openPanel(node);
+    });
+    node._g=g; root.appendChild(g);
+    if(isDir&&node.children&&!node.collapsed)node.children.forEach(nodes);
+  }
+  nodes(TREE);
+  // size viewBox
+  var bb=root.getBBox();
+  document.getElementById('tree').setAttribute('viewBox',(bb.x-40)+' '+(bb.y-20)+' '+(bb.width+80)+' '+(bb.height+60));
+}
+ALL=[];collect(TREE);
+function fullPath(target){
+  var path=null;
+  (function walk(node,acc){
+    var here=acc+'/'+node.name;
+    if(node===target){path=here;return;}
+    if(node.children)node.children.forEach(function(c){walk(c,here);});
+  })(TREE,'');
+  return path?path.replace('/'+TREE.name,'my-frontend-app'):target.name;
+}
+function reverseDeps(target){
+  var hits=[];var base=target.name.replace(/\.(tsx?|mjs|js|json|css)$/,'');
+  ALL.forEach(function(n){if(n!==target&&n.imp&&n.imp.indexOf(base)>=0)hits.push(n.name);});
+  return hits;
+}
+function openPanel(node){
+  document.getElementById('pName').textContent=node.name;
+  document.getElementById('pPath').textContent=fullPath(node);
+  document.getElementById('pRole').textContent=node.role||'—';
+  document.getElementById('pImports').textContent=node.imp||'—';
+  document.getElementById('pExports').textContent=node.exp||'—';
+  document.getElementById('pLines').textContent=node.lines||'—';
+  var rev=reverseDeps(node);
+  document.getElementById('pRev').textContent=rev.length?rev.join(', '):'none detected';
+  document.getElementById('panel').classList.add('open');
+}
+document.getElementById('closeP').onclick=function(){document.getElementById('panel').classList.remove('open');};
+
+render();
+
+// search
+document.getElementById('search').addEventListener('input',function(e){
+  var q=e.target.value.toLowerCase();
+  ALL.forEach(function(n){
+    if(!n._g)return;
+    if(!q){n._g.style.opacity=1;n._g.querySelector('rect').removeAttribute('stroke');n._g.querySelector('rect').setAttribute('stroke',n.gen?'#ccc':'#7aaecc');return;}
+    if(n.name.toLowerCase().indexOf(q)>=0){n._g.style.opacity=1;n._g.querySelector('rect').setAttribute('stroke','#e3b505');n._g.querySelector('rect').setAttribute('stroke-width','2');}
+    else{n._g.style.opacity=0.2;}
+  });
+});
+
+// pan + zoom
+(function(){
+  var svg=document.getElementById('tree');
+  var s=1,tx=0,ty=0,drag=false,sx=0,sy=0;
+  function apply(){root.setAttribute('transform','translate('+tx+','+ty+') scale('+s+')');}
+  svg.addEventListener('wheel',function(e){e.preventDefault();var d=e.deltaY<0?1.1:0.9;s=Math.min(4,Math.max(0.2,s*d));apply();},{passive:false});
+  svg.addEventListener('mousedown',function(e){drag=true;sx=e.clientX-tx;sy=e.clientY-ty;});
+  window.addEventListener('mousemove',function(e){if(!drag)return;tx=e.clientX-sx;ty=e.clientY-sy;apply();});
+  window.addEventListener('mouseup',function(){drag=false;});
+  document.getElementById('reset').onclick=function(){s=1;tx=0;ty=0;apply();};
+})();
+</script>
+</body>
+</html>

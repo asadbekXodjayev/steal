@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>my-frontend-app — Flow Graph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{--page-bg:#fafafa;--accent:#2a6099;--secondary:#666;--error:#8b1a1a;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page-bg);color:#333;font-family:'IBM Plex Sans',sans-serif;font-size:14px;}
+  nav.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #ddd;padding:10px 22px;}
+  nav.topbar .brand{font-size:14px;font-weight:600;}
+  nav.topbar .links{display:flex;gap:20px;}
+  nav.topbar .links a{text-decoration:none;color:#333;font-size:13px;}
+  nav.topbar .links a.active{color:var(--accent);text-decoration:underline;font-weight:600;}
+  nav.topbar .ts{font-size:11px;color:#999;font-family:'IBM Plex Mono',monospace;}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;padding:14px 22px 0;background:#fafafa;}
+  .tabs button{font-family:'IBM Plex Sans';font-size:12.5px;padding:8px 14px;border:1px solid #ccc;border-bottom:none;background:#f0f0f0;border-radius:6px 6px 0 0;cursor:pointer;}
+  .tabs button.active{background:#fff;color:var(--accent);font-weight:600;border-color:#ddd;}
+  .tabs button .n{color:#999;font-family:'IBM Plex Mono';font-size:10px;}
+  .flowpane{display:none;padding:0 22px 60px;}
+  .flowpane.active{display:block;}
+  figure{margin:0;background:#fff;border:1px solid #ddd;border-radius:0 8px 8px 8px;overflow:hidden;}
+  .figtools{display:flex;justify-content:flex-end;gap:8px;padding:8px 12px;border-bottom:1px solid #eee;}
+  .figtools button{font-size:11px;padding:4px 9px;border:1px solid #ccc;background:#fff;border-radius:5px;cursor:pointer;}
+  svg.flow{width:100%;height:560px;cursor:grab;display:block;}
+  svg.flow:active{cursor:grabbing;}
+  table.steps{width:100%;border-collapse:collapse;font-size:13px;margin-top:18px;}
+  table.steps th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#999;border-bottom:2px solid #ccc;padding:7px 9px;}
+  table.steps td{border-bottom:1px solid #eee;padding:7px 9px;vertical-align:top;}
+  table.steps td.mono{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--accent);}
+  .srcwrap{margin-top:14px;}
+  .srcwrap pre{display:none;background:#1d1f23;color:#d6dae0;font-family:'IBM Plex Mono';font-size:11px;padding:14px;border-radius:6px;overflow:auto;max-height:340px;}
+  .srcwrap.open pre{display:block;}
+  .srcwrap button{font-size:11px;padding:5px 10px;border:1px solid #ccc;background:#fff;border-radius:5px;cursor:pointer;}
+  text{font-family:'IBM Plex Sans';}
+  h2.flowtitle{font-size:18px;margin:18px 0 4px;}
+  p.flowdesc{color:var(--secondary);font-size:13px;margin:0 0 14px;}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <span class="brand">my-frontend-app</span>
+  <span class="links">
+    <a href="index.html">Overview</a>
+    <a href="file-architecture.html">File Architecture</a>
+    <a href="system-design.html">System Design</a>
+    <a href="flow-graph.html" class="active">Flow Graph</a>
+  </span>
+  <span class="ts">Generated 2026-06-04T17:35:19+05:00</span>
+</nav>
+
+<div class="tabs" id="tabs"></div>
+<div id="panes"></div>
+
+<script>
+// shared SVG defs string
+var DEFS='<defs>'+
+ '<marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#444"/></marker>'+
+ '<marker id="ae" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8b1a1a"/></marker>'+
+ '<marker id="ad" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#666"/></marker>'+
+ '</defs>';
+
+// helpers to build node SVG
+function proc(x,y,l1,l2){return '<g><rect x="'+x+'" y="'+y+'" width="150" height="44" rx="4" fill="#cde4f5" stroke="#7aaecc"/>'+
+  '<line x1="'+(x+6)+'" y1="'+(y+8)+'" x2="'+(x+144)+'" y2="'+(y+8)+'" stroke="#7aaecc" stroke-width="0.5"/>'+
+  '<line x1="'+(x+6)+'" y1="'+(y+12)+'" x2="'+(x+144)+'" y2="'+(y+12)+'" stroke="#7aaecc" stroke-width="0.5"/>'+
+  '<text x="'+(x+75)+'" y="'+(y+26)+'" text-anchor="middle" font-size="11" fill="#333">'+l1+'</text>'+
+  '<text x="'+(x+75)+'" y="'+(y+38)+'" text-anchor="middle" font-size="8.5" fill="#666" font-family="\'IBM Plex Mono\'">'+l2+'</text></g>';}
+function ext(x,y,l1,l2){return '<g><rect x="'+x+'" y="'+y+'" width="150" height="44" rx="4" fill="#fff" stroke="#7aaecc" stroke-dasharray="4 3"/>'+
+  '<text x="'+(x+75)+'" y="'+(y+24)+'" text-anchor="middle" font-size="11" fill="#333">'+l1+'</text>'+
+  '<text x="'+(x+75)+'" y="'+(y+37)+'" text-anchor="middle" font-size="8.5" fill="#666" font-family="\'IBM Plex Mono\'">'+l2+'</text></g>';}
+function se(x,y,l){return '<g><rect x="'+x+'" y="'+y+'" width="140" height="36" rx="18" fill="#2a6099"/>'+
+  '<text x="'+(x+70)+'" y="'+(y+23)+'" text-anchor="middle" font-size="11" fill="#fff">'+l+'</text></g>';}
+function err(x,y,l){return '<g><rect x="'+x+'" y="'+y+'" width="150" height="40" rx="4" fill="#8b1a1a"/>'+
+  '<text x="'+(x+75)+'" y="'+(y+24)+'" text-anchor="middle" font-size="11" fill="#fff">'+l+'</text></g>';}
+function dec(cx,cy,w,h,l){var hw=w/2,hh=h/2;return '<g><polygon points="'+cx+','+(cy-hh)+' '+(cx+hw)+','+cy+' '+cx+','+(cy+hh)+' '+(cx-hw)+','+cy+'" fill="#cde4f5" stroke="#7aaecc"/>'+
+  '<text x="'+cx+'" y="'+(cy+3)+'" text-anchor="middle" font-size="9.5" fill="#333">'+l+'</text></g>';}
+function data(x,y,l){return '<g><polygon points="'+(x+14)+','+y+' '+(x+150)+','+y+' '+(x+136)+','+(y+34)+' '+x+','+(y+34)+'" fill="#cde4f5" stroke="#7aaecc"/>'+
+  '<text x="'+(x+75)+'" y="'+(y+22)+'" text-anchor="middle" font-size="10" fill="#333">'+l+'</text></g>';}
+function ep(d){return '<path d="'+d+'" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#a)"/>';}
+function epe(d){return '<path d="'+d+'" fill="none" stroke="#8b1a1a" stroke-width="1.5" marker-end="url(#ae)"/>';}
+function epd(d){return '<path d="'+d+'" fill="none" stroke="#666" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#ad)"/>';}
+function lbl(x,y,t,c){return '<g><rect x="'+(x-t.length*2.6-3)+'" y="'+(y-9)+'" width="'+(t.length*5.2+6)+'" height="12" fill="#fff"/>'+
+  '<text x="'+x+'" y="'+y+'" text-anchor="middle" font-size="9" fill="'+(c||'#555')+'" font-family="\'IBM Plex Mono\'">'+t+'</text></g>';}
+
+var FLOWS=[];
+
+// ---------- FLOW 1: Startup ----------
+FLOWS.push({id:'startup',title:'Startup',name:'App Startup / Initialization',n:7,
+ desc:'Cold load of the App Router: RootLayout mounts the provider chain, the PocketBase client singleton restores auth from the pb_auth cookie, and protected routes resolve their auth guard.',
+ svg:'<svg class="flow" viewBox="0 0 980 740">'+DEFS+'<g class="r">'+
+  se(110,40,'RootLayout mount')+
+  ep('M180,76 V120')+
+  proc(105,120,'Providers','providers/Providers.tsx')+
+  ep('M180,164 V200')+
+  proc(105,200,'QueryProvider','QueryProvider.tsx')+lbl(280,182,'staleTime 60s')+
+  ep('M180,244 V280')+
+  proc(105,280,'AuthProvider useEffect','AuthProvider.tsx:96')+
+  ep('M180,324 V360')+
+  proc(105,360,'getPocketBase()','lib/pocketbase.ts:30')+
+  ep('M180,404 V440')+
+  dec(180,475,180,70,'authStore.isValid?')+
+  // true -> set authenticated (down)
+  epe('M270,475 H470')+lbl(360,468,'false','#8b1a1a')+
+  ep('M180,510 V548')+lbl(150,530,'true')+
+  proc(105,548,'setState authenticated','isAuthenticated=true')+
+  ep('M180,592 V628')+
+  se(110,628,'AppShell renders')+
+  // false branch -> guard redirect
+  err(395,455,'router.replace("/login")')+
+  '</g></svg>',
+ steps:[
+  ['1','RootLayout','src/app/layout.tsx','Mounts &lt;Providers&gt; around the app; sets dark class + fonts'],
+  ['2','Providers','src/components/providers/Providers.tsx','Composes Query → Auth → I18n + Toaster'],
+  ['3','QueryProvider','src/components/providers/QueryProvider.tsx','Creates QueryClient (staleTime 60s, retry 1)'],
+  ['4','AuthProvider useEffect','src/components/providers/AuthProvider.tsx:96','Reads PocketBase authStore on first paint'],
+  ['5','getPocketBase','src/lib/pocketbase.ts:30','Builds singleton; restores pb_auth cookie into authStore'],
+  ['6','authStore.isValid','AuthProvider.tsx:98','Branch: valid → authenticated state; invalid → loading=false'],
+  ['7','AppLayout guard','src/app/(app)/layout.tsx:21','Unauthenticated non-guest routes redirect to /login']
+ ]});
+
+// ---------- FLOW 2: Authentication ----------
+FLOWS.push({id:'auth',title:'Authentication',name:'Login / Register Authentication',n:7,
+ desc:'LoginForm calls the auth context, which invokes PocketBase authWithPassword; on success the authStore.onChange handler persists the pb_auth cookie. Errors are normalized by parseAuthError.',
+ svg:'<svg class="flow" viewBox="0 0 980 760">'+DEFS+'<g class="r">'+
+  se(110,40,'Submit credentials')+
+  ep('M180,76 V112')+
+  proc(105,112,'LoginForm onSubmit','auth/LoginForm.tsx')+
+  ep('M180,156 V192')+
+  proc(105,192,'login(email,pw)','AuthProvider.tsx:110')+
+  ep('M180,236 V272')+
+  ext(105,272,'authWithPassword','users collection (PB)')+lbl(300,254,'/pb proxy :8090')+
+  ep('M180,316 V352')+
+  dec(180,388,180,72,'auth ok?')+
+  ep('M180,424 V462')+lbl(150,444,'yes')+
+  proc(105,462,'setState + authStore','token + record')+
+  ep('M180,506 V542')+
+  proc(105,542,'authStore.onChange','pocketbase.ts:54')+lbl(300,524,'write pb_auth cookie')+
+  ep('M180,586 V622')+
+  se(110,622,'Authenticated')+
+  // error fork right
+  epe('M270,388 H470')+lbl(370,381,'no','#8b1a1a')+
+  proc(395,366,'parseAuthError','AuthProvider.tsx:23')+
+  epe('M470,410 V470')+
+  err(395,470,'throw Error → toast')+
+  '</g></svg>',
+ steps:[
+  ['1','onSubmit','src/components/auth/LoginForm.tsx','react-hook-form + zod validate, call login()'],
+  ['2','login','src/components/providers/AuthProvider.tsx:110','Auth context action wrapping the SDK'],
+  ['3','authWithPassword','pb.collection("users")','PocketBase auth over the /pb proxy'],
+  ['4','auth ok?','AuthProvider.tsx:113','Branch on SDK resolve vs reject'],
+  ['5','setState','AuthProvider.tsx:114','Store user + token; isAuthenticated=true'],
+  ['6','authStore.onChange','src/lib/pocketbase.ts:54','Persist {token,record} to pb_auth cookie (7d)'],
+  ['7','parseAuthError','AuthProvider.tsx:23','Map network/400/404 → human message → toast (error path)']
+ ]});
+
+// ---------- FLOW 3: Primary write (session complete) ----------
+FLOWS.push({id:'write',title:'Session Write',name:'Workout Session Write Path',n:7,
+ desc:'Completing an active session creates a workout_sessions record, writes each logged set, invalidates derived queries, then conditionally advances workout_plans.currentWeek when every day of the week is done.',
+ svg:'<svg class="flow" viewBox="0 0 980 800">'+DEFS+'<g class="r">'+
+  se(110,40,'Finish session')+
+  ep('M180,76 V112')+
+  dec(180,148,190,72,'authenticated?')+
+  epd('M275,148 H470')+lbl(372,141,'guest','#666')+
+  data(395,130,'local summary')+
+  ep('M180,184 V222')+lbl(150,204,'yes')+
+  proc(105,222,'create session','sessions.create() :206')+
+  ep('M180,266 V302')+
+  proc(105,302,'create sets (loop)','session_sets.create() :231')+lbl(330,284,'per completed set')+
+  ep('M180,346 V382')+
+  proc(105,382,'invalidateQueries','progressData / plans :260')+
+  ep('M180,426 V462')+
+  dec(180,498,200,72,'week complete?')+
+  epd('M280,498 H470')+lbl(378,491,'no','#666')+
+  proc(395,476,'store.endSession()','workout-store.ts:67')+
+  ep('M180,534 V572')+lbl(150,554,'yes')+
+  proc(105,572,'update currentWeek','workout_plans.update :292')+lbl(330,554,'currentWeek + 1')+
+  ep('M180,616 V652')+
+  se(110,652,'Summary shown')+
+  '</g></svg>',
+ steps:[
+  ['1','onComplete','src/app/(app)/workout/[sessionId]/page.tsx','Triggered from WorkoutSummary / MoodCheck'],
+  ['2','authenticated?','page.tsx:202','Guest → save local summary only; user → persist to PB'],
+  ['3','create session','page.tsx:206','workout_sessions.create() with mood/energy/notes'],
+  ['4','create sets','page.tsx:231','Loop session_sets.create() per logged set'],
+  ['5','invalidateQueries','page.tsx:260','Refresh progressData, plans, activePlan, planCompletedDays'],
+  ['6','week complete?','page.tsx:288','allDaysComplete check over plan_days vs completed sessions'],
+  ['7','update currentWeek','page.tsx:292','Advance week or mark plan completed; show toast']
+ ]});
+
+// ---------- FLOW 4: Primary read (progress) ----------
+FLOWS.push({id:'read',title:'Progress Read',name:'Progress Analytics Read Path',n:6,
+ desc:'useProgressData runs one combined query: fetch all sessions (no filter — a deliberate auto-cancellation workaround), filter to the current user in JS, batch-fetch sets, then memoize derived metrics for the chart components.',
+ svg:'<svg class="flow" viewBox="0 0 980 700">'+DEFS+'<g class="r">'+
+  se(95,40,'Progress page mount')+
+  ep('M165,76 V112')+
+  proc(90,112,'useProgressData','hooks/useProgress.ts:21')+lbl(300,94,'queryKey progressData')+
+  ep('M165,156 V192')+
+  dec(165,228,170,68,'cache fresh?')+
+  epd('M250,228 H470')+lbl(360,221,'hit (60s)','#666')+
+  data(395,210,'cached ProgressData')+
+  ep('M165,262 V298')+lbl(140,282,'miss')+
+  proc(90,298,'getList(1,200)','workout_sessions :34')+lbl(310,280,'no user filter')+
+  ep('M165,342 V378')+
+  proc(90,378,'filter user + completed','JS .filter() :39')+
+  ep('M165,422 V458')+
+  proc(90,458,'getList sets (batch)','session_sets :48')+lbl(310,440,'session="..." || ...')+
+  ep('M165,502 V538')+
+  data(90,538,'ProgressData → charts')+
+  ep('M165,572 V606')+
+  se(95,606,'Charts render')+
+  '</g></svg>',
+ steps:[
+  ['1','Progress route','src/app/(app)/progress/page.tsx','Mounts chart components'],
+  ['2','useProgressData','src/hooks/useProgress.ts:21','TanStack Query, key ["progressData", userId]'],
+  ['3','cache fresh?','QueryProvider staleTime 60s','Fresh → serve cache; stale/miss → run queryFn'],
+  ['4','getList sessions','useProgress.ts:34','getList(1,200) without filter (auto-cancel workaround)'],
+  ['5','filter + batch sets','useProgress.ts:39-48','JS-filter to user/completed; OR-filter session_sets'],
+  ['6','derive + render','components/progress/*','useMemo metrics feed recharts components']
+ ]});
+
+// ---------- FLOW 5: Error / Recovery (offline sync) ----------
+FLOWS.push({id:'recovery',title:'Error / Recovery',name:'Offline Queue Error & Recovery',n:6,
+ desc:'When a mutation cannot reach PocketBase it is enqueued in IndexedDB. The online event triggers useOfflineSync.sync(), which replays queued mutations in timestamp order, removing each on success and invalidating derived queries.',
+ svg:'<svg class="flow" viewBox="0 0 980 740">'+DEFS+'<g class="r">'+
+  se(95,40,'Mutation attempt')+
+  ep('M165,76 V112')+
+  dec(165,148,170,70,'navigator.onLine?')+
+  epe('M250,148 H470')+lbl(360,141,'offline','#8b1a1a')+
+  proc(395,131,'enqueueMutation','offline-queue.ts:34')+
+  epd('M545,153 V210 H730 V228')+lbl(640,200,'IndexedDB add','#666')+
+  data(660,228,'queued mutation')+
+  ep('M165,218 V254')+lbl(140,238,'online')+
+  proc(90,254,'PB write OK','pb.collection().create')+
+  ep('M165,298 V334')+
+  se(95,334,'Synced')+
+  // recovery branch: online event
+  epd('M735,272 V340 H545 V360')+lbl(640,310,'window "online"','#666')+
+  proc(470,360,'sync()','useOfflineSync.ts:36')+
+  ep('M545,404 V440')+
+  proc(470,440,'replay in order','getQueuedMutations :40')+
+  ep('M545,484 V520')+
+  dec(545,556,170,70,'replay ok?')+
+  epe('M630,556 H800')+lbl(720,549,'fail','#8b1a1a')+
+  err(740,538,'keep in queue')+
+  ep('M545,591 V628')+lbl(515,610,'ok')+
+  proc(470,628,'removeMutation + invalidate','useOfflineSync.ts:54')+
+  '</g></svg>',
+ steps:[
+  ['1','Mutation attempt','src/utils/offline-queue.ts','User action issues a PocketBase write'],
+  ['2','navigator.onLine','src/hooks/useOfflineSync.ts:12','Branch on connectivity'],
+  ['3','enqueueMutation','src/utils/offline-queue.ts:34','Offline → persist mutation to IndexedDB queue'],
+  ['4','online event','src/hooks/useOfflineSync.ts:20','Reconnect fires sync()'],
+  ['5','replay in order','src/hooks/useOfflineSync.ts:40-54','getQueuedMutations sorted by timestamp; replay; on fail keep'],
+  ['6','removeMutation + invalidate','useOfflineSync.ts:54-63','Drop synced entries; invalidate quickSessions/progressData']
+ ]});
+
+// ---------- render ----------
+var tabs=document.getElementById('tabs'),panes=document.getElementById('panes');
+FLOWS.forEach(function(fl,i){
+  var b=document.createElement('button');
+  b.innerHTML=fl.title+' <span class="n">'+fl.n+'</span>';
+  b.onclick=function(){select(i);};
+  if(i===0)b.className='active';
+  tabs.appendChild(b);
+
+  var pane=document.createElement('div');
+  pane.className='flowpane'+(i===0?' active':'');
+  var rows=fl.steps.map(function(s){return '<tr><td class="mono">'+s[0]+'</td><td>'+s[1]+'</td><td class="mono">'+s[2]+'</td><td>'+s[3]+'</td></tr>';}).join('');
+  pane.innerHTML='<h2 class="flowtitle">'+fl.name+'</h2><p class="flowdesc">'+fl.desc+'</p>'+
+    '<figure><div class="figtools"><button class="reset">Reset View</button></div>'+fl.svg+'</figure>'+
+    '<table class="steps"><thead><tr><th>#</th><th>Function</th><th>File path</th><th>Role in flow</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div class="srcwrap"><button class="srctog">View SVG Source</button><pre></pre></div>';
+  panes.appendChild(pane);
+  // wire src
+  var pre=pane.querySelector('pre');
+  pre.textContent=fl.svg;
+  pane.querySelector('.srctog').onclick=function(){pane.querySelector('.srcwrap').classList.toggle('open');};
+  // pan/zoom per svg
+  wirePZ(pane.querySelector('svg.flow'),pane.querySelector('.reset'));
+});
+function select(i){
+  Array.prototype.forEach.call(tabs.children,function(b,j){b.className=j===i?'active':'';});
+  Array.prototype.forEach.call(panes.children,function(p,j){p.className='flowpane'+(j===i?' active':'');});
+}
+function wirePZ(svg,resetBtn){
+  var root=svg.querySelector('g.r');var s=1,tx=0,ty=0,drag=false,sx=0,sy=0;
+  function apply(){root.setAttribute('transform','translate('+tx+','+ty+') scale('+s+')');}
+  svg.addEventListener('wheel',function(e){e.preventDefault();var d=e.deltaY<0?1.1:0.9;s=Math.min(4,Math.max(0.3,s*d));apply();},{passive:false});
+  svg.addEventListener('mousedown',function(e){drag=true;sx=e.clientX-tx;sy=e.clientY-ty;});
+  window.addEventListener('mousemove',function(e){if(!drag)return;tx=e.clientX-sx;ty=e.clientY-sy;apply();});
+  window.addEventListener('mouseup',function(){drag=false;});
+  if(resetBtn)resetBtn.onclick=function(){s=1;tx=0;ty=0;apply();};
+}
+</script>
+</body>
+</html>

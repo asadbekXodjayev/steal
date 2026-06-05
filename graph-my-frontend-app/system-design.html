@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>my-frontend-app — System Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{--page-bg:#fafafa;--accent:#2a6099;--secondary:#666;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--page-bg);color:#333;font-family:'IBM Plex Sans',sans-serif;font-size:14px;}
+  nav.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #ddd;padding:10px 22px;}
+  nav.topbar .brand{font-size:14px;font-weight:600;}
+  nav.topbar .links{display:flex;gap:20px;}
+  nav.topbar .links a{text-decoration:none;color:#333;font-size:13px;}
+  nav.topbar .links a.active{color:var(--accent);text-decoration:underline;font-weight:600;}
+  nav.topbar .ts{font-size:11px;color:#999;font-family:'IBM Plex Mono',monospace;}
+  .stage{position:relative;height:calc(100vh - 49px);overflow:hidden;}
+  svg#sys{width:100%;height:100%;cursor:grab;}
+  svg#sys:active{cursor:grabbing;}
+  .exportBtn{position:absolute;top:12px;right:12px;z-index:10;font-size:12px;padding:6px 11px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;}
+  .exportBtn:hover{border-color:var(--accent);}
+  aside.panel{position:absolute;top:0;right:0;width:300px;height:100%;background:#fff;border-left:1px solid #ddd;transform:translateX(100%);transition:transform .2s;z-index:20;overflow-y:auto;padding:18px;}
+  aside.panel.open{transform:translateX(0);}
+  aside.panel h3{margin:0 0 4px;font-size:15px;}
+  aside.panel .tech{font-size:12px;color:var(--accent);font-style:italic;margin-bottom:12px;}
+  aside.panel dt{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#999;margin-top:12px;}
+  aside.panel dd{margin:3px 0 0;font-size:12px;font-family:'IBM Plex Mono';color:#444;word-break:break-all;}
+  aside.panel .close{position:absolute;top:12px;right:14px;cursor:pointer;border:none;background:none;font-size:18px;color:#999;}
+  .foot{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;padding:8px 16px;font-size:11px;color:var(--secondary);max-height:120px;overflow-y:auto;}
+  .foot b{color:#333;}
+  .foot code{font-family:'IBM Plex Mono';color:#8b1a1a;}
+  text{font-family:'IBM Plex Sans';}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <span class="brand">my-frontend-app</span>
+  <span class="links">
+    <a href="index.html">Overview</a>
+    <a href="file-architecture.html">File Architecture</a>
+    <a href="system-design.html" class="active">System Design</a>
+    <a href="flow-graph.html">Flow Graph</a>
+  </span>
+  <span class="ts">Generated 2026-06-04T17:35:19+05:00</span>
+</nav>
+<div class="stage">
+  <button class="exportBtn" id="exportBtn">Export as SVG</button>
+  <svg id="sys" viewBox="0 0 1100 1050">
+    <defs>
+      <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#444"/></marker>
+      <marker id="arrS" markerWidth="9" markerHeight="9" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 Z" fill="#444"/></marker>
+      <pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#7aaecc"/></pattern>
+    </defs>
+    <g id="sysroot">
+      <!-- ===== ZONES ===== -->
+      <rect x="40" y="40" width="1020" height="140" fill="rgba(0,0,0,0.02)" stroke="#aaa" stroke-dasharray="4 3"/>
+      <text x="54" y="62" font-size="13" fill="#666" font-variant="small-caps">zone 1 — external / client</text>
+      <rect x="40" y="220" width="1020" height="130" fill="rgba(0,0,0,0.02)" stroke="#aaa" stroke-dasharray="4 3"/>
+      <text x="54" y="242" font-size="13" fill="#666" font-variant="small-caps">zone 2 — edge</text>
+      <rect x="40" y="390" width="1020" height="190" fill="rgba(0,0,0,0.02)" stroke="#aaa" stroke-dasharray="4 3"/>
+      <text x="54" y="412" font-size="13" fill="#666" font-variant="small-caps">zone 3 — application</text>
+      <rect x="40" y="620" width="1020" height="150" fill="rgba(0,0,0,0.02)" stroke="#aaa" stroke-dasharray="4 3"/>
+      <text x="54" y="642" font-size="13" fill="#666" font-variant="small-caps">zone 4 — data</text>
+      <rect x="40" y="810" width="1020" height="180" fill="rgba(0,0,0,0.02)" stroke="#aaa" stroke-dasharray="4 3"/>
+      <text x="54" y="832" font-size="13" fill="#666" font-variant="small-caps">zone 5 — external services</text>
+
+      <!-- ===== EDGES (drawn before nodes) ===== -->
+      <!-- Browser(190) -> Next.js server(190): HTTPS RSC -->
+      <path d="M190,128 V256" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arrS)"/>
+      <rect x="118" y="184" width="146" height="13" fill="#fff"/><text x="191" y="194" text-anchor="middle" font-family="'IBM Plex Mono'" font-size="9" fill="#555">HTTPS :443 · RSC / fetch</text>
+
+      <!-- Browser(190) -> PB SDK : uses /pb proxy. route down lane x=120 to app PB-client(190) -->
+      <path d="M150,128 V330 H190 V456" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arrS)"/>
+      <rect x="60" y="300" width="150" height="13" fill="#fff"/><text x="135" y="310" text-anchor="middle" font-family="'IBM Plex Mono'" font-size="9" fill="#555">/pb same-origin (SDK)</text>
+
+      <!-- Next.js server(190) -> rewrite proxy(440) horizontal -->
+      <path d="M232,290 H400" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="270" y="276" width="96" height="13" fill="#fff"/><text x="318" y="286" text-anchor="middle" font-family="'IBM Plex Mono'" font-size="9" fill="#555">/pb:path*</text>
+
+      <!-- rewrite proxy(440) -> PocketBase(440) -->
+      <path d="M440,322 V670" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arrS)"/>
+      <rect x="362" y="490" width="158" height="13" fill="#fff"/><text x="441" y="500" text-anchor="middle" font-family="'IBM Plex Mono'" font-size="9" fill="#555">HTTP :8090 (server-side)</text>
+
+      <!-- PB client(190 app) -> TanStack Query(440 app)? Instead: app components use hooks -> PB client. Draw QueryClient(190)->PBclient already same column. -->
+      <!-- TanStack Query(440 app) <-> PB client(190 app) -->
+      <path d="M398,470 H232" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arrS)"/>
+      <rect x="262" y="456" width="108" height="13" fill="#fff"/><text x="316" y="466" text-anchor="middle" font-family="'IBM Plex Mono'" font-size="9" fill="#555">queryFn / mutationFn</text>
+
+      <!-- Zustand store(690 app) -> IndexedDB(690 data) -->
+      <path d="M690,500 V670" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="616" y="560" width="150" height="13" fill="#fff"/><text x="691" y="570" text-anchor="middle" font-family="'IBM Plex Mono'" font-size="9" fill="#555">persist / IDB queue</text>
+
+      <!-- PB client(190 app) -> Zustand? no. PB(440 data) -> ExerciseDB(320 ext) image fetch -->
+      <path d="M440,712 V760 H320 V856" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="248" y="788" width="148" height="13" fill="#fff"/><text x="322" y="798" text-anchor="middle" font-family="'IBM Plex Mono'" font-size="9" fill="#555">HTTPS dataset / images</text>
+
+      <!-- next/image(440 edge) -> Image CDNs(560 ext) -->
+      <path d="M460,322 V760 H560 V856" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="498" y="788" width="120" height="13" fill="#fff"/><text x="559" y="798" text-anchor="middle" font-family="'IBM Plex Mono'" font-size="9" fill="#555">HTTPS image opt</text>
+
+      <!-- Seed CLI(900 ext-top zone1) -> PocketBase(440 data) and AI(820 ext zone5) — route via far-right gutter x=1030 to avoid Auth node -->
+      <path d="M900,128 V404 H1030 V650 H480 V670" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="582" y="636" width="150" height="13" fill="#fff"/><text x="657" y="646" text-anchor="middle" font-family="'IBM Plex Mono'" font-size="9" fill="#555">SDK admin write :8090</text>
+      <path d="M886,128 V418 H1010 V840 H820 V856" fill="none" stroke="#444" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="828" y="600" width="120" height="13" fill="#fff"/><text x="888" y="610" text-anchor="middle" font-family="'IBM Plex Mono'" font-size="9" fill="#555">AI SDK HTTPS</text>
+
+      <!-- ===== NODES ===== -->
+      <!-- ZONE 1: Browser -->
+      <g class="node" data-k="browser">
+        <rect x="150" y="92" width="80" height="36" rx="4" fill="#2a6099" stroke="#1f4a78"/>
+        <line x1="156" y1="100" x2="224" y2="100" stroke="#9bbede" stroke-width="0.6"/><line x1="156" y1="106" x2="224" y2="106" stroke="#9bbede" stroke-width="0.6"/><line x1="156" y1="112" x2="224" y2="112" stroke="#9bbede" stroke-width="0.6"/><line x1="156" y1="118" x2="224" y2="118" stroke="#9bbede" stroke-width="0.6"/>
+        <rect x="226" y="104" width="4" height="12" fill="#1f4a78"/>
+        <text x="190" y="146" text-anchor="middle" font-size="11" fill="#333">Browser / PWA</text>
+        <text x="190" y="159" text-anchor="middle" font-size="9" fill="#666" font-style="italic">React 19 client</text>
+      </g>
+      <!-- ZONE 1: Seed CLI -->
+      <g class="node" data-k="seed">
+        <rect x="860" y="92" width="80" height="36" rx="4" fill="#cde4f5" stroke="#7aaecc"/>
+        <line x1="866" y1="100" x2="934" y2="100" stroke="#7aaecc" stroke-width="0.6"/><line x1="866" y1="106" x2="934" y2="106" stroke="#7aaecc" stroke-width="0.6"/><line x1="866" y1="112" x2="934" y2="112" stroke="#7aaecc" stroke-width="0.6"/><line x1="866" y1="118" x2="934" y2="118" stroke="#7aaecc" stroke-width="0.6"/>
+        <rect x="936" y="104" width="4" height="12" fill="#7aaecc"/>
+        <text x="900" y="146" text-anchor="middle" font-size="11" fill="#333">Node seed CLI</text>
+        <text x="900" y="159" text-anchor="middle" font-size="9" fill="#666" font-style="italic">scripts/*.mjs</text>
+      </g>
+
+      <!-- ZONE 2: Next.js server (LB style two top lines) -->
+      <g class="node" data-k="next">
+        <rect x="150" y="256" width="82" height="40" rx="4" fill="#b8d0e8" stroke="#6a90b4"/>
+        <line x1="156" y1="263" x2="226" y2="263" stroke="#6a90b4" stroke-width="1.2"/><line x1="156" y1="267" x2="226" y2="267" stroke="#6a90b4" stroke-width="1.2"/>
+        <line x1="156" y1="278" x2="226" y2="278" stroke="#9bbede" stroke-width="0.6"/><line x1="156" y1="286" x2="226" y2="286" stroke="#9bbede" stroke-width="0.6"/>
+        <rect x="228" y="270" width="4" height="14" fill="#6a90b4"/>
+        <text x="191" y="314" text-anchor="middle" font-size="11" fill="#333">Next.js server</text>
+        <text x="191" y="327" text-anchor="middle" font-size="9" fill="#666" font-style="italic">SSR / RSC · Vercel</text>
+      </g>
+      <!-- ZONE 2: /pb rewrite proxy -->
+      <g class="node" data-k="proxy">
+        <rect x="400" y="256" width="82" height="40" rx="4" fill="#b8d0e8" stroke="#6a90b4"/>
+        <line x1="406" y1="263" x2="476" y2="263" stroke="#6a90b4" stroke-width="1.2"/><line x1="406" y1="267" x2="476" y2="267" stroke="#6a90b4" stroke-width="1.2"/>
+        <line x1="406" y1="278" x2="476" y2="278" stroke="#9bbede" stroke-width="0.6"/><line x1="406" y1="286" x2="476" y2="286" stroke="#9bbede" stroke-width="0.6"/>
+        <rect x="478" y="270" width="4" height="14" fill="#6a90b4"/>
+        <text x="441" y="314" text-anchor="middle" font-size="11" fill="#333">/pb rewrite proxy</text>
+        <text x="441" y="327" text-anchor="middle" font-size="9" fill="#666" font-style="italic">next.config.mjs</text>
+      </g>
+
+      <!-- ZONE 3: PocketBase SDK client (verified) -->
+      <g class="node" data-k="pbclient">
+        <rect x="150" y="430" width="82" height="40" rx="4" fill="#cde4f5" stroke="#7aaecc"/>
+        <line x1="156" y1="438" x2="226" y2="438" stroke="#7aaecc" stroke-width="0.6"/><line x1="156" y1="446" x2="226" y2="446" stroke="#7aaecc" stroke-width="0.6"/><line x1="156" y1="454" x2="226" y2="454" stroke="#7aaecc" stroke-width="0.6"/>
+        <rect x="228" y="444" width="4" height="12" fill="#7aaecc"/>
+        <text x="191" y="488" text-anchor="middle" font-size="11" fill="#333">PocketBase client</text>
+        <text x="191" y="501" text-anchor="middle" font-size="9" fill="#666" font-style="italic">lib/pocketbase.ts (singleton)</text>
+      </g>
+      <!-- ZONE 3: TanStack Query -->
+      <g class="node" data-k="query">
+        <rect x="400" y="430" width="82" height="40" rx="4" fill="#cde4f5" stroke="#7aaecc"/>
+        <line x1="406" y1="438" x2="476" y2="438" stroke="#7aaecc" stroke-width="0.6"/><line x1="406" y1="446" x2="476" y2="446" stroke="#7aaecc" stroke-width="0.6"/><line x1="406" y1="454" x2="476" y2="454" stroke="#7aaecc" stroke-width="0.6"/>
+        <rect x="478" y="444" width="4" height="12" fill="#7aaecc"/>
+        <text x="441" y="488" text-anchor="middle" font-size="11" fill="#333">TanStack Query</text>
+        <text x="441" y="501" text-anchor="middle" font-size="9" fill="#666" font-style="italic">QueryClient cache</text>
+      </g>
+      <!-- ZONE 3: Auth context -->
+      <g class="node" data-k="auth">
+        <rect x="900" y="430" width="82" height="40" rx="4" fill="#cde4f5" stroke="#7aaecc"/>
+        <line x1="906" y1="438" x2="976" y2="438" stroke="#7aaecc" stroke-width="0.6"/><line x1="906" y1="446" x2="976" y2="446" stroke="#7aaecc" stroke-width="0.6"/><line x1="906" y1="454" x2="976" y2="454" stroke="#7aaecc" stroke-width="0.6"/>
+        <rect x="978" y="444" width="4" height="12" fill="#7aaecc"/>
+        <text x="941" y="488" text-anchor="middle" font-size="11" fill="#333">Auth context</text>
+        <text x="941" y="501" text-anchor="middle" font-size="9" fill="#666" font-style="italic">authStore · pb_auth cookie</text>
+      </g>
+      <!-- ZONE 3: Zustand store (cache dotted fill) -->
+      <g class="node" data-k="zustand">
+        <rect x="650" y="430" width="82" height="40" rx="4" fill="url(#dots)" stroke="#7aaecc"/>
+        <rect x="650" y="430" width="82" height="40" rx="4" fill="none" stroke="#7aaecc"/>
+        <text x="691" y="488" text-anchor="middle" font-size="11" fill="#333">Zustand store</text>
+        <text x="691" y="501" text-anchor="middle" font-size="9" fill="#666" font-style="italic">workout-store (persist)</text>
+      </g>
+
+      <!-- ZONE 4: PocketBase (DB double bottom) -->
+      <g class="node" data-k="pocketbase">
+        <rect x="400" y="630" width="82" height="42" rx="4" fill="#cde4f5" stroke="#7aaecc"/>
+        <line x1="406" y1="638" x2="476" y2="638" stroke="#7aaecc" stroke-width="0.6"/><line x1="406" y1="646" x2="476" y2="646" stroke="#7aaecc" stroke-width="0.6"/><line x1="406" y1="654" x2="476" y2="654" stroke="#7aaecc" stroke-width="0.6"/>
+        <line x1="402" y1="669" x2="480" y2="669" stroke="#7aaecc" stroke-width="1.4"/><line x1="402" y1="672" x2="480" y2="672" stroke="#7aaecc" stroke-width="1.4"/>
+        <text x="441" y="690" text-anchor="middle" font-size="11" fill="#333">PocketBase</text>
+        <text x="441" y="703" text-anchor="middle" font-size="9" fill="#666" font-style="italic">SQLite · 34.56.67.158:8090</text>
+      </g>
+      <!-- ZONE 4: IndexedDB -->
+      <g class="node" data-k="idb">
+        <rect x="650" y="630" width="82" height="42" rx="4" fill="#cde4f5" stroke="#7aaecc"/>
+        <line x1="656" y1="638" x2="726" y2="638" stroke="#7aaecc" stroke-width="0.6"/><line x1="656" y1="646" x2="726" y2="646" stroke="#7aaecc" stroke-width="0.6"/><line x1="656" y1="654" x2="726" y2="654" stroke="#7aaecc" stroke-width="0.6"/>
+        <line x1="652" y1="669" x2="730" y2="669" stroke="#7aaecc" stroke-width="1.4"/><line x1="652" y1="672" x2="730" y2="672" stroke="#7aaecc" stroke-width="1.4"/>
+        <text x="691" y="690" text-anchor="middle" font-size="11" fill="#333">IndexedDB</text>
+        <text x="691" y="703" text-anchor="middle" font-size="9" fill="#666" font-style="italic">offline mutation queue</text>
+      </g>
+
+      <!-- ZONE 5: ExerciseDB (external dashed, inferred) -->
+      <g class="node" data-k="exdb">
+        <rect x="280" y="856" width="82" height="40" rx="4" fill="#fff" stroke="#7aaecc" stroke-dasharray="4 3"/>
+        <line x1="286" y1="864" x2="356" y2="864" stroke="#bbb" stroke-width="0.6"/><line x1="286" y1="872" x2="356" y2="872" stroke="#bbb" stroke-width="0.6"/><line x1="286" y1="880" x2="356" y2="880" stroke="#bbb" stroke-width="0.6"/>
+        <text x="321" y="914" text-anchor="middle" font-size="11" fill="#333">ExerciseDB API</text>
+        <text x="321" y="927" text-anchor="middle" font-size="9" fill="#666" font-style="italic">RapidAPI fork (inferred)</text>
+      </g>
+      <!-- ZONE 5: Image CDNs -->
+      <g class="node" data-k="cdn">
+        <rect x="520" y="856" width="82" height="40" rx="4" fill="#fff" stroke="#7aaecc" stroke-dasharray="4 3"/>
+        <line x1="526" y1="864" x2="596" y2="864" stroke="#bbb" stroke-width="0.6"/><line x1="526" y1="872" x2="596" y2="872" stroke="#bbb" stroke-width="0.6"/><line x1="526" y1="880" x2="596" y2="880" stroke="#bbb" stroke-width="0.6"/>
+        <text x="561" y="914" text-anchor="middle" font-size="11" fill="#333">Image CDNs</text>
+        <text x="561" y="927" text-anchor="middle" font-size="9" fill="#666" font-style="italic">unsplash · githubusercontent</text>
+      </g>
+      <!-- ZONE 5: AI providers -->
+      <g class="node" data-k="ai">
+        <rect x="780" y="856" width="82" height="40" rx="4" fill="#fff" stroke="#7aaecc" stroke-dasharray="4 3"/>
+        <line x1="786" y1="864" x2="856" y2="864" stroke="#bbb" stroke-width="0.6"/><line x1="786" y1="872" x2="856" y2="872" stroke="#bbb" stroke-width="0.6"/><line x1="786" y1="880" x2="856" y2="880" stroke="#bbb" stroke-width="0.6"/>
+        <text x="821" y="914" text-anchor="middle" font-size="11" fill="#333">AI providers</text>
+        <text x="821" y="927" text-anchor="middle" font-size="9" fill="#666" font-style="italic">Gemini · Groq · Cerebras</text>
+      </g>
+    </g>
+  </svg>
+  <aside class="panel" id="panel">
+    <button class="close" id="closeP">&times;</button>
+    <h3 id="pName"></h3>
+    <div class="tech" id="pTech"></div>
+    <dl>
+      <dt>Implementing files</dt><dd id="pFiles"></dd>
+      <dt>Config / env keys</dt><dd id="pCfg"></dd>
+      <dt>Connections</dt><dd id="pConn"></dd>
+      <dt>Detected version</dt><dd id="pVer"></dd>
+    </dl>
+  </aside>
+  <div class="foot">
+    <b>Inferred components (dashed border):</b>
+    <span><code>ExerciseDB API</code> — host <code>fork-ivory-chi.vercel.app</code> / <code>static.exercisedb.dev</code> in <code>.env.local</code> &amp; <code>next.config.mjs</code> remotePatterns; no runtime call observed in app source (scripts only). </span>
+    <span><code>Image CDNs</code> — declared in <code>next.config.mjs</code> images.remotePatterns (unsplash, raw.githubusercontent.com, *.vercel.app). </span>
+    <span><code>AI providers</code> — keys in <code>.env.local</code>; used only by <code>scripts/seed-exercise-translations.mjs</code> via <code>@ai-sdk/*</code>, never in app runtime. </span>
+    <span><code>Zustand store</code> persistence target and <code>IndexedDB</code> queue are browser-local; PocketBase port :8090 from <code>.env.local</code>.</span>
+  </div>
+</div>
+<script>
+var DATA={
+ browser:{name:'Browser / PWA',tech:'React 19 client runtime',files:'src/app/layout.tsx, manifest.ts',cfg:'NEXT_PUBLIC_API_URL',conn:'→ Next.js server (HTTPS/RSC); ↔ /pb proxy (SDK)',ver:'React ^19.0.0'},
+ seed:{name:'Node seed CLI',tech:'Node scripts (out-of-band)',files:'scripts/seed-exercise-translations.mjs, seed-legends-programs.mjs',cfg:'GEMINI_API_KEY, GROQ_API_KEY, CEREBRAS_API_KEY, POCKETBASE_ADMIN_*',conn:'→ PocketBase (admin write); → AI providers (HTTPS)',ver:'ai ^6'},
+ next:{name:'Next.js server',tech:'SSR / RSC, deployed to Vercel',files:'next.config.mjs, src/app/**',cfg:'rewrites(), images.remotePatterns',conn:'↔ Browser; → /pb rewrite proxy',ver:'next ^15.1.6'},
+ proxy:{name:'/pb rewrite proxy',tech:'Next.js rewrite (mixed-content shim)',files:'next.config.mjs',cfg:'POCKETBASE_INTERNAL_URL (fallback 34.56.67.158:8090)',conn:'← Next.js server; → PocketBase :8090',ver:'—'},
+ pbclient:{name:'PocketBase client',tech:'pocketbase SDK singleton',files:'src/lib/pocketbase.ts',cfg:'getPocketBaseUrl(): /pb (browser) | INTERNAL_URL (server)',conn:'↔ TanStack Query; → /pb proxy; authStore→cookie',ver:'pocketbase ^0.26.8'},
+ query:{name:'TanStack Query',tech:'Server-state cache',files:'src/components/providers/QueryProvider.tsx, src/hooks/*',cfg:'staleTime 60s, gcTime 5m, retry 1',conn:'↔ PocketBase client (queryFn/mutationFn)',ver:'@tanstack/react-query ^5.62.11'},
+ auth:{name:'Auth context',tech:'React Context over PB authStore',files:'src/components/providers/AuthProvider.tsx, src/hooks/useAuth.ts',cfg:'pb_auth cookie (7d, SameSite=Lax)',conn:'→ PocketBase client (authWithPassword / authRefresh)',ver:'—'},
+ zustand:{name:'Zustand store',tech:'Client state (persist middleware)',files:'src/stores/workout-store.ts, ui-store.ts',cfg:'persist name "st-workout-session" → localStorage',conn:'→ IndexedDB (offline queue path)',ver:'zustand ^5.0.2'},
+ pocketbase:{name:'PocketBase',tech:'SQLite-backed BaaS',files:'pocketbase/pb_schema.json, pb_migrations',cfg:'collections: users, profiles, workout_plans, plan_days, plan_exercises, exercises, workout_sessions, session_sets, plan_templates, exercise_translations, goals',conn:'← proxy; ← seed CLI; → image hosts',ver:'PocketBase :8090'},
+ idb:{name:'IndexedDB',tech:'Browser DB — offline queue',files:'src/utils/offline-queue.ts, src/hooks/useOfflineSync.ts',cfg:'DB steel-therapy-offline / store mutation-queue v1',conn:'← Zustand/session writes; → PocketBase on reconnect',ver:'—'},
+ exdb:{name:'ExerciseDB API (inferred)',tech:'External exercise dataset',files:'src/lib/exercise-db-api.ts, scripts/fetch-exercises.mjs',cfg:'NEXT_PUBLIC_EXERCISEDB_URL',conn:'← seed/fetch scripts (HTTPS)',ver:'[unresolved]'},
+ cdn:{name:'Image CDNs (inferred)',tech:'Static image hosts',files:'next.config.mjs (remotePatterns)',cfg:'unsplash, raw.githubusercontent.com, static.exercisedb.dev, *.vercel.app, 34.56.67.158:8090',conn:'← next/image optimization (HTTPS)',ver:'[unresolved]'},
+ ai:{name:'AI providers (inferred)',tech:'LLM translation services',files:'scripts/seed-exercise-translations.mjs',cfg:'GEMINI_MODEL, GROQ_MODEL, AI_MODEL',conn:'← seed CLI (AI SDK HTTPS)',ver:'gemini-2.0-flash / llama-3.1-8b / qwen-3-235b'}
+};
+var panel=document.getElementById('panel');
+document.querySelectorAll('.node').forEach(function(n){
+  n.style.cursor='pointer';
+  n.addEventListener('click',function(){var d=DATA[n.getAttribute('data-k')];if(!d)return;
+    document.getElementById('pName').textContent=d.name;
+    document.getElementById('pTech').textContent=d.tech;
+    document.getElementById('pFiles').textContent=d.files;
+    document.getElementById('pCfg').textContent=d.cfg;
+    document.getElementById('pConn').textContent=d.conn;
+    document.getElementById('pVer').textContent=d.ver;
+    panel.classList.add('open');
+  });
+});
+document.getElementById('closeP').onclick=function(){panel.classList.remove('open');};
+document.getElementById('exportBtn').onclick=function(){
+  var svg=document.getElementById('sys');
+  var blob=new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='system-design.svg';a.click();
+};
+(function(){
+  var svg=document.getElementById('sys'),root=document.getElementById('sysroot');
+  var s=1,tx=0,ty=0,drag=false,sx=0,sy=0;
+  function apply(){root.setAttribute('transform','translate('+tx+','+ty+') scale('+s+')');}
+  svg.addEventListener('wheel',function(e){e.preventDefault();var d=e.deltaY<0?1.1:0.9;s=Math.min(4,Math.max(0.3,s*d));apply();},{passive:false});
+  svg.addEventListener('mousedown',function(e){if(e.target.closest('.node'))return;drag=true;sx=e.clientX-tx;sy=e.clientY-ty;});
+  window.addEventListener('mousemove',function(e){if(!drag)return;tx=e.clientX-sx;ty=e.clientY-sy;apply();});
+  window.addEventListener('mouseup',function(){drag=false;});
+})();
+</script>
+</body>
+</html>
