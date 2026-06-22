@@ -247,6 +247,7 @@ class ExerciseCatalogItem {
     this.slug = '',
     this.secondaryMuscles = const [],
     this.steps = const [],
+    this.filterKey = '',
   });
 
   final String id;
@@ -257,6 +258,15 @@ class ExerciseCatalogItem {
   final String bodyPart;
   final String target;
   final String image;
+
+  /// Canonical ENGLISH taxonomy (bodyPart|target|muscleGroup|equipment|
+  /// secondaryMuscles), '|'-joined. Built once from the source and PRESERVED
+  /// through [withTranslation], so faceted filtering stays correct in every
+  /// language (display fields get translated; this stays English).
+  final String filterKey;
+
+  static String buildFilterKey(Iterable<String> parts) =>
+      parts.where((p) => p.trim().isNotEmpty).join('|');
 
   /// Animated demo URL from the ExerciseDB API (empty in offline/bundled mode).
   final String gifUrl;
@@ -311,6 +321,11 @@ class ExerciseCatalogItem {
       slug: slugify(name),
       gifUrl: gif,
       image: gif,
+      filterKey: buildFilterKey([
+        bodyPart.isNotEmpty ? bodyPart.first : '',
+        primaryTarget,
+        equipment.isNotEmpty ? equipment.first : '',
+      ]),
     );
   }
 
@@ -336,6 +351,12 @@ class ExerciseCatalogItem {
       slug: rawSlug.isNotEmpty ? rawSlug : slugify(name),
       secondaryMuscles: asStringList(j['secondaryMuscles']),
       steps: asStringList(j['steps']),
+      filterKey: buildFilterKey([
+        (j['bodyPart'] ?? '').toString(),
+        (j['target'] ?? '').toString(),
+        muscle,
+        (j['equipment'] ?? '').toString(),
+      ]),
     );
   }
 
@@ -359,6 +380,7 @@ class ExerciseCatalogItem {
       slug: slug,
       secondaryMuscles: t.secondaryMuscles ?? secondaryMuscles,
       steps: tSteps,
+      filterKey: filterKey, // canonical English — never translated
     );
   }
 }

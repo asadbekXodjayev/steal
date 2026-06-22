@@ -83,19 +83,30 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     });
   }
 
-  /// Client-side filter applied on top of the server search result.
+  // Normalize for locale-independent matching: uppercase, drop non-alphanumeric
+  // (so "BODYWEIGHT" matches "body weight", "LEGS" matches "upper legs", etc.).
+  static String _norm(String s) =>
+      s.toUpperCase().replaceAll(RegExp('[^A-Z0-9]'), '');
+
+  /// Does any canonical-English taxonomy segment of the item match the selected
+  /// facet value? Filtering runs on `filterKey` (always English), NOT on the
+  /// translated display fields — so filters work in every language.
+  bool _facetMatches(String filterKey, String selected) {
+    final needle = _norm(selected);
+    if (needle.isEmpty) return true;
+    return filterKey.split('|').any((seg) => _norm(seg).contains(needle));
+  }
+
+  /// Client-side faceted filter applied on top of the server search result.
   List<ExerciseCatalogItem> _applyClientFilters(
       List<ExerciseCatalogItem> items) {
     return items.where((e) {
-      final muscle = e.muscleGroup.toUpperCase();
-      final equip = e.equipment.toUpperCase();
-
-      final matchCategory =
-          _selectedCategory == 'ALL' || muscle.contains(_selectedCategory);
+      final matchCategory = _selectedCategory == 'ALL' ||
+          _facetMatches(e.filterKey, _selectedCategory);
       final matchEquip = _selectedEquipment == 'ANY EQUIP.' ||
-          equip.contains(_selectedEquipment.toUpperCase());
+          _facetMatches(e.filterKey, _selectedEquipment);
       final matchMuscle = _selectedMuscle == 'ALL MUSCLES' ||
-          muscle.contains(_selectedMuscle.toUpperCase());
+          _facetMatches(e.filterKey, _selectedMuscle);
       return matchCategory && matchEquip && matchMuscle;
     }).toList();
   }
