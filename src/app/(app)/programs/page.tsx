@@ -34,15 +34,15 @@ function ProgramCard({ program, featured, t }: { program: LegendProgram; feature
           : "1px solid rgba(255,255,255,0.06)",
       }}
     >
-      {/* Image */}
-      <div className="relative overflow-hidden" style={{ height: 120 }}>
+      {/* Image — contain so athlete portraits aren't cropped to the face */}
+      <div className="relative overflow-hidden bg-[#070707]" style={{ height: 220 }}>
         {program.image ? (
           <Image
             src={program.image}
             alt={program.name}
             fill
             sizes="(max-width: 640px) 100vw, 50vw"
-            className="object-cover"
+            className="object-contain object-center"
             loading="lazy"
           />
         ) : (

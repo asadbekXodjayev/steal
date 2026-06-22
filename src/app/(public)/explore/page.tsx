@@ -85,12 +85,12 @@ export default function ProgramsPage() {
                 onClick={() => setSelectedProgram(program)}
                 className="group relative flex flex-col bg-[#0a0a0a] transition-all duration-150 overflow-hidden border border-[#2a2a2a] hover:border-[#e53e00]/50 hover:-translate-y-0.5 text-left"
               >
-                {/* Image */}
-                <div className="relative aspect-video w-full overflow-hidden">
+                {/* Image — contain so athlete portraits aren't cropped to the face */}
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#070707]">
                   <img
                     src={program.image}
                     alt={program.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-contain object-center transition-transform duration-300 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
 
