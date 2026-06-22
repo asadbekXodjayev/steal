@@ -181,9 +181,10 @@ export function ExerciseCard({
             <span />
           </div>
 
-          {/* Set rows */}
+          {/* Set rows — render at least `sets`, but also any extra sets the user
+              logged beyond the plan so they're visible (not silently hidden). */}
           <div>
-            {Array.from({ length: sets }).map((_, i) => (
+            {Array.from({ length: Math.max(sets, completedSets.length) }).map((_, i) => (
               <SetRow
                 key={i}
                 setNumber={i + 1}

@@ -114,10 +114,10 @@ export default function WorkoutSessionPage({
   useEffect(() => {
     if (!currentExercises || currentExercises.length === 0) return;
     const current = useWorkoutStore.getState();
-    if (
-      current.sessionId === sessionId &&
-      current.exercises.length === currentExercises.length
-    ) {
+    // Reset whenever the day changes. Comparing by exercise COUNT (the old
+    // guard) meant two different days with the same number of exercises kept
+    // the previous day's logged sets — and could save them under the wrong day.
+    if (current.sessionId === sessionId) {
       return;
     }
     current.startSession(
@@ -135,6 +135,17 @@ export default function WorkoutSessionPage({
       })),
     );
   }, [currentExercises, sessionId]);
+
+  // Re-sync elapsed time once the persisted store rehydrates (startedAt is null
+  // on the first render after a refresh, so the lazy initializer above starts at
+  // 0 — this corrects it to the true elapsed once startedAt is available).
+  useEffect(() => {
+    if (store.startedAt) {
+      setElapsedSeconds(
+        Math.max(0, Math.floor((Date.now() - new Date(store.startedAt).getTime()) / 1000)),
+      );
+    }
+  }, [store.startedAt]);
 
   // Tick every second
   useEffect(() => {
@@ -179,7 +190,7 @@ export default function WorkoutSessionPage({
           status: "completed",
           mood: mood || undefined,
           energyLevel:
-            mood === "great" ? 5 : mood === "good" ? 4 : mood === "okay" ? 3 : mood === "rough" ? 2 : 1,
+            mood === "great" ? 5 : mood === "good" ? 4 : mood === "okay" ? 3 : mood === "rough" ? 2 : mood === "terrible" ? 1 : 3,
           sessionNotes: notes,
           exercises: store.exercises.map((ex, i) => ({
             exerciseId: ex.exerciseId,
@@ -200,6 +211,28 @@ export default function WorkoutSessionPage({
         setShowSummary(true);
         toast.success(t("workout.SESSION_SAVED_LOCAL"));
       } else {
+        // Guard against duplicate completion: if this day already has a
+        // completed session, don't create a second one (direct nav / back button
+        // bypasses the dashboard's visual lock). Re-finishing would double-count
+        // volume, sets, streak and PRs. Show the summary instead.
+        const existingDone = await pb.collection("workout_sessions").getList(1, 1, {
+          filter: pb.filter('planDay={:d} && user={:u} && status="completed"', {
+            d: sessionId,
+            u: currentUserId,
+          }),
+        });
+        if (existingDone.items.length > 0) {
+          const exercisesSummary = store.exercises.map((ex, i) => ({
+            name: ex.exerciseName || getExerciseName(planExercises?.[i] ?? ({} as PlanExercise), i),
+            completedSets: ex.completedSets,
+          }));
+          store.endSession();
+          setSummaryData({ exercises: exercisesSummary, duration: elapsedSeconds });
+          setShowSummary(true);
+          toast.info(t("plans.COMPLETED"));
+          return;
+        }
+
         // Authenticated mode - save to PocketBase
         // Create the session record
         // Use null (not "") for relation fields when no value — empty string causes PB 400
@@ -212,7 +245,7 @@ export default function WorkoutSessionPage({
           status: "completed",
           mood,
           energyLevel:
-            mood === "great" ? 5 : mood === "good" ? 4 : mood === "okay" ? 3 : mood === "rough" ? 2 : 1,
+            mood === "great" ? 5 : mood === "good" ? 4 : mood === "okay" ? 3 : mood === "rough" ? 2 : mood === "terrible" ? 1 : 3,
           sessionNotes: notes,
         });
 
@@ -460,7 +493,7 @@ export default function WorkoutSessionPage({
         isRunning={timer.isRunning}
         onStart={timer.start}
         onStop={timer.reset}
-        defaultSeconds={90}
+        defaultSeconds={timer.totalSeconds || 90}
       />
     </div>
   );

@@ -5,6 +5,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 interface UseRestTimerReturn {
   secondsLeft: number;
   isRunning: boolean;
+  /** The full duration the current countdown started from (progress-bar denominator). */
+  totalSeconds: number;
   start: (seconds: number) => void;
   stop: () => void;
   reset: () => void;
@@ -15,6 +17,7 @@ interface UseRestTimerReturn {
  */
 export function useRestTimer(): UseRestTimerReturn {
   const [secondsLeft, setSecondsLeft] = useState(0);
+  const [totalSeconds, setTotalSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -55,6 +58,7 @@ export function useRestTimer(): UseRestTimerReturn {
     (seconds: number) => {
       stop();
       setSecondsLeft(seconds);
+      setTotalSeconds(seconds);
       setIsRunning(true);
     },
     [stop],
@@ -63,6 +67,7 @@ export function useRestTimer(): UseRestTimerReturn {
   const reset = useCallback(() => {
     stop();
     setSecondsLeft(0);
+    setTotalSeconds(0);
   }, [stop]);
 
   useEffect(() => {
@@ -84,5 +89,5 @@ export function useRestTimer(): UseRestTimerReturn {
     };
   }, [isRunning, stop, playAlert]);
 
-  return { secondsLeft, isRunning, start, stop, reset };
+  return { secondsLeft, totalSeconds, isRunning, start, stop, reset };
 }

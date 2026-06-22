@@ -36,17 +36,23 @@ import Image from "next/image";
 
 // ─── Zod schema ──────────────────────────────────────────────────────────────
 
-const exerciseSchema = z.object({
-  name: z.string().min(1, "Exercise name required"),
-  exerciseId: z.string().optional(),
-  exerciseImage: z.string().optional(),
-  sets: z.number().min(1).max(20),
-  repsMin: z.number().min(1).max(100),
-  repsMax: z.number().min(1).max(100),
-  rpeTarget: z.number().min(6).max(10),
-  restSeconds: z.number().min(30).max(600),
-  notes: z.string().optional(),
-});
+const exerciseSchema = z
+  .object({
+    name: z.string().min(1, "Exercise name required"),
+    exerciseId: z.string().optional(),
+    exerciseImage: z.string().optional(),
+    sets: z.number().min(1).max(20),
+    repsMin: z.number().min(1).max(100),
+    repsMax: z.number().min(1).max(100),
+    rpeTarget: z.number().min(6).max(10),
+    restSeconds: z.number().min(30).max(600),
+    notes: z.string().optional(),
+  })
+  // Min reps can't exceed max reps (two independent inputs made this easy to do).
+  .refine((e) => e.repsMax >= e.repsMin, {
+    message: "Max reps must be ≥ min reps",
+    path: ["repsMax"],
+  });
 
 const daySchema = z.object({
   dayOfWeek: z.number().min(1).max(7),
