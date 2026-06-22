@@ -17,7 +17,7 @@ class SteelPocketBase {
 
   /// Default backend — the same PocketBase instance the web app points at
   /// (`NEXT_PUBLIC_API_URL`). Override per-environment with `--dart-define`.
-  static const String _defaultBaseUrl = 'http://34.56.67.158:8090';
+  static const String _defaultBaseUrl = 'http://34.170.155.242:8090';
 
   /// Optional compile-time override.
   static const String _envBaseUrl = String.fromEnvironment('POCKETBASE_URL');

@@ -4,7 +4,7 @@
 This app reads the PocketBase base URL from a compile-time define:
 
 ```bash
-flutter run --dart-define=POCKETBASE_URL=http://34.56.67.158:8090
+flutter run --dart-define=POCKETBASE_URL=http://34.170.155.242:8090
 ```
 
 You can also use Flutter’s `--dart-define-from-file` if you prefer keeping it out of shell history:
@@ -16,7 +16,7 @@ flutter run --dart-define-from-file=env.json
 Example `env.json` (do not commit real secrets):
 
 ```json
-{ "POCKETBASE_URL": "http://34.56.67.158:8090" }
+{ "POCKETBASE_URL": "http://34.170.155.242:8090" }
 ```
 
 ## Architecture

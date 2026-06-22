@@ -19,7 +19,6 @@ const navLinks = [
   { href: "/dashboard", label: "navbar.DASHBOARD" },
   { href: "/programs", label: "navbar.PROGRAMS" },
   { href: "/plans", label: "navbar.PLANS" },
-  { href: "/progress", label: "navbar.PROGRESS" },
   { href: "/exercises", label: "navbar.LIBRARY" },
 ] as const;
 
@@ -207,9 +206,9 @@ export function Navbar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="rounded-none px-3 py-2 focus:bg-surface-3">
-                  <Link href="/settings" className="flex items-center gap-2 font-data text-[11px] uppercase tracking-wide text-ink-mid hover:text-ink-high">
+                  <Link href="/profile" className="flex items-center gap-2 font-data text-[11px] uppercase tracking-wide text-ink-mid hover:text-ink-high">
                     <Settings className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">{t("navbar.SETTINGS")}</span>
+                    <span className="truncate">{t("navbar.PROFILE")}</span>
                   </Link>
                 </DropdownMenuItem>
               </div>

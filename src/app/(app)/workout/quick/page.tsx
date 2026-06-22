@@ -417,7 +417,7 @@ export default function QuickWorkoutPage() {
   return (
     <div className="flex flex-col min-h-[100dvh] bg-[#050505] pb-24">
       {/* Top bar */}
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-[#2a2a2a] bg-[#050505]/95 backdrop-blur px-4 py-3">
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-[#2a2a2a] bg-[#050505] px-4 py-3">
         <SessionTimer startedAt={startedAt.current} />
         <span className="font-data text-[10px] font-bold uppercase tracking-widest text-[#71717A]">
           {t("quickWorkout.TITLE")}
@@ -463,7 +463,7 @@ export default function QuickWorkoutPage() {
       </div>
 
       {/* Bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[#2a2a2a] bg-[#050505]/95 backdrop-blur px-4 py-3 flex items-center gap-3">
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-[#2a2a2a] bg-[#050505] px-4 py-3 flex items-center gap-3">
         <button
           type="button"
           onClick={() => setPickerOpen(true)}

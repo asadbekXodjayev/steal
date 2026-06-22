@@ -14,6 +14,7 @@ const en: TranslationData = {
     LIBRARY: "LIBRARY",
     OPERATOR: "OPERATOR",
     SETTINGS: "SETTINGS",
+    PROFILE: "PROFILE",
     SIGN_OUT: "SIGN OUT",
     STEEL: "STEEL",
     ONLINE: "ONLINE",
@@ -30,6 +31,11 @@ const en: TranslationData = {
     STATS: "STATS",
     LIBRARY: "LIBRARY",
     GEAR: "GEAR",
+    PROFILE: "PROFILE",
+  },
+  // ── Profile page ──
+  profile: {
+    TITLE: "PROFILE",
   },
   // ── Landing page ──
   landing: {
@@ -520,6 +526,7 @@ const ru: TranslationData = {
     LIBRARY: "БИБЛИОТЕКА",
     OPERATOR: "ОПЕРАТОР",
     SETTINGS: "НАСТРОЙКИ",
+    PROFILE: "ПРОФИЛЬ",
     SIGN_OUT: "ВЫХОД",
     STEEL: "STEEL",
     ONLINE: "ОНЛАЙН",
@@ -535,6 +542,10 @@ const ru: TranslationData = {
     STATS: "СТАТИСТИКА",
     LIBRARY: "БИБЛИОТЕКА",
     GEAR: "ПРОФИЛЬ",
+    PROFILE: "ПРОФИЛЬ",
+  },
+  profile: {
+    TITLE: "ПРОФИЛЬ",
   },
   landing: {
     TAGLINE: "Steel — ковка стали",
@@ -1007,6 +1018,7 @@ const uz: TranslationData = {
     LIBRARY: "KUTUBXONA",
     OPERATOR: "OPERATOR",
     SETTINGS: "SOZLAMALAR",
+    PROFILE: "PROFIL",
     SIGN_OUT: "CHIQISH",
     STEEL: "STEEL",
     ONLINE: "ONLAYN",
@@ -1022,6 +1034,10 @@ const uz: TranslationData = {
     STATS: "STATISTIKA",
     LIBRARY: "KUTUBXONA",
     GEAR: "PROFIL",
+    PROFILE: "PROFIL",
+  },
+  profile: {
+    TITLE: "PROFIL",
   },
   landing: {
     TAGLINE: "Steel — Po'lat yasaydi",

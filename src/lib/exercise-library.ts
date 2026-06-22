@@ -20,6 +20,17 @@ function first<T>(arr: T[] | undefined, fallback = ""): T | string {
   return arr && arr.length > 0 ? arr[0] : fallback;
 }
 
+/**
+ * Route third-party exercise GIFs through our own origin (`/api/exdb-media/*`)
+ * so the browser never has to reach static.exercisedb.dev directly — fixes gifs
+ * not loading behind region blocks / ad-blockers / CORS. Only the animated `gif`
+ * (rendered via a raw <img>) is proxied; `image` stays absolute so next/image
+ * thumbnails keep optimizing it server-side (which already works).
+ */
+function proxyMedia(url: string): string {
+  return url.replace(/^https?:\/\/static\.exercisedb\.dev/i, "/api/exdb-media");
+}
+
 export function toLibraryExercise(ex: ExerciseV2): LibraryExercise {
   const instructions = Array.isArray(ex.instructions) ? ex.instructions : [];
   // The self-hosted fork only ships `gifUrl`; reuse it as the static image.
@@ -42,7 +53,7 @@ export function toLibraryExercise(ex: ExerciseV2): LibraryExercise {
     tips: ex.exerciseTips ?? [],
     variations: ex.variations ?? [],
     image,
-    gif: ex.gifUrl || image,
+    gif: proxyMedia(ex.gifUrl || image),
     videoUrl: ex.videoUrl ?? "",
   };
 }

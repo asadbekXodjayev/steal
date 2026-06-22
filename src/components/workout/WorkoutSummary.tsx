@@ -103,7 +103,7 @@ export function WorkoutSummary({ duration, exercises }: WorkoutSummaryProps) {
           <Link href="/dashboard">{t("summary.BACK_TO_DASHBOARD")}</Link>
         </Button>
         <Button asChild variant="outline" className="flex-1 rounded-none">
-          <Link href="/progress">{t("summary.VIEW_PROGRESS")}</Link>
+          <Link href="/profile">{t("summary.VIEW_PROGRESS")}</Link>
         </Button>
       </div>
     </div>

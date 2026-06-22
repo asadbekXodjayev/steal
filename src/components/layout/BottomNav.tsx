@@ -6,9 +6,8 @@ import {
   LayoutDashboard,
   ClipboardList,
   FileText,
-  TrendingUp,
   BookOpen,
-  Settings,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/providers/I18nProvider";
@@ -17,9 +16,8 @@ const tabs = [
   { href: "/dashboard", labelKey: "bottomNav.HOME", icon: LayoutDashboard },
   { href: "/programs", labelKey: "bottomNav.PROGRAMS", icon: ClipboardList },
   { href: "/plans", labelKey: "bottomNav.PLANS", icon: FileText },
-  { href: "/progress", labelKey: "bottomNav.STATS", icon: TrendingUp },
   { href: "/exercises", labelKey: "bottomNav.LIBRARY", icon: BookOpen },
-  { href: "/settings", labelKey: "bottomNav.GEAR", icon: Settings },
+  { href: "/profile", labelKey: "bottomNav.PROFILE", icon: User },
 ] as const;
 
 export function BottomNav() {

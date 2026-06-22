@@ -314,7 +314,7 @@ export function ProgramPreview({
       {/* Exercise Rotation Info */}
       <div className="border border-card-border bg-card p-4">
         <div className="flex items-start gap-3">
-          <div className="bg-[#71717A]/20 p-1.5 rounded-sm">
+          <div className="bg-[#1a1a1a] p-1.5 rounded-sm">
             <Info className="h-4 w-4 text-[#71717A]" />
           </div>
           <div className="flex-1">

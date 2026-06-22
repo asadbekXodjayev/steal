@@ -14,3 +14,7 @@ pocketbase/pb_data/
 # Flutter app build artifacts (the app's own .gitignore also covers these)
 steel_flutter/build/
 steel_flutter/.dart_tool/
+
+# Translation generator run logs (transient; progress checkpoint is tracked)
+.translate-*.log
+.translate-*.err.log

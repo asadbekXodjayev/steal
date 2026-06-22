@@ -123,14 +123,14 @@ export function PlanImageCarousel({
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2.5 sm:p-2 bg-[#0a0a0a]/70 hover:bg-[#e53e00] transition-colors border border-[#2a2a2a] hover:border-[#e53e00]"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2.5 sm:p-2 bg-[#0a0a0a] hover:bg-[#e53e00] transition-colors border border-[#2a2a2a] hover:border-[#e53e00]"
             aria-label={t("common.PREVIOUS_IMAGE")}
           >
             <ChevronLeft className="h-5 w-5 sm:h-4 sm:w-4 text-[#e5e5e5]" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2.5 sm:p-2 bg-[#0a0a0a]/70 hover:bg-[#e53e00] transition-colors border border-[#2a2a2a] hover:border-[#e53e00]"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2.5 sm:p-2 bg-[#0a0a0a] hover:bg-[#e53e00] transition-colors border border-[#2a2a2a] hover:border-[#e53e00]"
             aria-label={t("common.NEXT_IMAGE")}
           >
             <ChevronRight className="h-5 w-5 sm:h-4 sm:w-4 text-[#e5e5e5]" />
@@ -140,7 +140,7 @@ export function PlanImageCarousel({
 
       {/* Slide counter */}
       {imageUrls.length > 1 && (
-        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 bg-[#0a0a0a]/80 border border-[#2a2a2a] px-2 py-1">
+        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1">
           <span className="font-data text-[9px] uppercase tracking-widest text-[#71717A]">
             {String(currentIndex + 1).padStart(2, "0")} / {String(imageUrls.length).padStart(2, "0")}
           </span>
@@ -168,7 +168,7 @@ export function PlanImageCarousel({
 
       {/* Pause indicator */}
       {isPaused && imageUrls.length > 1 && (
-        <div className="absolute top-3 left-3 z-10 bg-[#0a0a0a]/80 border border-[#2a2a2a] px-2 py-1">
+        <div className="absolute top-3 left-3 z-10 bg-[#0a0a0a] border border-[#2a2a2a] px-2 py-1">
           <span className="font-data text-[8px] uppercase tracking-widest text-[#10b981]">
             {t("programs.PAUSED_INDICATOR")}
           </span>

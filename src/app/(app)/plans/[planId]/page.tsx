@@ -112,7 +112,7 @@ function DayCard({
         <div className="absolute inset-0 bg-[#10b981]/5 pointer-events-none" />
       )}
       {isLocked && (
-        <div className="absolute inset-0 bg-[#0a0a0a]/70 pointer-events-none" />
+        <div className="absolute inset-0 bg-[#0a0a0a]/60 pointer-events-none" />
       )}
       <div className="relative z-10 p-4">
         {/* Header */}

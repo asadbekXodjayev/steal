@@ -3,13 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/ensure-translations.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/ensure-translations.mjs",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit --incremental false",
     "fetch:exercises": "node scripts/fetch-exercises.mjs",
     "seed:translations": "node --env-file=.env.local scripts/seed-exercise-translations.mjs",
-    "apply:translation-schema": "node --env-file=.env.local scripts/apply-translation-schema.mjs"
+    "apply:translation-schema": "node --env-file=.env.local scripts/apply-translation-schema.mjs",
+    "export:translations": "node --env-file=.env.local scripts/export-translations.mjs",
+    "generate:translations": "node --env-file=.env.local scripts/generate-translations.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.69",

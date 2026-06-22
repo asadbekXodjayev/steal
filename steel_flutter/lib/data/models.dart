@@ -408,6 +408,28 @@ class ExerciseTranslation {
       target: str('target'),
     );
   }
+
+  /// Build from the bundled `assets/exercise-translations.json` entry (same
+  /// field names + newline-joined arrays as the PB record). Used for the
+  /// offline, auth-free translation overlay.
+  factory ExerciseTranslation.fromJson(Map<String, dynamic> j) {
+    String? str(String key) {
+      final v = (j[key] as String?)?.trim();
+      return (v == null || v.isEmpty) ? null : v;
+    }
+
+    return ExerciseTranslation(
+      exerciseExtId: (j['exerciseExtId'] as String?) ?? '',
+      name: str('name'),
+      overview: str('overview'),
+      steps: splitLines(j['instructions'] as String?),
+      secondaryMuscles: splitLines(j['secondaryMuscles'] as String?),
+      bodyPart: str('bodyPart'),
+      equipment: str('equipment'),
+      muscleGroup: str('muscleGroup'),
+      target: str('target'),
+    );
+  }
 }
 
 /// Split a newline-joined PB text field back into a trimmed, non-empty list,

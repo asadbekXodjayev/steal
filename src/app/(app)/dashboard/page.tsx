@@ -864,7 +864,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2 mb-3">
               <span className="font-data shrink-0 text-[10px] tracking-[0.1em] text-ink-low uppercase">{t("dashboard.ACTIVITY_LOG")}</span>
               <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.06)" }} />
-              <Link href="/progress" className="font-data text-[10px] text-ink-low hover:text-[#C2410C] transition-colors">
+              <Link href="/profile" className="font-data text-[10px] text-ink-low hover:text-[#C2410C] transition-colors">
                 {t("dashboard.VIEW_ALL")}
               </Link>
             </div>

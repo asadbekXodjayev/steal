@@ -284,6 +284,45 @@ variations     → Mashqning variantlari va modifikatsiyalari massivi. Har biri 
     "variations": ["..."]
   }
 ]`,
+
+  // English ENRICHMENT (not translation): the free v1 dataset leaves some fields
+  // empty. Generate coherent English for the gaps so all three locales share the
+  // same complete source. Safety: never fabricate precise step-by-step technique.
+  en: `You are a professional strength & conditioning content writer. You are given exercises where SOME fields are empty. Fill ONLY the empty fields with accurate, concise ENGLISH content inferred from the exercise's name, target muscles, secondary muscles, equipment, and body part.
+
+═══ ABSOLUTE RULES ═══
+• Respond with ONLY a JSON array — no markdown, no code fences, no commentary before or after the JSON.
+• Return EVERY exercise from the input, matched by its exerciseExtId.
+• For fields that ALREADY have content in the input, return them UNCHANGED (do not paraphrase or rewrite them).
+• For empty fields, generate appropriate English content. Keep arrays as arrays.
+
+═══ HOW TO FILL EACH EMPTY FIELD ═══
+overview         → 2–4 sentences: what the exercise trains and who it suits.
+exerciseTips     → Array of 2–4 practical form tips / common-mistake warnings.
+variations       → Array of 1–3 common variations or modifications.
+category         → One of: "strength", "cardio", "flexibility", "functional", "isometric".
+difficulty       → One of: "beginner", "intermediate", "advanced".
+secondaryMuscles → Array, inferred from the movement (only if empty).
+instructions     → ONLY if empty: 3–5 SAFE, GENERIC setup/execution cues. Do NOT invent precise loads, joint angles, or technique you cannot infer — keep cues conservative and general. If instructions already exist, return them unchanged.
+
+═══ RESPONSE FORMAT ═══
+[
+  {
+    "exerciseExtId": "...",
+    "name": "...",
+    "overview": "...",
+    "bodyPart": ["..."],
+    "equipment": ["..."],
+    "target": ["..."],
+    "muscleGroup": ["..."],
+    "category": "...",
+    "difficulty": "...",
+    "secondaryMuscles": ["..."],
+    "instructions": ["..."],
+    "exerciseTips": ["..."],
+    "variations": ["..."]
+  }
+]`,
 };
 
 // ── Source payload builder ─────────────────────────────────────────────────────
@@ -368,17 +407,12 @@ async function cerebrasChat(apiKey, model, system, prompt, maxTokens) {
   return data.choices[0].message.content;
 }
 
-async function translateBatch(batch, locale, provider) {
-  const payload = batch.map(toSourcePayload);
-  const prompt =
-    `Translate the following ${batch.length} exercises into ${locale}. ` +
-    `Match each exercise by its exerciseExtId. Translate EVERY field fully.\n\n` +
-    JSON.stringify(payload, null, 0);
-
+// Run one model call with the given system prompt + user prompt, returning the
+// parsed item array. Shared by translation and English-enrichment passes.
+async function runModel(provider, system, prompt) {
   if (provider.name === "cerebras" || provider.name === "cerebras-uz" || provider.name === "cerebras-ru") {
-    const text = await cerebrasChat(provider.cerebrasApiKey, provider.model, SYSTEM_PROMPTS[locale], prompt, provider.maxTokens);
-    const json = extractFirstJSON(text);
-    return parseTranslations(JSON.parse(json));
+    const text = await cerebrasChat(provider.cerebrasApiKey, provider.model, system, prompt, provider.maxTokens);
+    return parseTranslations(JSON.parse(extractFirstJSON(text)));
   }
 
   if (provider.useTextMode) {
@@ -386,21 +420,40 @@ async function translateBatch(batch, locale, provider) {
     const { text } = await generateText({
       model: buildModel(provider),
       maxTokens: provider.maxTokens,
-      system: SYSTEM_PROMPTS[locale],
+      system,
       prompt,
     });
-    const json = extractFirstJSON(text);
-    return parseTranslations(JSON.parse(json));
+    return parseTranslations(JSON.parse(extractFirstJSON(text)));
   }
 
   // Gemini / Anthropic: structured output via generateObject
   const { object } = await generateObject({
     model: buildModel(provider),
     schema: translationSchema,
-    system: SYSTEM_PROMPTS[locale],
+    system,
     prompt,
   });
   return object.translations;
+}
+
+async function translateBatch(batch, locale, provider) {
+  const payload = batch.map(toSourcePayload);
+  const prompt =
+    `Translate the following ${batch.length} exercises into ${locale}. ` +
+    `Match each exercise by its exerciseExtId. Translate EVERY field fully.\n\n` +
+    JSON.stringify(payload, null, 0);
+  return runModel(provider, SYSTEM_PROMPTS[locale], prompt);
+}
+
+// English-enrichment pass: ask the model to fill ONLY the empty fields.
+async function generateEnglishBatch(batch, _locale, provider) {
+  const payload = batch.map(toSourcePayload);
+  const prompt =
+    `These ${batch.length} exercises have some empty English fields. ` +
+    `Fill ONLY the empty fields; return already-filled fields unchanged. ` +
+    `Match each exercise by its exerciseExtId and return every one.\n\n` +
+    JSON.stringify(payload, null, 0);
+  return runModel(provider, SYSTEM_PROMPTS.en, prompt);
 }
 
 // ── Rate-limit-aware wrapper ───────────────────────────────────────────────────
@@ -408,7 +461,7 @@ async function translateBatch(batch, locale, provider) {
 // that share a provider never fire simultaneously and always respect delayMs.
 const providerQueues = new WeakMap();
 
-async function throttledTranslate(batch, locale, provider) {
+async function throttledTranslate(batch, locale, provider, fn = translateBatch) {
   if (!providerQueues.has(provider)) providerQueues.set(provider, Promise.resolve());
 
   let resolve_;
@@ -422,7 +475,7 @@ async function throttledTranslate(batch, locale, provider) {
   if (wait > 0) await new Promise(r => setTimeout(r, wait));
   provider.lastCall = Date.now();
   try {
-    return await translateBatch(batch, locale, provider);
+    return await fn(batch, locale, provider);
   } finally {
     resolve_(); // release the next queued call
   }
@@ -569,6 +622,90 @@ async function processLocale(locale, provider) {
   console.log(`\n✓ ${tag} done`);
 }
 
+// ── English enrichment ──────────────────────────────────────────────────────────
+// True when the dataset left a descriptive field empty for this exercise.
+function hasEnglishGap(e) {
+  return !e.overview
+    || !(e.exerciseTips || []).length
+    || !(e.instructions || []).length
+    || !(e.variations || []).length
+    || !e.category
+    || !e.difficulty;
+}
+
+// Generate missing English fields, store sparse `locale="en"` rows (only the
+// fields that were empty), AND mutate the in-memory exercise so the subsequent
+// ru/uz passes translate the enriched, complete source.
+async function enrichEnglish(startIdx = 0, tried = new Set()) {
+  tried.add(startIdx);
+  const provider = PROVIDERS[startIdx];
+  if (!provider) { console.error("✗ No provider left for EN enrichment"); return; }
+
+  progress.done.en ||= {};
+  const pending = exercises.filter(e => !progress.done.en[e.exerciseId] && hasEnglishGap(e));
+  const tag = `[${provider.name}→EN-gen]`;
+  console.log(`\n─── ${tag} ${pending.length} exercises need enrichment ───`);
+
+  try {
+    for (let i = 0; i < pending.length; i += provider.batchSize) {
+      const batch = pending.slice(i, i + provider.batchSize);
+      console.log(`  ${tag} batch ${i + 1}-${i + batch.length} of ${pending.length}`);
+
+      let filled;
+      try {
+        filled = await throttledTranslate(batch, "en", provider, generateEnglishBatch);
+      } catch (err) {
+        const isRateLimit  = /rate.?limit|quota|429/i.test(err.message);
+        const isDailyQuota = /tokens per day|daily.?quota|exceeded.*quota|quota.*exceeded/i.test(err.message);
+        if (isDailyQuota || (isRateLimit && provider.dailyQuotaSwitch)) {
+          throw new ProviderDeadError(`${provider.name} quota exhausted`);
+        }
+        console.warn(`  ✗ ${tag} ${err.message.slice(0, 100)} — skipping batch`);
+        continue;
+      }
+
+      const byId = new Map(filled.map(t => [t.exerciseExtId, t]));
+      let saved = 0;
+      for (const e of batch) {
+        const t = byId.get(e.exerciseId);
+        if (t) {
+          const row = { exerciseExtId: e.exerciseId, locale: "en" };
+          // Fill only fields that were empty in the source — keep the row sparse
+          // so the client overlay never clobbers real API data.
+          if (!e.overview && t.overview) { row.overview = t.overview; e.overview = t.overview; }
+          if (!(e.exerciseTips || []).length && t.exerciseTips?.length) { row.exerciseTips = t.exerciseTips.join("\n"); e.exerciseTips = t.exerciseTips; }
+          if (!(e.variations || []).length && t.variations?.length) { row.variations = t.variations.join("\n"); e.variations = t.variations; }
+          if (!(e.instructions || []).length && t.instructions?.length) { row.instructions = t.instructions.join("\n"); e.instructions = t.instructions; }
+          if (!(e.secondaryMuscles || []).length && t.secondaryMuscles?.length) { row.secondaryMuscles = t.secondaryMuscles.join("\n"); e.secondaryMuscles = t.secondaryMuscles; }
+          if (!e.category && t.category) { row.category = t.category; e.category = t.category; }
+          if (!e.difficulty && t.difficulty) { row.difficulty = t.difficulty; e.difficulty = t.difficulty; }
+
+          if (Object.keys(row).length > 2) {
+            try { await upsert(row); saved++; }
+            catch (err) { console.error(`  ✗ upsert en ${e.exerciseId}: ${err.message}`); }
+          }
+        }
+        progress.done.en[e.exerciseId] = true;
+      }
+      saveProgress();
+      console.log(`  ✓ ${tag} enriched ${saved}`);
+    }
+    console.log(`\n✓ ${tag} done`);
+  } catch (err) {
+    if (err instanceof ProviderDeadError) {
+      const next = PROVIDERS.findIndex((_, i) => !tried.has(i));
+      if (next !== -1) {
+        console.warn(`\n⚠ ${provider.name} dead for EN — falling back to ${PROVIDERS[next].name}`);
+        await enrichEnglish(next, tried);
+      } else {
+        console.error("✗ All providers exhausted for EN enrichment. Re-run tomorrow.");
+      }
+    } else {
+      throw err;
+    }
+  }
+}
+
 // ── Main ───────────────────────────────────────────────────────────────────────
 async function runLocale(locale, providerIndex = 0, tried = new Set()) {
   tried.add(providerIndex);
@@ -594,6 +731,14 @@ async function runLocale(locale, providerIndex = 0, tried = new Set()) {
   }
 }
 
+// Phase 1 — enrich missing English fields first, so ru/uz translate the
+// complete source. Set GENERATE_EN=0 to skip.
+if (process.env.GENERATE_EN !== "0") {
+  console.log("\n→ EN enrichment phase (generating missing English fields)…");
+  await enrichEnglish(0);
+}
+
+// Phase 2 — translate the (now-complete) English source into ru/uz.
 if (PROVIDERS.length >= 2 && LOCALES.length >= 2) {
   // Pin each locale to its dedicated provider (separate account = separate quota pool).
   const uzIdx = PROVIDERS.findIndex(p => p.name === "cerebras-uz");

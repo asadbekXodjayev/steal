@@ -1,17 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Barlow_Condensed, JetBrains_Mono } from "next/font/google";
+import { Oswald, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers/Providers";
 import "./globals.css";
 
-const barlowCondensed = Barlow_Condensed({
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
+// Oswald covers latin + latin-ext + cyrillic, so en / uz / ru all render in the
+// SAME display font. This fixes the font swap + layout shift on language toggle:
+// Barlow Condensed was latin-only and had no Cyrillic glyphs, so Russian fell
+// back to a different system font with different metrics.
+const oswald = Oswald({
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-heading",
   display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["400", "500", "600"],
   variable: "--font-mono",
   display: "swap",
@@ -47,7 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${barlowCondensed.variable} ${jetbrainsMono.variable}`}
+      className={`dark ${oswald.variable} ${jetbrainsMono.variable}`}
     >
       <body className="relative min-h-dvh bg-background text-foreground antialiased">
         <Providers>{children}</Providers>

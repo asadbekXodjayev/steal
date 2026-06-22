@@ -5,7 +5,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "http",
-        hostname: "34.56.67.158",
+        hostname: "34.170.155.242",
         port: "8090",
       },
       {
@@ -30,7 +30,7 @@ const nextConfig = {
   // Proxy /pb/* → PocketBase so the browser never makes cross-origin HTTP
   // requests. This solves mixed-content (HTTPS Vercel → HTTP PocketBase).
   async rewrites() {
-    const dest = process.env.POCKETBASE_INTERNAL_URL || "http://34.56.67.158:8090";
+    const dest = process.env.POCKETBASE_INTERNAL_URL || "http://34.170.155.242:8090";
     return [
       {
         source: "/pb/:path*",
