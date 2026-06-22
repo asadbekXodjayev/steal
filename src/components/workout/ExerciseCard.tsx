@@ -203,7 +203,7 @@ export function ExerciseCard({
             <button
               type="button"
               className="btn-ghost flex-1 h-10 sm:h-8 text-[10px]"
-              onClick={() => onCompleteSet({ weight: 0, reps: 0, rpe: 7 })}
+              onClick={() => onCompleteSet({ weight: 0, reps: repsMin, rpe: rpeTarget })}
             >
               {t("workout.ADD_SET")}
             </button>
@@ -212,8 +212,14 @@ export function ExerciseCard({
               className="btn-forge h-10 sm:h-8 text-[12px]"
               style={{ flex: 2 }}
               onClick={() => {
+                // Quick-log: repeat the last set, or fall back to the plan's
+                // target reps/RPE — never a junk 0×0 set (which got saved as real data).
                 const last = completedSets[completedSets.length - 1];
-                onCompleteSet({ weight: last?.weight ?? 0, reps: last?.reps ?? 0, rpe: 7 });
+                onCompleteSet({
+                  weight: last?.weight ?? 0,
+                  reps: last?.reps ?? repsMin,
+                  rpe: last?.rpe ?? rpeTarget,
+                });
               }}
             >
               {t("workout.LOG_SET")}

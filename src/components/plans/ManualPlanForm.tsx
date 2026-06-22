@@ -791,7 +791,13 @@ export function ManualPlanForm() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => appendDay({ ...defaultDay, dayOfWeek: Math.min(dayFields.length + 1, 7) })}
+            onClick={() => {
+              // Pick the first unused weekday (not just length+1, which collapsed
+              // every day past the 7th onto Sunday → duplicate day-of-week).
+              const used = new Set((form.getValues("days") ?? []).map((d) => d.dayOfWeek));
+              const next = [1, 2, 3, 4, 5, 6, 7].find((d) => !used.has(d)) ?? 7;
+              appendDay({ ...defaultDay, dayOfWeek: next });
+            }}
             className="w-full rounded-none border-dashed border-border font-data text-xs font-bold uppercase tracking-widest hover:border-[#e53e00]/40"
           >
             <Plus className="mr-2 h-4 w-4" />
