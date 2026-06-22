@@ -22,7 +22,15 @@ function getPocketBaseUrl(): string {
 }
 
 function createPocketBase(): PocketBase {
-  return new PocketBase(getPocketBaseUrl());
+  const pb = new PocketBase(getPocketBaseUrl());
+  // Disable PocketBase's auto-cancellation. It keys in-flight requests by
+  // endpoint, so rendering N components that each query the SAME collection
+  // concurrently (e.g. one plan_exercises fetch per day card on /plans/[id])
+  // cancels all but the last — the others error and render empty. TanStack
+  // Query already dedupes and discards stale results, so PB-level cancellation
+  // only causes this class of "only the last card has data" bug.
+  pb.autoCancellation(false);
+  return pb;
 }
 
 let clientInstance: PocketBase | null = null;
