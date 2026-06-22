@@ -162,7 +162,7 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
                               mainAxisSpacing: 12,
                               // Fixed cell height (not a width-ratio) so content
                               // always fits and the button never overflows.
-                              mainAxisExtent: 430,
+                              mainAxisExtent: 520,
                             ),
                             itemCount: filtered.length,
                             itemBuilder: (context, i) => _ProgramCard(
@@ -249,53 +249,53 @@ class _ProgramCard extends ConsumerWidget {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(template.athleteName.toUpperCase(),
                       style: steelMonoStyle(
-                          fontSize: 9, color: SteelOpsColors.muted),
+                          fontSize: 11, color: SteelOpsColors.muted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 5),
                   Text(template.title,
                       style: steelHeadingStyle(
-                          fontSize: 14, fontWeight: FontWeight.w800),
+                          fontSize: 19, fontWeight: FontWeight.w800),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     template.bestFor.isNotEmpty
                         ? template.bestFor
                         : template.description,
                     style: steelMonoStyle(
-                        fontSize: 9, color: SteelOpsColors.inkDim),
+                        fontSize: 12, color: SteelOpsColors.inkDim),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Text(
                     '${template.daysPerWeek} ${t('programs.DAYS_WEEK')}  ·  ${template.sessionLength}',
                     style: steelMonoStyle(
-                        fontSize: 8, color: SteelOpsColors.muted),
+                        fontSize: 11, color: SteelOpsColors.muted),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
+                    spacing: 6,
+                    runSpacing: 6,
                     children: template.tags
-                        .take(2)
+                        .take(3)
                         .map((tag) => Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 3),
+                                  horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 border: Border.all(
                                     color: SteelOpsColors.borderStrong),
                               ),
                               child: Text(t('programs.tag.$tag'),
                                   style: steelMonoStyle(
-                                      fontSize: 8,
+                                      fontSize: 10,
                                       color: SteelOpsColors.inkMid,
                                       letterSpacing: 0.5)),
                             ))
@@ -306,7 +306,7 @@ class _ProgramCard extends ConsumerWidget {
                     onTap: onTap,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
                       decoration: BoxDecoration(
                         color:
                             featured ? SteelOpsColors.orange : Colors.transparent,
@@ -320,7 +320,7 @@ class _ProgramCard extends ConsumerWidget {
                         featured ? t('programs.VIEW_PROGRAM') : t('programs.VIEW'),
                         textAlign: TextAlign.center,
                         style: steelMonoStyle(
-                          fontSize: 10,
+                          fontSize: 13,
                           color:
                               featured ? Colors.white : SteelOpsColors.inkMid,
                           letterSpacing: 1.5,

@@ -119,7 +119,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             backgroundColor: SteelOpsColors.tactical,
             content: Text(
               tr(ref, 'gear.PROFILE_SAVED'),
-              style: steelMonoStyle(fontSize: 12, color: Colors.white),
+              style: steelMonoStyle(fontSize: 13, color: Colors.white),
             ),
           ),
         );
@@ -131,7 +131,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             backgroundColor: SteelOpsColors.blood,
             content: Text(
               '${tr(ref, 'gear.SAVE_FAILED')}: $e',
-              style: steelMonoStyle(fontSize: 11, color: Colors.white),
+              style: steelMonoStyle(fontSize: 13, color: Colors.white),
             ),
           ),
         );
@@ -174,7 +174,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
               Text(
                 email,
                 style: steelMonoStyle(
-                  fontSize: 11,
+                  fontSize: 13,
                   color: SteelOpsColors.muted,
                 ),
               ),
@@ -187,7 +187,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                   error: (e, _) => Text(
                     '${t('gear.PROFILE_LOAD_ERROR')}: $e',
                     style: steelMonoStyle(
-                      fontSize: 11,
+                      fontSize: 13,
                       color: SteelOpsColors.muted,
                     ),
                   ),
@@ -216,7 +216,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                         Text(
                           t('settings.LANGUAGE'),
                           style: steelMonoStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             color: SteelOpsColors.inkHigh,
                             letterSpacing: 2,
                           ),
@@ -227,7 +227,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                     Text(
                       t('settings.LANGUAGE_DESC'),
                       style: steelMonoStyle(
-                        fontSize: 11,
+                        fontSize: 13,
                         color: SteelOpsColors.muted,
                       ),
                     ),
@@ -264,7 +264,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                                   Text(
                                     lang.toUpperCase(),
                                     style: steelMonoStyle(
-                                      fontSize: 11,
+                                      fontSize: 13,
                                       color: selected
                                           ? SteelOpsColors.orange
                                           : SteelOpsColors.inkDim,
@@ -319,7 +319,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                       Text(
                         t('gear.SIGN_OUT'),
                         style: steelMonoStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: SteelOpsColors.orange,
                           letterSpacing: 2,
                         ),
@@ -358,7 +358,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             Text(
               t('legal.ABOUT'),
               style: steelMonoStyle(
-                fontSize: 12,
+                fontSize: 13,
                 color: SteelOpsColors.inkHigh,
                 letterSpacing: 2,
               ),
@@ -389,7 +389,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             Text(
               t('legal.VERSION').toUpperCase(),
               style: steelMonoStyle(
-                fontSize: 11,
+                fontSize: 13,
                 color: SteelOpsColors.muted,
                 letterSpacing: 1.5,
               ),
@@ -398,7 +398,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             Text(
               _appVersion.isEmpty ? '—' : _appVersion,
               style: steelMonoStyle(
-                fontSize: 11,
+                fontSize: 13,
                 color: SteelOpsColors.inkMid,
                 letterSpacing: 1,
               ),
@@ -436,7 +436,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
               Text(
                 t('legal.DELETE_ACCOUNT'),
                 style: steelMonoStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   color: SteelOpsColors.rust,
                   letterSpacing: 2,
                 ),
@@ -450,7 +450,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
               .replaceAll('{email}', LegalLinks.supportEmail)
               .replaceAll('{url}', LegalLinks.accountDeletionUrl),
           style: steelMonoStyle(
-            fontSize: 10,
+            fontSize: 13,
             color: SteelOpsColors.inkDim,
             letterSpacing: 0.5,
           ),
@@ -476,7 +476,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
         content: Text(
           t('legal.DELETE_CONFIRM_BODY'),
           style: steelMonoStyle(
-            fontSize: 12,
+            fontSize: 13,
             color: SteelOpsColors.inkMid,
             letterSpacing: 0.5,
           ),
@@ -487,7 +487,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             child: Text(
               t('common.CANCEL'),
               style: steelMonoStyle(
-                fontSize: 12,
+                fontSize: 13,
                 color: SteelOpsColors.muted,
                 letterSpacing: 1.5,
               ),
@@ -498,7 +498,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             child: Text(
               t('legal.DELETE_CONFIRM_CTA'),
               style: steelMonoStyle(
-                fontSize: 12,
+                fontSize: 13,
                 color: SteelOpsColors.rust,
                 letterSpacing: 1.5,
               ),
@@ -521,7 +521,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             backgroundColor: SteelOpsColors.blood,
             content: Text(
               '${t('legal.DELETE_FAILED')}: $e',
-              style: steelMonoStyle(fontSize: 11, color: Colors.white),
+              style: steelMonoStyle(fontSize: 13, color: Colors.white),
             ),
           ),
         );
@@ -542,7 +542,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
           backgroundColor: SteelOpsColors.blood,
           content: Text(
             t('legal.OPEN_LINK_FAILED'),
-            style: steelMonoStyle(fontSize: 11, color: Colors.white),
+            style: steelMonoStyle(fontSize: 13, color: Colors.white),
           ),
         ),
       );
@@ -566,7 +566,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             Text(
               tr(ref, 'gear.PROFILE'),
               style: steelMonoStyle(
-                fontSize: 12,
+                fontSize: 13,
                 color: SteelOpsColors.inkHigh,
                 letterSpacing: 2,
               ),
@@ -698,7 +698,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
             Text(
               tr(ref, 'gear.PROFILE'),
               style: steelMonoStyle(
-                fontSize: 12,
+                fontSize: 13,
                 color: SteelOpsColors.inkHigh,
                 letterSpacing: 2,
               ),
@@ -733,7 +733,7 @@ class _GearScreenState extends ConsumerState<GearScreen> {
   Widget _fieldLabel(String label) => Text(
     label,
     style: steelMonoStyle(
-      fontSize: 11,
+      fontSize: 13,
       color: SteelOpsColors.muted,
       letterSpacing: 2,
     ),
@@ -779,7 +779,7 @@ class _ChipSelector extends StatelessWidget {
             child: Text(
               labelBuilder(opt),
               style: steelMonoStyle(
-                fontSize: 11,
+                fontSize: 13,
                 color: isSelected ? SteelOpsColors.orange : SteelOpsColors.inkMid,
                 letterSpacing: 1,
               ),
@@ -819,7 +819,7 @@ class _LegalRow extends StatelessWidget {
               child: Text(
                 label,
                 style: steelMonoStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   color: SteelOpsColors.inkMid,
                   letterSpacing: 0.5,
                 ),

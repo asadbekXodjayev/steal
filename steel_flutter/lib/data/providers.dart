@@ -139,6 +139,32 @@ final exerciseTranslationsProvider =
   return bundle[lang] ?? const {};
 });
 
+/// normalize(English name) → exercises.json id, from the bundle's `nameIndex`.
+/// The live catalog (ExerciseDB fork API) uses hash ids, but the translation
+/// bundle is keyed by exercises.json ids — the English name is the only shared
+/// key, so we bridge by it (mirrors the web nameIndex bridge).
+final exerciseNameIndexProvider =
+    FutureProvider<Map<String, String>>((ref) async {
+  try {
+    final raw =
+        await rootBundle.loadString('assets/exercise-translations.json');
+    final decoded = jsonDecode(raw) as Map<String, dynamic>;
+    final ni = decoded['nameIndex'];
+    if (ni is Map) return ni.map((k, v) => MapEntry(k as String, v.toString()));
+  } catch (_) {/* fall through */}
+  return const {};
+});
+
+String _normExerciseName(String s) =>
+    s.toLowerCase().replaceAll(RegExp('[^a-z0-9]'), '');
+
+/// Bundle translation key for a catalog item: prefer the nameIndex bridge
+/// (fork id → bundle id via English name); fall back to the item's own id
+/// (correct when the catalog itself is the bundled exercises.json).
+String _bundleIdFor(
+        String id, String englishName, Map<String, String> nameIndex) =>
+    nameIndex[_normExerciseName(englishName)] ?? id;
+
 /// The full catalog with translations overlaid. `withTranslation` falls back
 /// per-field to English, so applying a sparse `en` overlay (generated fields)
 /// is safe — real catalog values win, generated values fill the gaps.
@@ -147,7 +173,11 @@ final _translatedSourceProvider =
   final all = await ref.watch(_exerciseSourceProvider.future);
   final translations = await ref.watch(exerciseTranslationsProvider.future);
   if (translations.isEmpty) return all;
-  return all.map((e) => e.withTranslation(translations[e.id])).toList();
+  final nameIndex = await ref.watch(exerciseNameIndexProvider.future);
+  return all
+      .map((e) => e
+          .withTranslation(translations[_bundleIdFor(e.id, e.name, nameIndex)]))
+      .toList();
 });
 
 /// Search-filtered view over the (translated) catalog. Filtering runs in Dart
@@ -175,8 +205,9 @@ final exercisePickerEntriesProvider = FutureProvider<
     List<({String id, String englishName, String displayName})>>((ref) async {
   final english = await ref.watch(_exerciseSourceProvider.future);
   final translations = await ref.watch(exerciseTranslationsProvider.future);
+  final nameIndex = await ref.watch(exerciseNameIndexProvider.future);
   return english.map((e) {
-    final tn = translations[e.id]?.name;
+    final tn = translations[_bundleIdFor(e.id, e.name, nameIndex)]?.name;
     return (
       id: e.id,
       englishName: e.name,
@@ -210,7 +241,9 @@ final exerciseByIdProvider =
   // Overlay the PB translation on the freshly fetched English item.
   if (lang != 'en') {
     final translations = await ref.watch(exerciseTranslationsProvider.future);
-    item = item.withTranslation(translations[item.id]);
+    final nameIndex = await ref.watch(exerciseNameIndexProvider.future);
+    item =
+        item.withTranslation(translations[_bundleIdFor(item.id, item.name, nameIndex)]);
   }
   return item;
 });
