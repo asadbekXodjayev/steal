@@ -59,12 +59,15 @@ export interface PBProgramTemplate {
 
 // ── Static metadata (presentation data not stored in PB) ───────────────────
 const SLUG_META: Record<string, { athleteName: string; image: string; sessionLength: string; tags: string[] }> = {
-  arnold:  { athleteName: "Arnold Schwarzenegger", image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800",  sessionLength: "75-90 min",  tags: ["Classic Bodybuilding", "High Volume", "Pump Focus"] },
-  platz:   { athleteName: "Tom Platz",             image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800",  sessionLength: "75-105 min", tags: ["Quad Focus", "High Intensity", "Extreme Volume"] },
-  piana:   { athleteName: "Rich Piana",            image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",  sessionLength: "90-120 min", tags: ["Extreme Volume", "High Intensity", "Drop Sets"] },
-  mentzer: { athleteName: "Mike Mentzer",          image: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800",  sessionLength: "30-45 min",  tags: ["HIT", "Low Volume", "Maximum Intensity"] },
-  yates:   { athleteName: "Dorian Yates",          image: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=800",  sessionLength: "45-60 min",  tags: ["Blood & Guts", "HIT", "Controlled Negatives"] },
-  ronnie:  { athleteName: "Ronnie Coleman",        image: "https://images.unsplash.com/photo-1526232760687-16e82e987c72?w=800",  sessionLength: "75-90 min",  tags: ["High Frequency", "Heavy Compounds", "Maximum Mass"] },
+  // Real athlete portraits sourced from Wikimedia Commons (freely licensed),
+  // hosted locally under public/legends/. nippard has no freely-licensed photo
+  // available — keeps a themed placeholder until a licensed portrait is supplied.
+  arnold:  { athleteName: "Arnold Schwarzenegger", image: "/legends/arnold.jpg",  sessionLength: "75-90 min",  tags: ["Classic Bodybuilding", "High Volume", "Pump Focus"] },
+  platz:   { athleteName: "Tom Platz",             image: "/legends/platz.jpg",   sessionLength: "75-105 min", tags: ["Quad Focus", "High Intensity", "Extreme Volume"] },
+  piana:   { athleteName: "Rich Piana",            image: "/legends/piana.jpg",   sessionLength: "90-120 min", tags: ["Extreme Volume", "High Intensity", "Drop Sets"] },
+  mentzer: { athleteName: "Mike Mentzer",          image: "/legends/mentzer.jpg", sessionLength: "30-45 min",  tags: ["HIT", "Low Volume", "Maximum Intensity"] },
+  yates:   { athleteName: "Dorian Yates",          image: "/legends/yates.png",   sessionLength: "45-60 min",  tags: ["Blood & Guts", "HIT", "Controlled Negatives"] },
+  ronnie:  { athleteName: "Ronnie Coleman",        image: "/legends/ronnie.jpg",  sessionLength: "75-90 min",  tags: ["High Frequency", "Heavy Compounds", "Maximum Mass"] },
   nippard: { athleteName: "Jeff Nippard",          image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800",  sessionLength: "60-75 min",  tags: ["Science-Based", "RIR Tracking", "Evidence-Based"] },
 };
 

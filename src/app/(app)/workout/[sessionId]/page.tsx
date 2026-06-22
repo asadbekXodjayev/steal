@@ -328,7 +328,7 @@ export default function WorkoutSessionPage({
 
   if (isLoading) {
     return (
-      <div className="space-y-4 py-4">
+      <div className="mx-auto max-w-2xl space-y-4 py-4">
         <Skeleton className="skeleton-steal h-8 w-48 rounded-none" />
         <Skeleton className="skeleton-steal h-64 rounded-none" />
         <Skeleton className="skeleton-steal h-64 rounded-none" />
@@ -351,7 +351,7 @@ export default function WorkoutSessionPage({
   const progressPct = targetSets > 0 ? Math.round((totalSets / targetSets) * 100) : 0;
 
   return (
-    <div className="space-y-3 py-2 pb-28">
+    <div className="mx-auto max-w-2xl space-y-3 py-2 pb-28">
       {/* Sticky header */}
       <div
         className="glass-dark sticky top-14 z-10 -mx-4 px-4 py-2 flex items-center gap-3"
@@ -366,7 +366,7 @@ export default function WorkoutSessionPage({
           </span>
         </div>
         {/* Rest timer display */}
-        <div className="glass-acc px-3 py-1.5 text-center shrink-0">
+        <div className="border border-[#6b2903] bg-[#140d0a] px-3 py-1.5 text-center shrink-0">
           <span className="font-data block text-[10px] text-[#EA580C] tracking-widest uppercase">{t("workout.REST_LABEL")}</span>
           <span className="font-data font-bold text-[#C2410C] tabular-nums" style={{ fontSize: "clamp(15px, 4.5vw, 18px)", lineHeight: 1 }}>
             {timer.isRunning ? String(Math.floor(timer.secondsLeft / 60)).padStart(2, "0") + ":" + String(timer.secondsLeft % 60).padStart(2, "0") : "--:--"}
@@ -414,7 +414,7 @@ export default function WorkoutSessionPage({
       </div>
 
       {/* Finish section */}
-      <div className="glass p-4 space-y-4">
+      <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-4 space-y-4">
         <h2 className="font-heading text-base font-black uppercase tracking-widest text-[#e5e5e5]">
           {t("workout.WRAP_IT_UP")}
         </h2>

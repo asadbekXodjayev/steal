@@ -47,15 +47,24 @@ export function ExerciseCard({
   return (
     <div
       className={cn(
-        `fade-up fade-up-${delay}`,
-        allComplete ? "glass opacity-50" : isActive ? "glass-acc" : "glass",
+        `fade-up fade-up-${delay} bg-[#0a0a0a] border`,
+        allComplete
+          ? "border-[#1a1a1a] opacity-50"
+          : isActive
+            ? "border-[#C2410C]"
+            : "border-[#2a2a2a]",
       )}
     >
-      {/* Exercise header */}
-      <button
-        type="button"
+      {/* Exercise header — div (not button) so the media-toggle button below
+          isn't an illegally nested <button> (caused a hydration error). */}
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setCollapsed((c) => !c)}
-        className="flex w-full items-center gap-3 p-3 text-left"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setCollapsed((c) => !c); }
+        }}
+        className="flex w-full cursor-pointer items-center gap-3 p-3 text-left"
       >
         <span className="font-data text-[8px] text-[#2a2a2a] w-5 shrink-0 tabular-nums">
           {String(exerciseNumber).padStart(2, "0")}
@@ -112,7 +121,7 @@ export function ExerciseCard({
             : <ChevronUp className="h-4 w-4 shrink-0 text-[#444]" />
           }
         </div>
-      </button>
+      </div>
 
       {/* Body */}
       {!collapsed && (

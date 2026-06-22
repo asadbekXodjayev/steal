@@ -114,7 +114,7 @@ export const LEGEND_PROGRAMS: LegendProgram[] = [
       "Consume 1g protein per lb of bodyweight",
       "Stay hydrated — minimum 1 gallon water daily",
     ],
-    image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800",
+    image: "/legends/arnold.jpg",
     tags: ["Classic Bodybuilding", "High Volume", "Pump Focus"],
   },
   {
@@ -160,7 +160,7 @@ export const LEGEND_PROGRAMS: LegendProgram[] = [
       "Post-workout nutrition within 30 minutes",
       "Consider glutamine and BCAAs during training",
     ],
-    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800",
+    image: "/legends/platz.jpg",
     tags: ["Quad Focus", "High Intensity", "Extreme Volume"],
   },
   {
@@ -207,7 +207,7 @@ export const LEGEND_PROGRAMS: LegendProgram[] = [
       "1g+ protein per lb bodyweight",
       "Minimum 1 gallon water daily",
     ],
-    image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",
+    image: "/legends/piana.jpg",
     tags: ["Extreme Volume", "High Intensity", "Drop Sets"],
   },
   {
@@ -254,7 +254,7 @@ export const LEGEND_PROGRAMS: LegendProgram[] = [
       "Adequate protein and calories",
       "If progress stalls, reduce frequency further",
     ],
-    image: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800",
+    image: "/legends/mentzer.jpg",
     tags: ["HIT", "Low Volume", "Maximum Intensity"],
   },
   {
@@ -301,7 +301,7 @@ export const LEGEND_PROGRAMS: LegendProgram[] = [
       "High protein, adequate calories",
       "If joints ache, take an extra rest day",
     ],
-    image: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=800",
+    image: "/legends/yates.png",
     tags: ["Blood & Guts", "HIT", "Controlled Negatives"],
   },
   {
@@ -348,7 +348,7 @@ export const LEGEND_PROGRAMS: LegendProgram[] = [
       "Eat 6-8 meals daily",
       "Minimum 1 gallon water daily",
     ],
-    image: "https://images.unsplash.com/photo-1526232760687-16e82e987c72?w=800",
+    image: "/legends/ronnie.jpg",
     tags: ["High Frequency", "Heavy Compounds", "Maximum Mass"],
   },
   {
