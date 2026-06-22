@@ -269,7 +269,16 @@ try {
 } catch { /* fresh start */ }
 
 function saveBundle() {
-  const json = JSON.stringify(bundle, null, 2);
+  // nameIndex bridges the live library (ExerciseDB fork API, hash ids) to this
+  // bundle's id space (exercises.json) via normalized English name — consumers
+  // resolve fork exercises → extId by name. Emitted so regens never lose it.
+  const norm = (s) => (s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const nameIndex = {};
+  for (const e of exercises) {
+    const k = norm(e.name);
+    if (k && !nameIndex[k]) nameIndex[k] = e.id;
+  }
+  const json = JSON.stringify({ ...bundle, nameIndex }, null, 2);
   for (const p of OUTPUT_PATHS) {
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, json);

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import type { LibraryExercise } from "@/types/exercise";
 import { getAllExercises } from "@/lib/exercise-library";
 import { useI18n } from "@/components/providers/I18nProvider";
-import { useExercisesBatchTranslation, useAllExerciseTranslationNames } from "@/hooks/useExerciseTranslation";
+import { useExercisesBatchTranslation, useAllExerciseTranslationNames, useExerciseExtIdResolver } from "@/hooks/useExerciseTranslation";
 import { applyTranslationToLibraryExercise } from "@/lib/exercise-translate";
 import { tBodyPart, tEquipment } from "@/lib/exercise-taxonomy";
 
@@ -25,6 +25,9 @@ const BODY_PARTS = [
 export function ExercisePickerModal({ open, onClose, onSelect }: Props) {
   const { t, language } = useI18n();
   const translationNames = useAllExerciseTranslationNames();
+  // Library exercises come from the fork API (hash ids); the translation bundle
+  // is keyed by exercises.json ids. Bridge them by normalized English name.
+  const resolveExtId = useExerciseExtIdResolver();
   const [allExercises, setAllExercises] = useState<LibraryExercise[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [rawQ, setRawQ] = useState("");
@@ -52,25 +55,28 @@ export function ExercisePickerModal({ open, onClose, onSelect }: Props) {
     if (bodyPart) list = list.filter((ex) => ex.bodyPart === bodyPart);
     if (q) {
       list = list.filter((ex) => {
-        const translatedName = translationNames.get(ex.exerciseId)?.toLowerCase();
+        const translatedName = translationNames.get(resolveExtId(ex.name) ?? "")?.toLowerCase();
         return ex.name.toLowerCase().includes(q) || (translatedName?.includes(q) ?? false);
       });
     }
     return list.slice(0, 60);
-  }, [allExercises, bodyPart, q, translationNames]);
+  }, [allExercises, bodyPart, q, translationNames, resolveExtId]);
 
-  // Batch-fetch translations for the visible slice
-  const visibleIds = useMemo(() => filtered.map((ex) => ex.exerciseId), [filtered]);
+  // Batch-fetch translations for the visible slice (keyed by resolved extId)
+  const visibleIds = useMemo(
+    () => filtered.map((ex) => resolveExtId(ex.name)).filter((id): id is string => !!id),
+    [filtered, resolveExtId],
+  );
   const { data: translations } = useExercisesBatchTranslation(visibleIds);
 
   // Apply translations to displayed names only; original data stays English for storage
   const displayedExercises = useMemo(() => {
     if (language === "en") return filtered;
     return filtered.map((ex) => {
-      const tr = translations.get(ex.exerciseId);
+      const tr = translations.get(resolveExtId(ex.name) ?? "");
       return applyTranslationToLibraryExercise(ex, tr);
     });
-  }, [filtered, translations, language]);
+  }, [filtered, translations, language, resolveExtId]);
 
   const handleSelect = (original: LibraryExercise) => {
     onSelect(original);
@@ -156,7 +162,7 @@ export function ExercisePickerModal({ open, onClose, onSelect }: Props) {
               </span>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[#1a1a1a]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3">
               {displayedExercises.map((ex, i) => {
                 const original = filtered[i];
                 return (
@@ -164,10 +170,10 @@ export function ExercisePickerModal({ open, onClose, onSelect }: Props) {
                     key={original.id}
                     type="button"
                     onClick={() => handleSelect(original)}
-                    className="group flex flex-col bg-[#0a0a0a] text-left hover:bg-[#111] transition-colors relative"
+                    className="group flex flex-col border border-[#1f1f1f] bg-[#0a0a0a] text-left hover:border-[#e53e00]/60 hover:bg-[#111] transition-colors relative"
                   >
                     {/* Image */}
-                    <div className="relative aspect-square sm:aspect-video w-full overflow-hidden bg-[#111]">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#111]">
                       {original.image ? (
                         <Image
                           src={original.gif || original.image}

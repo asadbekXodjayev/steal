@@ -20,9 +20,16 @@ import type { ExerciseTranslation } from "@/lib/exercise-translate";
  */
 
 type LocaleMap = Record<string, ExerciseTranslation>;
-type Bundle = { en: LocaleMap; ru: LocaleMap; uz: LocaleMap };
+// `nameIndex` maps normalize(English name) → exerciseExtId. The bundle is keyed
+// by the exercises.json id space ("1000"), but the live library loads from the
+// ExerciseDB fork API whose ids are different hashes ("VPPtusI"). The English
+// name is the only shared key, so callers resolve fork exercises → extId by name.
+type Bundle = { en: LocaleMap; ru: LocaleMap; uz: LocaleMap; nameIndex?: Record<string, string> };
 
 const EMPTY: Bundle = { en: {}, ru: {}, uz: {} };
+
+const normalizeName = (s: string | undefined): string =>
+  (s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /** Load + cache the bundle once for the whole session. */
 function useTranslationBundle(): Bundle {
@@ -44,7 +51,20 @@ function useTranslationBundle(): Bundle {
 }
 
 function localeMap(bundle: Bundle, language: string): LocaleMap {
-  return (bundle as Record<string, LocaleMap>)[language] ?? {};
+  return (bundle as unknown as Record<string, LocaleMap>)[language] ?? {};
+}
+
+/**
+ * Resolver: fork-API exercise (or any exercise with an English name) → the
+ * bundle's exerciseExtId, via the normalized-name index. Use this to bridge the
+ * live library's id space to the translation bundle's id space.
+ */
+export function useExerciseExtIdResolver(): (name: string) => string | undefined {
+  const bundle = useTranslationBundle();
+  return useMemo(() => {
+    const index = bundle.nameIndex ?? {};
+    return (name: string) => index[normalizeName(name)];
+  }, [bundle]);
 }
 
 /** Single translation by (exerciseExtId, active language). */
