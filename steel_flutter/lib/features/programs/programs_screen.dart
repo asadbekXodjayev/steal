@@ -156,13 +156,13 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8,
-                              // Fixed cell height (not a width-ratio) so the card's
-                              // content always fits and the button never overflows
-                              // the card on narrow phones.
-                              mainAxisExtent: 340,
+                              // One program per row (full-width card) so the
+                              // preview image reads clearly on a phone.
+                              crossAxisCount: 1,
+                              mainAxisSpacing: 12,
+                              // Fixed cell height (not a width-ratio) so content
+                              // always fits and the button never overflows.
+                              mainAxisExtent: 430,
                             ),
                             itemCount: filtered.length,
                             itemBuilder: (context, i) => _ProgramCard(
@@ -218,13 +218,12 @@ class _ProgramCard extends ConsumerWidget {
                     const BorderRadius.vertical(top: Radius.circular(3)),
                 child: Image.network(
                   template.image,
-                  height: 120,
+                  height: 240,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  // Portraits — bias to the top so faces aren't cropped out.
                   alignment: Alignment.topCenter,
                   errorBuilder: (_, _, _) => Container(
-                    height: 120,
+                    height: 240,
                     color: SteelOpsColors.surfaceElevated,
                     child: Icon(Icons.fitness_center,
                         color: SteelOpsColors.muted, size: 32),

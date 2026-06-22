@@ -10,7 +10,6 @@ import '../gear/gear_screen.dart';
 import '../programs/programs_screen.dart';
 import '../plans/plans_screen.dart';
 import '../library/library_screen.dart';
-import '../stats/stats_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -103,7 +102,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       ProgramsScreen(),
       PlansScreen(),
-      StatsScreen(),
       LibraryScreen(),
       GearScreen(),
     ];

@@ -21,8 +21,8 @@ class OpsBottomNav extends ConsumerWidget {
     _NavSpec('nav.HOME', Icons.grid_view_rounded),
     _NavSpec('nav.PROGRAMS', Icons.view_list_rounded),
     _NavSpec('nav.PLANS', Icons.description_outlined),
-    _NavSpec('nav.STATS', Icons.show_chart_rounded),
     _NavSpec('nav.LIBRARY', Icons.menu_book_outlined),
+    // Stats merged into the GEAR (profile) tab — see GearScreen.
     _NavSpec('nav.GEAR', Icons.settings_outlined),
   ];
 

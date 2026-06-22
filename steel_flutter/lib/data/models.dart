@@ -627,6 +627,7 @@ class ProgramTemplate {
     required this.recovery,
     required this.athleteName,
     required this.image,
+    required this.images,
     required this.sessionLength,
     required this.tags,
     required this.raw,
@@ -648,6 +649,8 @@ class ProgramTemplate {
   final List<String> recovery;
   final String athleteName;
   final String image;
+  /// Carousel images for the detail screen (prev first, then the rest).
+  final List<String> images;
   final String sessionLength;
   final List<String> tags;
 
@@ -662,45 +665,77 @@ class ProgramTemplate {
   // NOTE: `tags` hold canonical, language-independent keys. The UI resolves them
   // through `t('programs.tag.<KEY>')` so they localize with the active language.
   static const _slugMeta = <String, Map<String, dynamic>>{
+    // image = card preview (prev.jpg); carousel = detail images (prev first).
     'arnold': {
       'athlete': 'Arnold Schwarzenegger',
-      'image': 'https://steel.xodjayev.uz/legends/arnold.jpg',
+      'image': 'https://steel.xodjayev.uz/legends/arnold/prev.jpg',
+      'carousel': [
+        'https://steel.xodjayev.uz/legends/arnold/prev.jpg',
+        'https://steel.xodjayev.uz/legends/arnold/1.jpg',
+        'https://steel.xodjayev.uz/legends/arnold/2.jpg',
+      ],
       'len': '75-90 min',
       'tags': ['CLASSIC_BB', 'HIGH_VOLUME', 'PUMP_FOCUS'],
     },
     'platz': {
       'athlete': 'Tom Platz',
-      'image': 'https://steel.xodjayev.uz/legends/platz.jpg',
+      'image': 'https://steel.xodjayev.uz/legends/platz/prev.jpg',
+      'carousel': [
+        'https://steel.xodjayev.uz/legends/platz/prev.jpg',
+        'https://steel.xodjayev.uz/legends/platz/1.jpg',
+        'https://steel.xodjayev.uz/legends/platz/2.webp',
+      ],
       'len': '75-105 min',
       'tags': ['QUAD_FOCUS', 'HIGH_INTENSITY', 'EXTREME_VOLUME'],
     },
     'piana': {
       'athlete': 'Rich Piana',
-      'image': 'https://steel.xodjayev.uz/legends/piana.jpg',
+      'image': 'https://steel.xodjayev.uz/legends/piana/prev.jpg',
+      'carousel': [
+        'https://steel.xodjayev.uz/legends/piana/prev.jpg',
+        'https://steel.xodjayev.uz/legends/piana/1.jpg',
+      ],
       'len': '90-120 min',
       'tags': ['EXTREME_VOLUME', 'HIGH_INTENSITY', 'DROP_SETS'],
     },
     'mentzer': {
       'athlete': 'Mike Mentzer',
-      'image': 'https://steel.xodjayev.uz/legends/mentzer.jpg',
+      'image': 'https://steel.xodjayev.uz/legends/mentzer/prev.jpg',
+      'carousel': [
+        'https://steel.xodjayev.uz/legends/mentzer/prev.jpg',
+        'https://steel.xodjayev.uz/legends/mentzer/1.png',
+        'https://steel.xodjayev.uz/legends/mentzer/2.jpg',
+        'https://steel.xodjayev.uz/legends/mentzer/3.jpg',
+      ],
       'len': '30-45 min',
       'tags': ['HIT', 'LOW_VOLUME', 'MAX_INTENSITY'],
     },
     'yates': {
       'athlete': 'Dorian Yates',
-      'image': 'https://steel.xodjayev.uz/legends/yates.png',
+      'image': 'https://steel.xodjayev.uz/legends/yates/prev.jpg',
+      'carousel': [
+        'https://steel.xodjayev.uz/legends/yates/prev.jpg',
+        'https://steel.xodjayev.uz/legends/yates/1.jpg',
+        'https://steel.xodjayev.uz/legends/yates/2.jpg',
+      ],
       'len': '45-60 min',
       'tags': ['BLOOD_GUTS', 'HIT', 'CONTROLLED_NEG'],
     },
     'ronnie': {
       'athlete': 'Ronnie Coleman',
-      'image': 'https://steel.xodjayev.uz/legends/ronnie.jpg',
+      'image': 'https://steel.xodjayev.uz/legends/ronnie/prev.jpg',
+      'carousel': [
+        'https://steel.xodjayev.uz/legends/ronnie/prev.jpg',
+        'https://steel.xodjayev.uz/legends/ronnie/1.webp',
+        'https://steel.xodjayev.uz/legends/ronnie/2.jpg',
+      ],
       'len': '75-90 min',
       'tags': ['HIGH_FREQUENCY', 'HEAVY_COMPOUNDS', 'MAX_MASS'],
     },
     'nippard': {
       'athlete': 'Jeff Nippard',
-      'image': 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800',
+      'image': 'https://steel.xodjayev.uz/legends/nippard/prev.jpg',
+      'carousel': ['https://steel.xodjayev.uz/legends/nippard/prev.jpg'],
       'len': '60-75 min',
       'tags': ['SCIENCE_BASED', 'RIR_TRACKING', 'EVIDENCE_BASED'],
     },
@@ -760,6 +795,9 @@ class ProgramTemplate {
       recovery: asStringList(guidelines['recovery']),
       athleteName: (meta?['athlete'] ?? r.get<String>('title', '')).toString(),
       image: (meta?['image'] ?? '').toString(),
+      images: meta?['carousel'] != null
+          ? List<String>.from(meta!['carousel'] as List)
+          : <String>[(meta?['image'] ?? '').toString()].where((s) => s.isNotEmpty).toList(),
       sessionLength: (meta?['len'] ?? '60-90 min').toString(),
       tags: meta != null ? List<String>.from(meta['tags'] as List) : const [],
       raw: r,

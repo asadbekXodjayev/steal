@@ -58,17 +58,16 @@ export interface PBProgramTemplate {
 }
 
 // ── Static metadata (presentation data not stored in PB) ───────────────────
-const SLUG_META: Record<string, { athleteName: string; image: string; sessionLength: string; tags: string[] }> = {
-  // Real athlete portraits sourced from Wikimedia Commons (freely licensed),
-  // hosted locally under public/legends/. nippard has no freely-licensed photo
-  // available — keeps a themed placeholder until a licensed portrait is supplied.
-  arnold:  { athleteName: "Arnold Schwarzenegger", image: "/legends/arnold.jpg",  sessionLength: "75-90 min",  tags: ["Classic Bodybuilding", "High Volume", "Pump Focus"] },
-  platz:   { athleteName: "Tom Platz",             image: "/legends/platz.jpg",   sessionLength: "75-105 min", tags: ["Quad Focus", "High Intensity", "Extreme Volume"] },
-  piana:   { athleteName: "Rich Piana",            image: "/legends/piana.jpg",   sessionLength: "90-120 min", tags: ["Extreme Volume", "High Intensity", "Drop Sets"] },
-  mentzer: { athleteName: "Mike Mentzer",          image: "/legends/mentzer.jpg", sessionLength: "30-45 min",  tags: ["HIT", "Low Volume", "Maximum Intensity"] },
-  yates:   { athleteName: "Dorian Yates",          image: "/legends/yates.png",   sessionLength: "45-60 min",  tags: ["Blood & Guts", "HIT", "Controlled Negatives"] },
-  ronnie:  { athleteName: "Ronnie Coleman",        image: "/legends/ronnie.jpg",  sessionLength: "75-90 min",  tags: ["High Frequency", "Heavy Compounds", "Maximum Mass"] },
-  nippard: { athleteName: "Jeff Nippard",          image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800",  sessionLength: "60-75 min",  tags: ["Science-Based", "RIR Tracking", "Evidence-Based"] },
+const SLUG_META: Record<string, { athleteName: string; image: string; images: string[]; sessionLength: string; tags: string[] }> = {
+  // Curated athlete photos under public/legends/<slug>/: prev.jpg is the card
+  // preview; `images` is the detail carousel (prev first, then the rest).
+  arnold:  { athleteName: "Arnold Schwarzenegger", image: "/legends/arnold/prev.jpg",  images: ["/legends/arnold/prev.jpg", "/legends/arnold/1.jpg", "/legends/arnold/2.jpg"], sessionLength: "75-90 min",  tags: ["Classic Bodybuilding", "High Volume", "Pump Focus"] },
+  platz:   { athleteName: "Tom Platz",             image: "/legends/platz/prev.jpg",   images: ["/legends/platz/prev.jpg", "/legends/platz/1.jpg", "/legends/platz/2.webp"], sessionLength: "75-105 min", tags: ["Quad Focus", "High Intensity", "Extreme Volume"] },
+  piana:   { athleteName: "Rich Piana",            image: "/legends/piana/prev.jpg",   images: ["/legends/piana/prev.jpg", "/legends/piana/1.jpg"], sessionLength: "90-120 min", tags: ["Extreme Volume", "High Intensity", "Drop Sets"] },
+  mentzer: { athleteName: "Mike Mentzer",          image: "/legends/mentzer/prev.jpg", images: ["/legends/mentzer/prev.jpg", "/legends/mentzer/1.png", "/legends/mentzer/2.jpg", "/legends/mentzer/3.jpg"], sessionLength: "30-45 min",  tags: ["HIT", "Low Volume", "Maximum Intensity"] },
+  yates:   { athleteName: "Dorian Yates",          image: "/legends/yates/prev.jpg",   images: ["/legends/yates/prev.jpg", "/legends/yates/1.jpg", "/legends/yates/2.jpg"], sessionLength: "45-60 min",  tags: ["Blood & Guts", "HIT", "Controlled Negatives"] },
+  ronnie:  { athleteName: "Ronnie Coleman",        image: "/legends/ronnie/prev.jpg",  images: ["/legends/ronnie/prev.jpg", "/legends/ronnie/1.webp", "/legends/ronnie/2.jpg"], sessionLength: "75-90 min",  tags: ["High Frequency", "Heavy Compounds", "Maximum Mass"] },
+  nippard: { athleteName: "Jeff Nippard",          image: "/legends/nippard/prev.jpg", images: ["/legends/nippard/prev.jpg"], sessionLength: "60-75 min",  tags: ["Science-Based", "RIR Tracking", "Evidence-Based"] },
 };
 
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -80,7 +79,7 @@ function mapToLegendProgram(pb: PBProgramTemplate, lang: Language): LegendProgra
   if (!locale) throw new Error(`Missing locale data for ${pb.id}`);
 
   const slug = pb.structure?.slug ?? "unknown";
-  const meta = SLUG_META[slug] ?? { athleteName: pb.title, image: "", sessionLength: "60-90 min", tags: [] };
+  const meta = SLUG_META[slug] ?? { athleteName: pb.title, image: "", images: [] as string[], sessionLength: "60-90 min", tags: [] };
 
   const activeDays = locale.days.filter((d) => !d.isRest);
   const frequency = `${activeDays.length} day${activeDays.length !== 1 ? "s" : ""} per week`;

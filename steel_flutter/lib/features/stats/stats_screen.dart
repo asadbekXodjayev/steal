@@ -60,6 +60,36 @@ class StatsScreen extends ConsumerWidget {
   }
 }
 
+/// Stats rendered as plain, non-scrolling content (header + KPIs + charts) for
+/// embedding inside another screen's scroll — e.g. the merged profile/gear tab.
+/// Same data source and widgets as [StatsScreen].
+class StatsContent extends ConsumerWidget {
+  const StatsContent({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(tProvider);
+    final progressAsync = ref.watch(progressDataProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Header(t: t),
+        SteelAsyncBody<ProgressData>(
+          isLoading: progressAsync.isLoading,
+          errorMessage:
+              progressAsync.hasError ? t('stats.SIGNAL_LOST_DESC') : null,
+          data: progressAsync.valueOrNull,
+          onRetry: () => ref.invalidate(progressDataProvider),
+          builder: (context, data) {
+            if (data.sessions.isEmpty) return _EmptyState(t: t);
+            return _StatsBody(t: t);
+          },
+        ),
+      ],
+    );
+  }
+}
+
 // ── Header ───────────────────────────────────────────────────────────────────
 
 class _Header extends StatelessWidget {

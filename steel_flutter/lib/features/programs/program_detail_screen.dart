@@ -21,6 +21,14 @@ class ProgramDetailScreen extends ConsumerStatefulWidget {
 class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
   int? _expandedDay;
   bool _starting = false;
+  final PageController _heroController = PageController();
+  int _heroPage = 0;
+
+  @override
+  void dispose() {
+    _heroController.dispose();
+    super.dispose();
+  }
 
   Future<void> _startProgram() async {
     final t = ref.read(tProvider);
@@ -80,14 +88,21 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  t.image.isNotEmpty
-                      ? Image.network(
-                          t.image,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, err, stack) => Container(
-                            color: SteelOpsColors.surfaceElevated,
-                            child: const Icon(Icons.fitness_center,
-                                color: SteelOpsColors.muted, size: 48),
+                  t.images.isNotEmpty
+                      ? PageView.builder(
+                          controller: _heroController,
+                          onPageChanged: (i) =>
+                              setState(() => _heroPage = i),
+                          itemCount: t.images.length,
+                          itemBuilder: (_, i) => Image.network(
+                            t.images[i],
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
+                            errorBuilder: (_, _, _) => Container(
+                              color: SteelOpsColors.surfaceElevated,
+                              child: const Icon(Icons.fitness_center,
+                                  color: SteelOpsColors.muted, size: 48),
+                            ),
                           ),
                         )
                       : Container(
@@ -124,6 +139,26 @@ class _ProgramDetailScreenState extends ConsumerState<ProgramDetailScreen> {
                               fontSize: 9,
                               color: Colors.white,
                               letterSpacing: 1.5),
+                        ),
+                      ),
+                    ),
+                  // Carousel page indicator
+                  if (t.images.length > 1)
+                    Positioned(
+                      bottom: 18,
+                      right: 20,
+                      child: Row(
+                        children: List.generate(
+                          t.images.length,
+                          (i) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            margin: const EdgeInsets.only(left: 4),
+                            width: i == _heroPage ? 16 : 6,
+                            height: 4,
+                            color: i == _heroPage
+                                ? SteelOpsColors.orange
+                                : Colors.white38,
+                          ),
                         ),
                       ),
                     ),

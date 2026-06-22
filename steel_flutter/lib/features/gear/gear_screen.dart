@@ -9,6 +9,7 @@ import '../../core/legal_links.dart';
 import '../../data/providers.dart';
 import '../../shared/ops_theme.dart';
 import '../auth/auth_provider.dart';
+import '../stats/stats_screen.dart';
 
 class GearScreen extends ConsumerStatefulWidget {
   const GearScreen({super.key});
@@ -193,6 +194,10 @@ class _GearScreenState extends ConsumerState<GearScreen> {
                   data: (_) => _profileForm(),
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // ── Performance (Stats merged into the profile tab) ──────────
+              const StatsContent(),
               const SizedBox(height: 16),
 
               // ── Language card ─────────────────────────────────────────────
