@@ -664,37 +664,37 @@ class ProgramTemplate {
   static const _slugMeta = <String, Map<String, dynamic>>{
     'arnold': {
       'athlete': 'Arnold Schwarzenegger',
-      'image': 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800',
+      'image': 'https://steel.xodjayev.uz/legends/arnold.jpg',
       'len': '75-90 min',
       'tags': ['CLASSIC_BB', 'HIGH_VOLUME', 'PUMP_FOCUS'],
     },
     'platz': {
       'athlete': 'Tom Platz',
-      'image': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
+      'image': 'https://steel.xodjayev.uz/legends/platz.jpg',
       'len': '75-105 min',
       'tags': ['QUAD_FOCUS', 'HIGH_INTENSITY', 'EXTREME_VOLUME'],
     },
     'piana': {
       'athlete': 'Rich Piana',
-      'image': 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800',
+      'image': 'https://steel.xodjayev.uz/legends/piana.jpg',
       'len': '90-120 min',
       'tags': ['EXTREME_VOLUME', 'HIGH_INTENSITY', 'DROP_SETS'],
     },
     'mentzer': {
       'athlete': 'Mike Mentzer',
-      'image': 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800',
+      'image': 'https://steel.xodjayev.uz/legends/mentzer.jpg',
       'len': '30-45 min',
       'tags': ['HIT', 'LOW_VOLUME', 'MAX_INTENSITY'],
     },
     'yates': {
       'athlete': 'Dorian Yates',
-      'image': 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=800',
+      'image': 'https://steel.xodjayev.uz/legends/yates.png',
       'len': '45-60 min',
       'tags': ['BLOOD_GUTS', 'HIT', 'CONTROLLED_NEG'],
     },
     'ronnie': {
       'athlete': 'Ronnie Coleman',
-      'image': 'https://images.unsplash.com/photo-1526232760687-16e82e987c72?w=800',
+      'image': 'https://steel.xodjayev.uz/legends/ronnie.jpg',
       'len': '75-90 min',
       'tags': ['HIGH_FREQUENCY', 'HEAVY_COMPOUNDS', 'MAX_MASS'],
     },

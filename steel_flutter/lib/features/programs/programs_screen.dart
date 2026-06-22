@@ -159,7 +159,10 @@ class _ProgramsScreenState extends ConsumerState<ProgramsScreen> {
                               crossAxisCount: 2,
                               crossAxisSpacing: 8,
                               mainAxisSpacing: 8,
-                              childAspectRatio: 0.58,
+                              // Fixed cell height (not a width-ratio) so the card's
+                              // content always fits and the button never overflows
+                              // the card on narrow phones.
+                              mainAxisExtent: 340,
                             ),
                             itemCount: filtered.length,
                             itemBuilder: (context, i) => _ProgramCard(
@@ -218,6 +221,8 @@ class _ProgramCard extends ConsumerWidget {
                   height: 120,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  // Portraits — bias to the top so faces aren't cropped out.
+                  alignment: Alignment.topCenter,
                   errorBuilder: (_, _, _) => Container(
                     height: 120,
                     color: SteelOpsColors.surfaceElevated,
@@ -258,7 +263,7 @@ class _ProgramCard extends ConsumerWidget {
                   Text(template.title,
                       style: steelHeadingStyle(
                           fontSize: 14, fontWeight: FontWeight.w800),
-                      maxLines: 3,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
                   Text(
