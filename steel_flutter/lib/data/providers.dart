@@ -167,6 +167,24 @@ final exerciseCatalogProvider =
       .toList();
 });
 
+/// Exercise picker entries for building a program: a stable English name
+/// (persisted to the plan, so the workout/gif name-lookup keeps working) plus a
+/// localized display name (shown + searched in the active language). Built from
+/// the full catalog + active-locale translations.
+final exercisePickerEntriesProvider = FutureProvider<
+    List<({String id, String englishName, String displayName})>>((ref) async {
+  final english = await ref.watch(_exerciseSourceProvider.future);
+  final translations = await ref.watch(exerciseTranslationsProvider.future);
+  return english.map((e) {
+    final tn = translations[e.id]?.name;
+    return (
+      id: e.id,
+      englishName: e.name,
+      displayName: (tn != null && tn.isNotEmpty) ? tn : e.name,
+    );
+  }).toList();
+});
+
 /// Fetch a single exercise by id for deep-links into the detail page. Tries
 /// the live API first, then the cached/bundled catalog as a fallback.
 final exerciseByIdProvider =

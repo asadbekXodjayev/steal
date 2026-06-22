@@ -7,40 +7,6 @@ import '../../data/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/ops_theme.dart';
 
-const _allExercises = [
-  'Bench Press',
-  'Incline Bench Press',
-  'Decline Bench Press',
-  'Overhead Press',
-  'Lateral Raise',
-  'Front Raise',
-  'Squat',
-  'Front Squat',
-  'Hack Squat',
-  'Leg Press',
-  'Deadlift',
-  'Romanian Deadlift',
-  'Sumo Deadlift',
-  'Pull-Up',
-  'Chin-Up',
-  'Lat Pulldown',
-  'Barbell Row',
-  'Seated Cable Row',
-  'T-Bar Row',
-  'Barbell Curl',
-  'Hammer Curl',
-  'Preacher Curl',
-  'Tricep Pushdown',
-  'Skull Crusher',
-  'Dip',
-  'Leg Curl',
-  'Leg Extension',
-  'Calf Raise',
-  'Face Pull',
-  'Shrug',
-  'Hip Thrust',
-];
-
 // Stable English day labels — also persisted to the DB `label`/`focus` fields.
 const _dayLabels = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
@@ -94,11 +60,31 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
   int _selectedDayIndex = 0;
   String _searchQuery = '';
 
-  List<String> get _filteredExercises => _searchQuery.isEmpty
-      ? _allExercises
-      : _allExercises
-          .where((e) => e.toLowerCase().contains(_searchQuery.toLowerCase()))
-          .toList();
+  // Rank for the exercise picker: lower = shown first. Matches on the English
+  // OR localized name, prefers prefix/word-start matches, and within that
+  // prefers SIMPLE exercises (fewer words / shorter names) so the basic
+  // compounds (Bench Press, Pull Up, Lat Pulldown) rank above obscure
+  // variations ("precision style lever bent-over row …").
+  double _exerciseScore(
+      ({String id, String englishName, String displayName}) e, String q) {
+    final n = e.englishName.toLowerCase();
+    final d = e.displayName.toLowerCase();
+    final words = n.split(RegExp(r'[^a-z0-9]+')).where((w) => w.isNotEmpty).length;
+    double rel;
+    if (q.isEmpty) {
+      rel = 0;
+    } else if (n == q || d == q) {
+      rel = -1000;
+    } else if (n.startsWith(q) || d.startsWith(q)) {
+      rel = 0;
+    } else if (n.split(RegExp(r'\s+')).any((w) => w.startsWith(q)) ||
+        d.split(RegExp(r'\s+')).any((w) => w.startsWith(q))) {
+      rel = 100;
+    } else {
+      rel = 200;
+    }
+    return rel + words * 8.0 + n.length * 0.2;
+  }
 
   void _toggleDay(int i) {
     setState(() {
@@ -741,50 +727,84 @@ class _BuildProgramScreenState extends ConsumerState<BuildProgramScreen> {
           ),
         ),
 
-        // ── Exercise list ────────────────────────────────────
+        // ── Exercise list (full catalog · localized · ranked) ──
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: _filteredExercises.length,
-            itemBuilder: (_, i) {
-              final ex = _filteredExercises[i];
-              final selected =
-                  (_dayExercises[_selectedDayIndex] ?? []).contains(ex);
-              return GestureDetector(
-                onTap: () => _toggleExercise(ex),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 14),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: SteelOpsColors.border),
-                    ),
-                    color: selected
-                        ? SteelOpsColors.surface
-                        : Colors.transparent,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          ex,
-                          style: steelMonoStyle(
-                            fontSize: 12,
-                            color: selected
-                                ? Colors.white
-                                : SteelOpsColors.inkMid,
+          child: Builder(builder: (context) {
+            final entriesAsync = ref.watch(exercisePickerEntriesProvider);
+            return entriesAsync.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(
+                    color: SteelOpsColors.orange, strokeWidth: 2),
+              ),
+              error: (e, _) => Center(
+                child: Text(t('library.NO_RESULTS'),
+                    style: steelMonoStyle(
+                        fontSize: 11, color: SteelOpsColors.muted)),
+              ),
+              data: (all) {
+                final q = _searchQuery.trim().toLowerCase();
+                final list = (q.isEmpty
+                    ? List.of(all)
+                    : all
+                        .where((e) =>
+                            e.displayName.toLowerCase().contains(q) ||
+                            e.englishName.toLowerCase().contains(q))
+                        .toList())
+                  ..sort((a, b) =>
+                      _exerciseScore(a, q).compareTo(_exerciseScore(b, q)));
+                if (list.isEmpty) {
+                  return Center(
+                    child: Text(t('library.NO_RESULTS'),
+                        style: steelMonoStyle(
+                            fontSize: 11, color: SteelOpsColors.muted)),
+                  );
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: list.length,
+                  itemBuilder: (_, i) {
+                    final entry = list[i];
+                    final selected = (_dayExercises[_selectedDayIndex] ?? [])
+                        .contains(entry.englishName);
+                    return GestureDetector(
+                      onTap: () => _toggleExercise(entry.englishName),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 14),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom:
+                                BorderSide(color: SteelOpsColors.border),
                           ),
+                          color: selected
+                              ? SteelOpsColors.surface
+                              : Colors.transparent,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                entry.displayName,
+                                style: steelMonoStyle(
+                                  fontSize: 12,
+                                  color: selected
+                                      ? Colors.white
+                                      : SteelOpsColors.inkMid,
+                                ),
+                              ),
+                            ),
+                            if (selected)
+                              const Icon(Icons.check,
+                                  color: SteelOpsColors.orange, size: 16),
+                          ],
                         ),
                       ),
-                      if (selected)
-                        const Icon(Icons.check,
-                            color: SteelOpsColors.orange, size: 16),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+                    );
+                  },
+                );
+              },
+            );
+          }),
         ),
       ],
     );
